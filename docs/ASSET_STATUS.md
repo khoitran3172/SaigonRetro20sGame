@@ -1,5 +1,7 @@
 # Tình trạng asset (đối chiếu `docs/ASSET_PROMPTS.md`)
 
+> **Danh sách cần làm kèm prompt copy dán được ngay: [`ASSET_TODO.md`](ASSET_TODO.md).**
+
 Cập nhật sau lần nhập `asset_new_by_khoit/` (13 file). Quy trình build: `npm run assets`.
 
 ## ✅ Đã dùng trong game
@@ -46,6 +48,23 @@ Cập nhật sau lần nhập `asset_new_by_khoit/` (13 file). Quy trình build:
 | `NPC.jpg` — cô Ba tạp hóa | 4 frame (cần 6) |
 | `art_srccharssv_male*` | Tên file mất dấu `/` — vẫn đọc được, lần sau đặt `sv_male_walk_down.png` cho rõ |
 | `walk_left`, `ride_left`, `idle_up_left` | AI vẽ quay **phải** — pipeline tự lật (khai báo trong `tools/import_new_art.py` → `FACING`) |
+
+## ➕ Asset phát sinh (chưa có trong ASSET_PROMPTS)
+
+**Người lái xe cho giao thông** — `traffic_rider_male.png`, `traffic_rider_female.png` (mỗi file 6 frame, dùng mẫu dải ở mục 2.2):
+```
+Animation: seated riding pose as if on a motorbike seat, side profile facing left, both arms reaching
+forward holding invisible handlebars, slight bobbing, NO motorbike drawn.
+Character: {male: Vietnamese man around 35 wearing a half-face motorbike helmet, cloth face mask, long-sleeve
+jacket, dark trousers, sandals | female: Vietnamese woman around 30 wearing a pastel helmet, anti-sun hooded
+jacket, face mask, long sun-protection skirt, sandals}
+```
+
+**Icon xe phân khối lớn** — `icon_xe_pkl.png`:
+```
+Single game item icon, centered: a matte black sport motorcycle with orange accents, front 3/4 view,
+bold pixel outlines, same style as the other item icons.
+```
 
 ## Ghi chú khi gửi ảnh mới
 - Sheet gộp nhiều dải (như `sv_female.jpg`): ghi kèm mỗi hàng là hành động gì, tôi khai báo vào `SHEETS` trong `tools/import_new_art.py`.

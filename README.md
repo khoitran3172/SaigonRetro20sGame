@@ -39,7 +39,13 @@ Một thành phố pixel nhỏ mang hồn Sài Gòn: xe Cub len lỏi giữa gi�
 
 ## Chơi ngay
 
-Game chạy thẳng trên trình duyệt — không cần cài đặt. *(Link máy chủ công khai sẽ được cập nhật tại đây.)*
+<div align="center">
+
+### 👉 [**saigon-retro-20s.onrender.com**](https://saigon-retro-20s.onrender.com/) 👈
+
+</div>
+
+Game chạy thẳng trên trình duyệt — không cần cài đặt. Máy chủ miễn phí sẽ "ngủ" khi vắng người; lần đầu mở có thể chờ khoảng 30–60 giây để phố thức dậy.
 
 Muốn tự dựng máy chủ hoặc đóng góp? Xem [**Hướng dẫn phát triển**](docs/DEVELOPMENT.md).
 
