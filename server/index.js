@@ -6,12 +6,18 @@ import { WebSocketServer } from 'ws';
 import { TIME } from '../shared/config.js';
 import { JsonDB } from './db.js';
 import { Game } from './game.js';
+import { PgDB } from './pgdb.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const PORT = Number(process.env.PORT) || 3000;
 const TICK_MS = 100;
+const SAVE_MS = 5000;
 
-const db = new JsonDB(path.join(ROOT, 'data', 'db.json'));
+// Co DATABASE_URL (vd. Neon) -> PostgreSQL; khong co -> file JSON de chay thu o may
+const db = process.env.DATABASE_URL
+  ? await PgDB.open(process.env.DATABASE_URL)
+  : new JsonDB(path.join(ROOT, 'data', 'db.json'));
+console.log(`Lưu trữ: ${process.env.DATABASE_URL ? 'PostgreSQL' : 'file JSON (data/db.json)'}`);
 const game = new Game(db);
 
 const app = express();
@@ -31,11 +37,23 @@ setInterval(() => {
   last = now;
 }, TICK_MS);
 setInterval(() => game.onMinute(), TIME.msPerGameMinute);
-setInterval(() => game.saveAll(), 10000);
 
-function shutdown() {
+async function persist() {
+  try {
+    await game.saveAll();
+  } catch (e) {
+    console.error('Lỗi lưu dữ liệu (sẽ thử lại):', e.message);
+  }
+}
+setInterval(persist, SAVE_MS);
+
+let stopping = false;
+async function shutdown() {
+  if (stopping) return;
+  stopping = true;
   console.log('\nĐang lưu dữ liệu...');
-  game.saveAll();
+  await persist();
+  await db.close?.();
   process.exit(0);
 }
 process.on('SIGINT', shutdown);

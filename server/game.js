@@ -853,6 +853,6 @@ export class Game {
       s.p.y = s.y;
     }
     this.db.markDirty();
-    this.db.save();
+    return this.db.save();
   }
 }

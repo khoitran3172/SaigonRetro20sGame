@@ -6,7 +6,14 @@
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/khoitran3172/SaigonRetro20sGame)
 
-Game cần server Node + WebSocket nên không chạy trên GitHub Pages. Bấm nút trên (đăng nhập Render bằng GitHub) để tạo bản online miễn phí theo `render.yaml`. Gói free: server ngủ sau 15 phút không ai vào (lần mở đầu chờ ~30–60s) và dữ liệu người chơi bị xóa mỗi lần deploy lại.
+Game chạy trên **Render** (server Node + WebSocket) và lưu dữ liệu ở **Neon** (PostgreSQL miễn phí, không tự xóa).
+
+1. **Tạo database Neon:** vào https://neon.tech → đăng nhập bằng GitHub → *Create project* (region **AWS Asia Pacific (Singapore)**) → nút *Connect* → copy chuỗi kết nối dạng `postgresql://...neon.tech/neondb?sslmode=require`.
+2. **Deploy game:** bấm nút *Deploy to Render* ở trên → đăng nhập bằng GitHub → dán chuỗi Neon vào ô `DATABASE_URL` → *Apply*. Khi xong Render cấp link `https://<tên>.onrender.com`.
+
+Bảng `players`, `world`, `ledger` được tạo tự động lần chạy đầu. Gói free của Render cho server ngủ sau 15 phút không ai vào (lần mở đầu chờ ~30–60s) nhưng dữ liệu nằm ở Neon nên **không mất**.
+
+Không đặt `DATABASE_URL` thì server dùng file `data/db.json` (tiện chạy thử ở máy).
 
 ## Chạy game
 
@@ -15,7 +22,7 @@ npm install
 npm start
 ```
 
-Mở `http://localhost:3000` (mở nhiều tab/trình duyệt ẩn danh để thử multiplayer). Test logic server: `npm test`.
+Mở `http://localhost:3000` (mở nhiều tab/trình duyệt ẩn danh để thử multiplayer). Test logic server: `npm test` (thêm `TEST_DATABASE_URL=postgres://...` để chạy cả test PostgreSQL — test sẽ xóa các bảng của game trong database đó, đừng trỏ vào database thật).
 
 Điều khiển: **WASD/mũi tên** hoặc click xuống đất để đi · click NPC/cửa hàng/sạp để tương tác · **E** tương tác gần nhất · **Enter** chat · **I** túi đồ · **C** trang bị · **P** điện thoại · **B** mở sạp · **H** hướng dẫn.
 
@@ -44,7 +51,8 @@ server/
   dialogs.js         UI do server dựng cho mọi điểm tương tác (client chỉ hiển thị)
   npcs.js            Cảnh sát, Ăn trộm, Giang hồ, ve chai
   auction.js         Đấu giá 20:00, ký quỹ ngân hàng, chống bắn tỉa
-  db.js              Lưu JSON atomic (data/db.json)
+  db.js              Lưu JSON atomic (data/db.json) khi chạy ở máy
+  pgdb.js            Lưu PostgreSQL (khi có DATABASE_URL): ghi theo lô mỗi 5s trong 1 transaction, chỉ ghi người chơi có thay đổi
 client/src/
   world.js           Scene Phaser: bản đồ, nhân vật, NPC, giao thông, ngày/đêm, mưa
   ui.js              HUD, chat 3 kênh, LED RGB, hội thoại, túi đồ, trang bị
@@ -81,5 +89,5 @@ client/src/
 - Ở ghép / trang trí phòng, mua căn hộ.
 - Mini-game cờ tướng / caro có cược, đua xe đêm 23:00.
 - Nghiệp đoàn / Công đoàn / Hội đồng hương; class ẩn (Xe ôm công nghệ, Cò đất).
-- Chuyển lưu trữ sang PostgreSQL (transaction thật), Redis Pub/Sub cho chat thế giới + LED khi chạy nhiều server.
+- Ghi từng giao dịch thẳng vào PostgreSQL (hiện ghi theo lô 5s: sập server đột ngột có thể mất ≤5s gần nhất), Redis Pub/Sub cho chat thế giới + LED khi chạy nhiều server.
 - Art: cần thêm frame animation sạch (nhiều concept sheet hiện bị thiếu frame/hướng, ví dụ áo dài thiếu hướng đi lên), sprite cảnh sát/trộm/giang hồ riêng thay cho bản tô màu lại.
