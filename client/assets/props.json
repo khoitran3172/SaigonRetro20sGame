@@ -43,6 +43,10 @@
   53,
   46
  ],
+ "veh_cub": [
+  126,
+  87
+ ],
  "cub_rider": [
   67,
   89
@@ -182,5 +186,181 @@
  "sign_buudien_stand": [
   31,
   47
+ ],
+ "b_school": [
+  620,
+  305
+ ],
+ "b_tro": [
+  289,
+  306
+ ],
+ "b_net": [
+  291,
+  265
+ ],
+ "b_cafe": [
+  304,
+  176
+ ],
+ "b_bangdia": [
+  278,
+  221
+ ],
+ "b_buudien": [
+  621,
+  351
+ ],
+ "b_bida": [
+  315,
+  190
+ ],
+ "b_taphoa": [
+  262,
+  190
+ ],
+ "veh_ga": [
+  136,
+  97
+ ],
+ "veh_pkl": [
+  160,
+  90
+ ],
+ "veh_dap": [
+  112,
+  69
+ ],
+ "veh_grab": [
+  136,
+  89
+ ],
+ "veh_taxi": [
+  200,
+  99
+ ],
+ "veh_taxi2": [
+  196,
+  114
+ ],
+ "veh_bus": [
+  440,
+  140
+ ],
+ "stall_lv1": [
+  120,
+  71
+ ],
+ "stall_lv2": [
+  120,
+  92
+ ],
+ "stall_lv3": [
+  121,
+  140
+ ],
+ "cart_banhmi_v2": [
+  75,
+  96
+ ],
+ "cart_veso_v2": [
+  68,
+  100
+ ],
+ "cart_mia": [
+  81,
+  86
+ ],
+ "ganh_hang_v2": [
+  110,
+  85
+ ],
+ "stool_blue_v2": [
+  28,
+  30
+ ],
+ "stool_red_v2": [
+  28,
+  30
+ ],
+ "stool_purple": [
+  28,
+  30
+ ],
+ "stool_pink_v2": [
+  27,
+  30
+ ],
+ "stool_green": [
+  27,
+  30
+ ],
+ "tree_me": [
+  242,
+  230
+ ],
+ "tree_bang": [
+  135,
+  210
+ ],
+ "atm_v2": [
+  43,
+  108
+ ],
+ "power_pole_v2": [
+  101,
+  270
+ ],
+ "street_lamp": [
+  81,
+  230
+ ],
+ "plant_pots": [
+  78,
+  92
+ ],
+ "table_tra_da": [
+  110,
+  88
+ ],
+ "table_co_tuong": [
+  64,
+  57
+ ],
+ "tires_v2": [
+  76,
+  60
+ ],
+ "trash_bin": [
+  44,
+  56
+ ],
+ "bench": [
+  92,
+  93
+ ],
+ "goal_mini": [
+  73,
+  78
+ ],
+ "barber_set_v2": [
+  86,
+  100
+ ],
+ "sign_stand": [
+  45,
+  62
+ ],
+ "junk_pile": [
+  92,
+  64
+ ],
+ "scrap_pickup": [
+  38,
+  26
+ ],
+ "manhole": [
+  76,
+  43
  ]
 }

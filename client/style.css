@@ -35,8 +35,8 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1
 
 /* ---------- Dang nhap ---------- */
 #login {
-  position: fixed; inset: 0; display: grid; place-items: center; z-index: 50; padding: 16px;
-  background: radial-gradient(ellipse at 50% 30%, rgba(232, 163, 60, 0.25), transparent 60%), rgba(20, 16, 12, 0.82);
+  position: fixed; inset: 0; display: grid; place-items: end center; z-index: 50; padding: 16px 16px 5vh;
+  background: linear-gradient(rgba(14, 10, 8, 0.35), rgba(14, 10, 8, 0.7)), url(assets/ui/login.jpg) center / cover no-repeat, #14100c;
 }
 .login-card { width: min(640px, 100%); max-height: 100%; overflow: auto; background: var(--panel); border: 2px solid var(--line); border-radius: 14px; padding: 22px; }
 .login-card h1 { margin: 0; font-size: 30px; font-weight: 800; letter-spacing: 1px; color: var(--accent); text-shadow: 3px 3px 0 #6b2b1c; }
@@ -45,7 +45,7 @@ input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: -1
 .login-card label { display: block; margin: 12px 0 6px; font-weight: 600; }
 .login-card input { width: 100%; padding: 9px 10px; font-size: 15px; }
 .choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.choices.skins { grid-template-columns: repeat(4, 1fr); }
+.choices.skins { grid-template-columns: repeat(5, 1fr); }
 .choice { border: 2px solid var(--line); border-radius: 10px; padding: 9px; background: #2a231c; text-align: left; }
 .choice b { display: block; font-size: 14px; }
 .choice small { color: var(--muted); display: block; margin-top: 3px; line-height: 1.35; }
@@ -68,7 +68,13 @@ button.link { background: none; border: 0; color: var(--muted); text-decoration:
 .bar.stress em { background: var(--red); }
 .bar.cls em { background: var(--blue); }
 .bar small { text-align: right; color: var(--muted); }
-.money { margin-top: 8px; display: grid; gap: 2px; font-size: 13px; }
+.money { margin-top: 8px; display: grid; gap: 3px; font-size: 13px; }
+.money img.icon { width: 18px; height: 18px; vertical-align: -4px; }
+.money span { margin-right: 8px; }
+#actions button img { width: 28px; height: 28px; }
+img.icon { image-rendering: auto; }
+.item .ic img { display: block; margin: 0 auto; }
+.slot-item img { vertical-align: -6px; }
 
 #topbar { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); padding: 6px 14px 8px; text-align: center; z-index: 10; min-width: 340px; }
 #clock { font-weight: 800; font-size: 16px; }

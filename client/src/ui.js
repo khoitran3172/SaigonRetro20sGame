@@ -20,9 +20,10 @@ const DEFAULT_SKIN = { sv: 'sv_male', vp: 'vp_male', tt: 'baba_female' };
 const EMOTES = ['😀', '😂', '😍', '😡', '😭', '👍', '🙏', '🍻', '💸', '🔥'];
 
 export class UI {
-  constructor(net, { chars }) {
+  constructor(net, { chars, icons }) {
     this.net = net;
     this.chars = chars;
+    this.icons = new Set(icons);
     this.self = null;
     this.chatTab = 'all';
     this.ledQueue = [];
@@ -39,6 +40,17 @@ export class UI {
     net.on('time', (m) => this.setWorld(m));
 
     this.bindHud();
+  }
+
+  // Icon art (assets/icons/<id>.png); chua co art thi dung emoji
+  icon(id, fallback, size = 28) {
+    if (!this.icons.has(id)) return el('span', 'emo', fallback);
+    const img = el('img', 'icon');
+    img.src = `assets/icons/${id}.png`;
+    img.width = size;
+    img.height = size;
+    img.alt = '';
+    return img;
   }
 
   get typing() {
@@ -369,7 +381,9 @@ export class UI {
     for (const it of s.inv) {
       const def = ITEMS[it.id];
       const row = el('div', `item${equipped.has(it.uid) ? ' on' : ''}`);
-      row.append(el('div', 'ic', def.icon));
+      const ic = el('div', 'ic');
+      ic.append(this.icon(it.id, def.icon, 34));
+      row.append(ic);
       const info = el('div');
       const nm = el('div', 'nm', `${def.name} `);
       if (it.lvl) nm.append(el('span', 'lv', `+${it.lvl}`));
@@ -448,7 +462,9 @@ export class UI {
       d.append(el('small', null, name));
       if (it) {
         const def = ITEMS[it.id];
-        d.append(el('div', null, `${def.icon} ${def.name}${it.lvl ? ` +${it.lvl}` : ''}`));
+        const line = el('div', 'slot-item');
+        line.append(this.icon(it.id, def.icon, 22), ` ${def.name}${it.lvl ? ` +${it.lvl}` : ''}`);
+        d.append(line);
         d.title = 'Click để tháo';
         d.onclick = () => this.net.send({ t: 'unequip', slot });
       } else d.append(el('div', 'muted', '—'));

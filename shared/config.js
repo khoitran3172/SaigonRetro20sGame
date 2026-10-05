@@ -2,19 +2,19 @@
 // Moi so lieu can bang game nam o day de de tinh chinh.
 
 export const WORLD = {
-  width: 6400,
+  width: 6800,
   height: 1200,
   buildingBase: 440,     // chan mat tien cong trinh
   sidewalkTop: [440, 580],
   road: [580, 780],
-  walk: { x0: 20, x1: 6380, y0: 452, y1: 1180 },
+  walk: { x0: 20, x1: 6780, y0: 452, y1: 1180 },
 };
 
 export const ZONES = [
   { id: 'daihoc', name: 'Khu 3 · Làng Đại Học', x0: 0, x1: 1600, crime: 0.6, police: 1 },
-  { id: 'phoam', name: 'Khu 1 · Phố Ẩm Thực & Chợ Đêm', x0: 1600, x1: 3800, crime: 1.0, police: 1 },
-  { id: 'cbd', name: 'Khu 2 · Trung Tâm Tài Chính', x0: 3800, x1: 5200, crime: 0.3, police: 2 },
-  { id: 'ngoaio', name: 'Khu 4 · Ngoại Ô & Bãi Phế Liệu', x0: 5200, x1: 6400, crime: 1.6, police: 0 },
+  { id: 'phoam', name: 'Khu 1 · Phố Ẩm Thực & Chợ Đêm', x0: 1600, x1: 4200, crime: 1.0, police: 1 },
+  { id: 'cbd', name: 'Khu 2 · Trung Tâm Tài Chính', x0: 4200, x1: 5600, crime: 0.3, police: 2 },
+  { id: 'ngoaio', name: 'Khu 4 · Ngoại Ô & Bãi Phế Liệu', x0: 5600, x1: 6800, crime: 1.6, police: 0 },
 ];
 
 export function zoneAt(x) {
@@ -77,6 +77,7 @@ export const PROMOTION = [
 
 export const SKINS = {
   sv_male: 'Nam · Áo thun',
+  sv_female: 'Nữ · Sinh viên',
   vp_male: 'Nam · Sơ mi công sở',
   baba_female: 'Nữ · Áo bà ba',
   aodai_female: 'Nữ · Áo dài cách tân',
@@ -122,6 +123,12 @@ export const ITEMS = {
   balo: { name: 'Balo vải', icon: '🎒', type: 'equip', slot: 'lung', base: 120000, st: { charisma: 2, staminaSave: 4 } },
   hao_quang: { name: 'Hào quang neon', icon: '✨', type: 'equip', slot: 'dacbiet', base: 0, premium: 20, st: { charisma: 10 } },
   xe_cub: { name: 'Xe Cub 50', icon: '🛵', type: 'equip', slot: 'xe', base: 800000, st: { vehicle: 1.7 } },
+  xe_dap: { name: 'Xe đạp cũ', icon: '🚲', type: 'equip', slot: 'xe', base: 150000, st: { vehicle: 1.3 } },
+  xe_pkl: { name: 'Xe phân khối lớn', icon: '🏍️', type: 'equip', slot: 'xe', base: 8000000, st: { vehicle: 2.5, charisma: 20 } },
+  ao_dai_do: { name: 'Áo dài đỏ', icon: '👘', type: 'equip', slot: 'ao', base: 350000, st: { charisma: 7 } },
+  tui_xach: { name: 'Túi xách da', icon: '👜', type: 'equip', slot: 'lung', base: 250000, st: { charisma: 5 } },
+  non_ket: { name: 'Nón kết', icon: '🧢', type: 'equip', slot: 'non', base: 50000, st: { charisma: 2, staminaSave: 2 } },
+  dep_quai: { name: 'Dép quai hậu', icon: '🩴', type: 'equip', slot: 'giay', base: 60000, st: { speed: 4 } },
   xe_ga: { name: 'Xe tay ga', icon: '🛵', type: 'equip', slot: 'xe', base: 2500000, st: { vehicle: 2.1, charisma: 8 } },
   dien_thoai: { name: 'Điện thoại cảm ứng', icon: '📱', type: 'equip', slot: 'phone', base: 300000, st: { charisma: 3 } },
   bien_so_dep: { name: 'Biển số 59-X1 999.99', icon: '🔢', type: 'equip', slot: 'dacbiet', base: 0, st: { charisma: 15 } },
@@ -135,42 +142,46 @@ export const RECIPES = {
   nuoc_mia: { name: 'Ép 3 ly nước mía', in: { cay_mia: 2, da_vien: 1 }, out: { nuoc_mia: 3 }, stamina: 6 },
 };
 
-// Cong trinh. sprite: anh tach tu concept; gen: ve thu tuc o client.
+// Cong trinh. sprite: art tu asset_new_by_khoit (sign = bien hieu trong, game in chu; box = ty le trong anh)
+// gen: anh tam ve bang code — CHO ART (xem docs/ASSET_PROMPTS.md muc 6)
 export const BUILDINGS = [
-  { id: 'school', x: 420, gen: { w: 620, h: 300, wall: 0xd9c9a3, roof: 0x8a3b2e, sign: 'ĐẠI HỌC BÁCH KHOA PHỐ', signBg: 0x1f3d7a, windows: 'grid' } },
-  { id: 'tro', x: 1010, gen: { w: 360, h: 250, wall: 0xc7d3b8, roof: 0x5a6b4a, sign: 'NHÀ TRỌ SINH VIÊN', signBg: 0x3d5a3a, windows: 'balcony' } },
-  { id: 'net', x: 1390, gen: { w: 300, h: 210, wall: 0x6f6a80, roof: 0x2e2b3a, sign: 'NET CỎ 24/7', signBg: 0x111111, neon: 0x39ff88, windows: 'shop' } },
-  { id: 'buudien', x: 2100, sprite: 'bld_buudien' },
-  { id: 'bida', x: 2800, sprite: 'bld_bida' },
-  { id: 'kiot', x: 3420, gen: { w: 330, h: 230, wall: 0xe0b98a, roof: 0x7b4a2a, sign: 'TẠP HÓA CÔ BA', signBg: 0x9b2c2c, windows: 'shop' } },
-  { id: 'bank', x: 4080, gen: { w: 420, h: 380, wall: 0x9fc4d8, roof: 0x24495e, sign: 'VIETBANK', signBg: 0x0d2a4a, neon: 0xffd34d, windows: 'glass' } },
-  { id: 'office', x: 4620, gen: { w: 480, h: 400, wall: 0xa9b8c9, roof: 0x2f3b4a, sign: 'TECHCORP TOWER', signBg: 0x202a36, neon: 0x5fd0ff, windows: 'glass' } },
-  { id: 'auction', x: 5040, gen: { w: 300, h: 300, wall: 0xc9a86a, roof: 0x5a3d1a, sign: 'NHÀ ĐẤU GIÁ', signBg: 0x5a1a1a, neon: 0xff5fa8, windows: 'arch' } },
-  { id: 'junk', x: 5850, gen: { w: 520, h: 200, wall: 0x7a6a55, roof: 0x4a3f33, sign: 'VỰA VE CHAI CHÚ TƯ', signBg: 0x3a2f22, windows: 'shed' } },
+  { id: 'school', x: 420, sprite: 'b_school', sign: { text: 'TRƯỜNG ĐẠI HỌC', box: [0.39, 0.55, 0.61, 0.63] } },
+  { id: 'tro', x: 1000, sprite: 'b_tro' },
+  { id: 'net', x: 1380, sprite: 'b_net', sign: { text: 'NET CỎ 24/7', box: [0.09, 0.01, 0.89, 0.28], neon: '#39ff88' } },
+  { id: 'buudien', x: 2060, sprite: 'b_buudien', sign: { text: 'BƯU ĐIỆN', box: [0.36, 0.37, 0.6, 0.51] } },
+  { id: 'cafe', x: 2570, sprite: 'b_cafe' },
+  { id: 'bangdia', x: 2900, sprite: 'b_bangdia', sign: { text: 'BĂNG ĐĨA CŨ', box: [0.05, 0.01, 0.93, 0.22] } },
+  { id: 'bida', x: 3220, sprite: 'b_bida', sign: { text: 'CLB BIDA', box: [0.12, 0.02, 0.88, 0.27], neon: '#5fd0ff' } },
+  { id: 'taphoa', x: 3530, sprite: 'b_taphoa', sign: { text: 'TẠP HÓA CÔ BA', box: [0.06, 0.01, 0.92, 0.24] } },
+  { id: 'bank', x: 4480, gen: { w: 420, h: 380, wall: 0x9fc4d8, roof: 0x24495e, sign: 'VIETBANK', signBg: 0x0d2a4a, neon: 0xffd34d, windows: 'glass' } },
+  { id: 'office', x: 5020, gen: { w: 480, h: 400, wall: 0xa9b8c9, roof: 0x2f3b4a, sign: 'TECHCORP TOWER', signBg: 0x202a36, neon: 0x5fd0ff, windows: 'glass' } },
+  { id: 'auction', x: 5440, gen: { w: 300, h: 300, wall: 0xc9a86a, roof: 0x5a3d1a, sign: 'NHÀ ĐẤU GIÁ', signBg: 0x5a1a1a, neon: 0xff5fa8, windows: 'arch' } },
+  { id: 'junk', x: 6250, gen: { w: 520, h: 200, wall: 0x7a6a55, roof: 0x4a3f33, sign: 'VỰA VE CHAI CHÚ TƯ', signBg: 0x3a2f22, windows: 'shed' } },
 ];
 
 // Diem tuong tac. kind quyet dinh hop thoai phia server.
+// work: NPC dang lam viec (anim), prop: do vat kem theo; Dx/Dy: lech so voi diem tuong tac
 export const POIS = [
   { id: 'school_gate', kind: 'school', name: 'Giảng đường', x: 420, y: 470 },
-  { id: 'tro', kind: 'tro', name: 'Nhà trọ', x: 1010, y: 470 },
-  { id: 'net', kind: 'net', name: 'Quán Net Cỏ', x: 1390, y: 470 },
-  { id: 'veso', kind: 'veso', name: 'Ông Lão Vé Số', x: 1730, y: 545, npc: 'npc_onglao', prop: 'cart_veso', propDx: -70 },
-  { id: 'buudien', kind: 'buudien', name: 'Bưu Điện (Bưu tá)', x: 1985, y: 470, npc: 'npc_buuta', npcDx: 60 },
-  { id: 'cafe', kind: 'cafe', name: 'Cà Phê Vỉa Hè', x: 2240, y: 480 },
-  { id: 'banhmi', kind: 'banhmi', name: 'Bà Cụ Bánh Mì', x: 2470, y: 545, npc: 'npc_bacu', prop: 'cart_banhmi', propDx: 75 },
-  { id: 'bangdia', kind: 'bangdia', name: 'Tiệm Băng Đĩa Cũ', x: 2670, y: 470 },
-  { id: 'bida', kind: 'bida', name: 'CLB Bida', x: 2930, y: 470 },
-  { id: 'barber', kind: 'barber', name: 'Ông Thợ Cắt Tóc', x: 3200, y: 560, anim: 'anim_catoc' },
-  { id: 'kiot', kind: 'cho', name: 'Tạp Hóa (Nguyên liệu)', x: 3420, y: 470 },
-  { id: 'mechanic', kind: 'mechanic', name: 'Chú Sửa Xe', x: 3640, y: 565, anim: 'anim_suaxe' },
-  { id: 'atm1', kind: 'atm', name: 'Cây ATM', x: 3740, y: 870 },
-  { id: 'atm2', kind: 'atm', name: 'Cây ATM VietBank', x: 3930, y: 470 },
-  { id: 'bank', kind: 'bank', name: 'Quầy Giao Dịch VietBank', x: 4130, y: 470 },
-  { id: 'office', kind: 'office', name: 'TechCorp (Chấm công)', x: 4620, y: 470 },
-  { id: 'auction', kind: 'auction', name: 'Nhà Đấu Giá', x: 5040, y: 470 },
-  { id: 'showroom', kind: 'showroom', name: 'Showroom Xe Máy', x: 4250, y: 900, prop: 'cub', propDx: 0, propDy: -6 },
-  { id: 'fashion', kind: 'fashion', name: 'Shop Thời Trang', x: 4800, y: 900 },
-  { id: 'junkyard', kind: 'junk', name: 'Vựa Ve Chai', x: 5850, y: 470 },
+  { id: 'tro', kind: 'tro', name: 'Nhà trọ', x: 1000, y: 470 },
+  { id: 'net', kind: 'net', name: 'Quán Net Cỏ', x: 1380, y: 470, work: 'npc_netco', workDx: 95, workDy: 8 },
+  { id: 'veso', kind: 'veso', name: 'Ông Lão Vé Số', x: 1700, y: 550, work: 'npc_veso', prop: 'cart_veso_v2', propDx: -62 },
+  { id: 'buudien', kind: 'buudien', name: 'Bưu Điện (Bưu tá)', x: 2060, y: 470, npc: 'npc_buuta', npcDx: 75 },
+  { id: 'cafe', kind: 'cafe', name: 'Cà Phê Vỉa Hè', x: 2570, y: 480, work: 'npc_cafe', workDx: -70, workDy: 12 },
+  { id: 'banhmi', kind: 'banhmi', name: 'Bà Cụ Bánh Mì', x: 2735, y: 560, work: 'npc_banhmi', prop: 'cart_banhmi_v2', propDx: 60 },
+  { id: 'bangdia', kind: 'bangdia', name: 'Tiệm Băng Đĩa Cũ', x: 2900, y: 470 },
+  { id: 'bida', kind: 'bida', name: 'CLB Bida', x: 3220, y: 470 },
+  { id: 'kiot', kind: 'cho', name: 'Tạp Hóa (Nguyên liệu)', x: 3530, y: 470, work: 'npc_taphoa', workDx: 100, workDy: 6 },
+  { id: 'barber', kind: 'barber', name: 'Ông Thợ Cắt Tóc', x: 3760, y: 560, work: 'npc_barber', workDx: 45, prop: 'barber_set_v2', propDx: -40 },
+  { id: 'mechanic', kind: 'mechanic', name: 'Chú Sửa Xe', x: 4000, y: 565, work: 'npc_mechanic', prop: 'veh_cub', propDx: 85, propDy: 4 },
+  { id: 'atm1', kind: 'atm', name: 'Cây ATM', x: 4140, y: 870 },
+  { id: 'atm2', kind: 'atm', name: 'Cây ATM VietBank', x: 4290, y: 470 },
+  { id: 'bank', kind: 'bank', name: 'Quầy Giao Dịch VietBank', x: 4480, y: 470, work: 'npc_guard', workDx: 70 },
+  { id: 'office', kind: 'office', name: 'TechCorp (Chấm công)', x: 5020, y: 470, work: 'npc_guard', workDx: -70 },
+  { id: 'auction', kind: 'auction', name: 'Nhà Đấu Giá', x: 5440, y: 470, work: 'npc_auction', workDx: 70 },
+  { id: 'showroom', kind: 'showroom', name: 'Showroom Xe Máy', x: 4650, y: 900 },
+  { id: 'fashion', kind: 'fashion', name: 'Shop Thời Trang', x: 5200, y: 900 },
+  { id: 'junkyard', kind: 'junk', name: 'Vựa Ve Chai', x: 6250, y: 470, work: 'npc_vechai', workDx: 90, workDy: 10 },
 ];
 
 // O quy hoach bay sap (hop phap, mat phi thue). Bay ngoai o -> co the bi phat.

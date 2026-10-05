@@ -43,9 +43,9 @@ function shop(items, markup, walletFor = () => 'cash') {
 const cafeShop = shop(['tra_da', 'ca_phe', 'nuoc_mia'], 1.3);
 const banhmiShop = shop(['banhmi'], 1.2);
 const choShop = shop(['phoi_banh', 'thit_nguoi', 'rau_thom', 'tra_kho', 'da_vien', 'cay_mia', 'du_che'], 1);
-const showroomShop = shop(['xe_cub', 'xe_ga', 'non_bh'], 1, (price) => (price >= 100000 ? 'bank' : 'cash'));
-const fashionShop = shop(['ao_thun', 'ao_somi', 'quan_jean', 'dep_lao', 'giay_tt', 'non_la', 'kinh_ram', 'khuyen_tai',
-  'dong_ho', 'balo', 'dien_thoai'], 1, (price) => (price >= 100000 ? 'bank' : 'cash'));
+const showroomShop = shop(['xe_dap', 'xe_cub', 'xe_ga', 'xe_pkl', 'non_bh'], 1, (price) => (price >= 100000 ? 'bank' : 'cash'));
+const fashionShop = shop(['ao_thun', 'ao_somi', 'ao_dai_do', 'quan_jean', 'dep_lao', 'dep_quai', 'giay_tt', 'non_la', 'non_ket',
+  'kinh_ram', 'khuyen_tai', 'dong_ho', 'balo', 'tui_xach', 'dien_thoai'], 1, (price) => (price >= 100000 ? 'bank' : 'cash'));
 
 const atmOptions = (g, s, fee) => [
   opt('Gửi tiền mặt vào tài khoản', 'deposit', {}, { inputs: [{ name: 'amount', type: 'number', value: Math.max(0, s.p.cash - 20000), w: 110 }] }),

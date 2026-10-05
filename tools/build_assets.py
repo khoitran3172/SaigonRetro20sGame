@@ -11,11 +11,16 @@ Xuat ra client/assets/:
 """
 import json
 import os
+import sys
+
+sys.stdout.reconfigure(encoding="utf-8")
 
 import numpy as np
 from PIL import Image
 from scipy import ndimage
 
+import import_new_art
+import new_manifest
 from extract_sprites import ROOT, SHEETS, background_mask
 
 OUT = os.path.join(ROOT, "tools", "out")
@@ -53,6 +58,7 @@ PROPS = {
     "stools_family": ("npc", 7, BIG_SCALE),
     "tv": ("npc", 11, BIG_SCALE),
     "cub": ("npc", 10, BIG_SCALE),
+    "veh_cub": ("npc", 10, 0.36),   # xe khi nguoi choi ngoi lai (ty le chuan voi nhan vat ~86px)
     "cub_rider": ("npc", 5, BIG_SCALE),
     # NPC tinh
     "npc_bacu": ("npc", 4, BIG_SCALE),
@@ -155,7 +161,25 @@ def main():
         os.makedirs(os.path.join(DST, sub), exist_ok=True)
 
     chars_meta = {}
+    # Art moi (asset_new_by_khoit/) uu tien hon concept cu
+    new_strips, warn = import_new_art.collect()
+    for w in warn:
+        print("CẢNH BÁO:", w)
+    for key, acts in new_strips.items():
+        res = import_new_art.to_game_anims(acts)
+        if not res:
+            print(f"CẢNH BÁO: {key} thiếu dải bắt buộc (idle_down, walk_up, walk_left) — dùng art cũ nếu có")
+            continue
+        if "walk_down" not in acts:
+            print(f"CẢNH BÁO: {key} chưa có walk_down — tạm dùng idle_down")
+        frames, anims = res
+        sheet, cw, ch = pack_anchor_bottom(frames)
+        sheet.save(os.path.join(DST, "chars", f"{key}.png"), optimize=True)
+        chars_meta[key] = {"frameWidth": cw, "frameHeight": ch, "anims": anims}
+
     for key, anims in CHARACTERS.items():
+        if key in chars_meta:
+            continue
         order, frames = [], []
         for name, ids in anims.items():
             start = len(frames)
@@ -174,21 +198,18 @@ def main():
         im = scaled(im, s)
         im.save(os.path.join(DST, "props", f"{name}.png"), optimize=True)
         props_meta[name] = [im.width, im.height]
+
+    # Art moi: cong trinh, xe, props, NPC lam viec, icon, anh dang nhap
+    new_props, anim_meta = new_manifest.build(DST, pack_anchor_bottom)
+    props_meta.update(new_props)
     with open(os.path.join(DST, "props.json"), "w") as fp:
         json.dump(props_meta, fp, indent=1)
-
-    anim_meta = {}
-    for name, srcs in ANIMS.items():
-        frames = [scaled(load_blob(s, i), BIG_SCALE) for s, i in srcs]
-        sheet, cw, ch = pack_anchor_bottom(frames)
-        sheet.save(os.path.join(DST, "anim", f"{name}.png"), optimize=True)
-        anim_meta[name] = {"frameWidth": cw, "frameHeight": ch, "frames": len(frames)}
     with open(os.path.join(DST, "anim.json"), "w") as fp:
         json.dump(anim_meta, fp, indent=1)
 
     # anh xem truoc de kiem tra huong frame
     rows = []
-    for key in CHARACTERS:
+    for key in chars_meta:
         rows.append(Image.open(os.path.join(DST, "chars", f"{key}.png")))
     W = max(r.width for r in rows)
     prev = Image.new("RGBA", (W, sum(r.height for r in rows)), (230, 230, 230, 255))

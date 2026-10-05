@@ -38,7 +38,11 @@ npm run assets   # = python tools/extract_sprites.py && python tools/build_asset
 - `tools/build_assets.py`: chọn frame cho từng animation (bảng `CHARACTERS`, `PROPS`, `ANIMS`), scale về cùng tỉ lệ, đóng spritesheet neo chân → `client/assets/`.
   Thêm art mới: chạy extract, xem contact sheet, thêm số blob vào bảng rồi build lại.
 
-Các công trình chưa có art (trường ĐH, nhà trọ, net cỏ, ngân hàng, cao ốc, nhà ống…) được vẽ thủ tục trong `client/src/textures.js`.
+**Art mới** đặt trong `asset_new_by_khoit/` (nền magenta, dải 6 frame) và được ưu tiên hơn concept cũ:
+- `tools/import_new_art.py`: nhân vật người chơi (nhận diện theo tên file, tự lật hướng, chuẩn hóa chiều cao).
+- `tools/new_manifest.py`: công trình, NPC làm việc, xe, icon, props (map theo mã blob, xem `python tools/contact_new.py`).
+
+Tình trạng asset và danh sách còn thiếu: [`docs/ASSET_STATUS.md`](docs/ASSET_STATUS.md). Chỗ nào chưa có art thì game dùng art concept cũ hoặc ảnh tạm vẽ bằng code (`client/src/textures.js`).
 
 ## Kiến trúc
 

@@ -8,13 +8,20 @@ const NPC_STYLE = {
   police: { skin: 'vp_male', tint: 0xc4d488, color: '#bff0ff', label: '🚓 Cảnh sát' },
   thief: { skin: 'sv_male', tint: 0x6c6c92, color: '#ff9a85' },
   gang: { image: 'npc_thanhnien', tint: 0xd9c0b0, color: '#ff7a6a', label: '😠 Giang hồ' },
-  scrap: { image: 'scrap', color: '#ffe680', label: '' },
+  scrap: { image: 'scrap_pickup', color: '#ffe680', label: '' },
 };
 const POI_ICON = {
   school: '🏫', tro: '🏠', net: '🖥️', veso: '🎫', buudien: '📮', cafe: '☕', banhmi: '🥖', bangdia: '📼', bida: '🎱',
   barber: '💈', cho: '🧺', mechanic: '🔧', atm: '🏧', bank: '🏦', office: '🏢', auction: '🔨', showroom: '🛵',
   fashion: '👗', junk: '♻️',
 };
+// Vi tri nguoi ngoi tren xe (theo ty le anh xe): dx > 0 = tien ve dau xe, dy = nang len
+export const RIDE_FIT = { scale: 0.75, dx: -0.05, dy: 0.32 };
+// Xe nguoi choi dang lai -> anh xe (dau xe quay PHAI)
+const VEHICLE_SPRITE = { xe_cub: 'veh_cub', xe_ga: 'veh_ga', xe_pkl: 'veh_pkl', xe_dap: 'veh_dap' };
+// Giao thong trang tri: [anh, trong so]. cub_rider la art cu (chua co NPC lai xe moi)
+const TRAFFIC = [['cub_rider', 5], ['veh_taxi', 2], ['veh_taxi2', 2], ['veh_bus', 1]];
+const stallSprite = (s) => (s.u ? 'stall_lv3' : s.lg ? 'stall_lv2' : 'stall_lv1');
 const SEND_HZ = 15;
 const INTERACT_RANGE = 120;
 const lerp = (a, b, t) => a + (b - a) * t;
@@ -37,6 +44,16 @@ export class WorldScene extends Phaser.Scene {
 
   preload() {
     const { chars, props, anims } = this.manifests;
+    // Thanh tien do tai asset
+    const { width, height } = this.scale;
+    const bar = this.add.rectangle(width / 2 - 150, height / 2, 0, 10, 0xe8a33c).setOrigin(0, 0.5).setScrollFactor(0);
+    const txt = this.add.text(width / 2, height / 2 - 24, 'Đang tải phố phường...', { fontFamily: FONT, fontSize: '15px', color: '#f4ead8' })
+      .setOrigin(0.5).setScrollFactor(0);
+    this.load.on('progress', (v) => bar.setSize(300 * v, 10));
+    this.load.once('complete', () => {
+      bar.destroy();
+      txt.destroy();
+    });
     for (const [k, m] of Object.entries(chars)) {
       this.load.spritesheet(k, `assets/chars/${k}.png`, { frameWidth: m.frameWidth, frameHeight: m.frameHeight });
     }
@@ -73,7 +90,14 @@ export class WorldScene extends Phaser.Scene {
   fitZoom() {
     const h = this.scale.height;
     this.cameras.main.setZoom(Phaser.Math.Clamp(h / 900, 0.7, 1.4));
-    this.overlay?.setSize(this.scale.width, this.scale.height);
+    this.sizeOverlay();
+  }
+
+  sizeOverlay() {
+    if (!this.overlay) return;
+    const { width, height } = this.scale;
+    this.overlay.setPosition(width / 2, height / 2).setSize(width * 3, height * 3);
+    this.overlay.setOrigin(0.5);
   }
 
   // ================================================================ anim
@@ -89,7 +113,7 @@ export class WorldScene extends Phaser.Scene {
       }
     }
     for (const [k, m] of Object.entries(this.manifests.anims)) {
-      this.anims.create({ key: k, frames: this.anims.generateFrameNumbers(k, { start: 0, end: m.frames - 1 }), frameRate: 2.5, repeat: -1 });
+      this.anims.create({ key: k, frames: this.anims.generateFrameNumbers(k, { start: 0, end: m.frames - 1 }), frameRate: 5, repeat: -1 });
     }
   }
 
@@ -105,7 +129,7 @@ export class WorldScene extends Phaser.Scene {
       g.fillStyle(color, 1);
       for (let x = 0; x < W;) {
         const w = rnd.between(60, 160);
-        const cbd = x > 3700 && x < 5300;
+        const cbd = x > 4100 && x < 5700;
         const h = rnd.between(minH, maxH) + (cbd ? 140 : 0);
         g.fillRect(x, WORLD.buildingBase - h, w, h);
         x += w + rnd.between(0, 20);
@@ -127,7 +151,7 @@ export class WorldScene extends Phaser.Scene {
     r.fillRect(0, 766, W, 3);
     // vach qua duong
     r.fillStyle(0xf2f2f2, 0.9);
-    for (const cx of [700, 1650, 2650, 3790, 4500, 5250]) {
+    for (const cx of [700, 1650, 2720, 4190, 4900, 5650]) {
       for (let y = 596; y < 764; y += 22) r.fillRect(cx - 40, y, 80, 12);
     }
     // san bong mini (Khu 3)
@@ -135,8 +159,8 @@ export class WorldScene extends Phaser.Scene {
     r.strokeRect(160, 890, 700, 270);
     r.lineBetween(510, 890, 510, 1160);
     r.strokeCircle(510, 1025, 50);
-    this.add.image(160, 1060, 'goal').setDepth(1060);
-    this.add.image(860, 1060, 'goal').setFlipX(true).setDepth(1060);
+    this.prop('goal_mini', 190, 1062);
+    this.prop('goal_mini', 830, 1062, { flip: true });
     // o quy hoach bay sap
     PLOTS.forEach((pl, i) => {
       r.lineStyle(3, 0xffd34d, 0.9);
@@ -160,24 +184,30 @@ export class WorldScene extends Phaser.Scene {
     for (const b of BUILDINGS) {
       let key = b.sprite;
       if (b.gen) {
+        // anh tam (chua co art) — xem docs/ASSET_PROMPTS.md muc 6
         key = `bld_${b.id}`;
         genBuilding(this, key, b.gen);
       }
       const img = this.add.image(b.x, base, key).setOrigin(0.5, 1).setDepth(WORLD.buildingBase);
-      used.push([b.x - img.width / 2, b.x + img.width / 2]);
-      if (b.gen?.neon) {
-        const glow = this.add.image(b.x, base - img.height + 44, 'glow').setScale(img.width / 200, 0.5)
-          .setTint(b.gen.neon).setBlendMode(Phaser.BlendModes.ADD).setDepth(5001).setAlpha(0);
+      const left = b.x - img.width / 2;
+      const top = base - img.height;
+      used.push([left, left + img.width]);
+      if (b.sign) this.signText(b.sign, left, top, img.width, img.height);
+      const neon = b.gen?.neon ?? (b.sign?.neon ? Phaser.Display.Color.HexStringToColor(b.sign.neon).color : null);
+      if (neon != null) {
+        const sy = b.sign ? top + (img.height * (b.sign.box[1] + b.sign.box[3])) / 2 : top + 44;
+        const glow = this.add.image(b.x, sy, 'glow').setScale(img.width / 200, 0.5)
+          .setTint(neon).setBlendMode(Phaser.BlendModes.ADD).setDepth(5001).setAlpha(0);
         this.lamps.push({ img: glow, max: 0.7 });
       }
     }
-    // lap khoang trong bang nha ong / cay (ngoai o)
+    // Lap khoang trong: nha ong (anh tam, cho art) / cay o ngoai o
     let seed = 1;
     const free = (x0, x1) => used.every(([a, b]) => x1 < a - 4 || x0 > b + 4);
     for (let x = 0; x < WORLD.width;) {
-      if (x > 5200) {
-        if (free(x, x + 80)) this.add.image(x + 40, 446, 'tree').setOrigin(0.5, 1).setDepth(439);
-        x += 90;
+      if (x > 5600) {
+        if (free(x, x + 90)) this.prop(seed++ % 2 ? 'tree_bang' : 'tree_me', x + 45, 446, { depth: 439, scale: 0.85 });
+        x += 110;
         continue;
       }
       const key = `tube_${seed}`;
@@ -193,6 +223,18 @@ export class WorldScene extends Phaser.Scene {
     }
   }
 
+  // In chu tieng Viet len bien hieu trong cua art
+  signText(sign, left, top, w, h) {
+    const [x0, y0, x1, y1] = sign.box;
+    const bw = (x1 - x0) * w;
+    const bh = (y1 - y0) * h;
+    const t = this.add.text(left + ((x0 + x1) / 2) * w, top + ((y0 + y1) / 2) * h, sign.text, {
+      fontFamily: FONT, fontStyle: '800', fontSize: `${Math.round(bh * 0.55)}px`,
+      color: sign.neon || '#7a2a18', stroke: sign.neon ? '#0b1a10' : '#f6ecd2', strokeThickness: sign.neon ? 3 : 1,
+    }).setOrigin(0.5).setDepth(WORLD.buildingBase + 0.5);
+    if (t.width > bw * 0.9) t.setScale((bw * 0.9) / t.width);
+  }
+
   prop(key, x, y, opts = {}) {
     const img = this.add.image(x, y, key).setOrigin(0.5, 1).setDepth(opts.depth ?? y);
     if (opts.scale) img.setScale(opts.scale);
@@ -201,49 +243,60 @@ export class WorldScene extends Phaser.Scene {
     return img;
   }
 
+  lampGlow(x, y) {
+    const glow = this.add.image(x, y, 'glow').setScale(0.9).setBlendMode(Phaser.BlendModes.ADD).setDepth(5001).setAlpha(0);
+    const pool = this.add.image(x, 640, 'glow').setScale(1.6, 0.5).setBlendMode(Phaser.BlendModes.ADD).setDepth(5001).setAlpha(0);
+    this.lamps.push({ img: glow, max: 0.9 }, { img: pool, max: 0.45 });
+  }
+
   buildProps() {
-    // cot dien + den duong
-    for (let x = 160; x < WORLD.width; x += 420) {
-      const pole = this.prop('power_pole', x, 586);
-      const glow = this.add.image(x + 6, 586 - pole.height + 26, 'glow').setScale(0.9)
-        .setBlendMode(Phaser.BlendModes.ADD).setDepth(5001).setAlpha(0);
-      const pool = this.add.image(x, 600, 'glow').setScale(1.6, 0.5).setBlendMode(Phaser.BlendModes.ADD).setDepth(5001).setAlpha(0);
-      this.lamps.push({ img: glow, max: 0.9 }, { img: pool, max: 0.5 });
+    // Cot dien xen den duong doc mep via he tren
+    for (let i = 0, x = 160; x < WORLD.width; x += 420, i++) {
+      if (i % 2 === 0) {
+        const pole = this.prop('power_pole_v2', x, 590);
+        this.lampGlow(x - pole.width * 0.32, 590 - pole.height * 0.79);
+      } else {
+        const lamp = this.prop('street_lamp', x, 590);
+        this.lampGlow(x + lamp.width * 0.3, 590 - lamp.height + 10);
+      }
     }
-    // cay via he duoi (tranh khu o quy hoach)
-    for (let x = 120; x < WORLD.width; x += 330) {
-      if (x > 1780 && x < 3700) continue;
-      this.prop('tree', x, 812);
+    // Cay via he duoi (tranh khu o quy hoach), thung rac, nap cong
+    for (let i = 0, x = 120; x < WORLD.width; x += 330, i++) {
+      if (x > 1780 && x < 3620) continue;
+      this.prop(i % 2 ? 'tree_me' : 'tree_bang', x, 818, { scale: 0.8 });
     }
-    // Khu 3
-    this.prop('flowers', 650, 470);
-    this.prop('flowers', 190, 470);
-    this.prop('plants_pair', 1150, 470);
-    this.prop('ganh_hang', 1120, 1010, { scale: 0.9 });
-    this.prop('books', 980, 1000);
-    // Khu 1: cafe + gia dinh + tre con
-    this.prop('stool_blue', 2170, 562);
-    this.prop('stool_red', 2300, 566);
-    this.prop('stool_small', 2340, 560);
-    this.prop('stools_family', 2600, 1060);
-    this.bob(this.prop('npc_girl', 2730, 1040));
-    this.bob(this.prop('npc_boy', 2775, 1046));
-    this.prop('cart_hoaquynh', 3200, 1080);
-    this.prop('npc_ngoi', 3285, 572);
-    this.prop('plant_tall', 3060, 470);
-    this.prop('stool_pink', 2560, 1100);
+    for (const x of [980, 2380, 3700, 4760, 5560]) this.prop('trash_bin', x, 830);
+    for (const x of [520, 1900, 3300, 4600, 6000]) this.prop('manhole', x, 700, { depth: -880 });
+    // Khu 3: lang dai hoc
+    this.prop('plant_pots', 1150, 472);
+    this.prop('ganh_hang_v2', 1120, 1010);
+    this.prop('bench', 1000, 1120);
+    this.prop('bench', 1300, 1120);
+    // Khu 1: ban tra da, co tuong, gia dinh, tre con
+    this.prop('table_tra_da', 2420, 575);
+    this.prop('sign_stand', 2700, 470);
+    this.prop('stool_blue_v2', 2420, 1000);
+    this.prop('table_co_tuong', 2470, 1010);
+    this.prop('stool_red_v2', 2525, 1000);
+    this.prop('stools_family', 2700, 1080);
+    this.bob(this.prop('npc_girl', 2830, 1060));
+    this.bob(this.prop('npc_boy', 2875, 1066));
+    this.prop('cart_mia', 3300, 1090);
+    this.prop('stool_green', 3360, 1100);
+    this.prop('stool_pink_v2', 3240, 1104);
+    this.prop('bench', 3800, 1120);
+    this.prop('tires_v2', 4065, 575);
     // Khu 2
-    this.prop('plant_tall', 3870, 470);
-    this.prop('plant_tall', 4370, 470);
-    this.prop('plant_tall', 4870, 470);
-    this.prop('cub', 4330, 900, { scale: 0.9 });
-    this.prop('cub', 4180, 905, { scale: 0.9, tint: 0xb0c8ff });
+    this.prop('plant_pots', 4250, 472);
+    this.prop('plant_pots', 4760, 472);
+    this.prop('plant_pots', 5260, 472);
+    this.prop('veh_cub', 4560, 905);
+    this.prop('veh_ga', 4740, 905);
+    this.prop('bench', 5000, 1110);
     // Khu 4: bai phe lieu
-    for (const [x, y] of [[5380, 1000], [5560, 1120], [5990, 940], [6240, 1080], [6150, 560], [5560, 560]]) this.prop('tires', x, y);
-    this.prop('roof_tin', 5700, 900);
-    this.prop('roof_tin', 6100, 1150, { flip: true });
-    this.prop('cub', 5800, 1060, { tint: 0x9a9080 });
-    this.prop('tv', 5480, 880);
+    for (const [x, y] of [[5780, 1000], [5960, 1120], [6390, 940], [6640, 1080], [6560, 560]]) this.prop('tires_v2', x, y);
+    for (const [x, y] of [[5900, 900], [6200, 1060], [6500, 1150], [6060, 560]]) this.prop('junk_pile', x, y);
+    this.prop('veh_cub', 6000, 1100, { tint: 0x9a9080 });
   }
 
   bob(img) {
@@ -252,6 +305,7 @@ export class WorldScene extends Phaser.Scene {
   }
 
   buildPois() {
+    // Showroom / thoi trang: anh tam (chua co art)
     const kiosk = (key, sign, bg, wall) => genBuilding(this, key, { w: 190, h: 130, wall, roof: bg, sign, signBg: bg, windows: 'shop' });
     kiosk('kiosk_showroom', 'SHOWROOM XE', 0x1f4a7a, 0xdfe6ee);
     kiosk('kiosk_fashion', 'THỜI TRANG', 0x7a1f4f, 0xf2d6e6);
@@ -259,10 +313,13 @@ export class WorldScene extends Phaser.Scene {
     for (const poi of POIS) {
       if (poi.kind === 'showroom') this.prop('kiosk_showroom', poi.x, poi.y - 14);
       if (poi.kind === 'fashion') this.prop('kiosk_fashion', poi.x, poi.y - 14);
-      if (poi.kind === 'atm') this.prop('atm', poi.x, poi.y < 600 ? 452 : poi.y - 10);
+      if (poi.kind === 'atm') this.prop('atm_v2', poi.x, poi.y < 600 ? 456 : poi.y - 10);
       if (poi.prop) this.prop(poi.prop, poi.x + (poi.propDx || 0), poi.y + (poi.propDy || 0));
       if (poi.npc) this.bob(this.prop(poi.npc, poi.x + (poi.npcDx || 0), poi.y + 4));
-      if (poi.anim) this.add.sprite(poi.x, poi.y + 6, poi.anim).setOrigin(0.5, 1).setDepth(poi.y + 6).play(poi.anim);
+      if (poi.work) {
+        const y = poi.y + 6 + (poi.workDy || 0);
+        this.add.sprite(poi.x + (poi.workDx || 0), y, poi.work).setOrigin(0.5, 1).setDepth(y).play(poi.work);
+      }
 
       const label = this.add.text(poi.x, poi.y - (poi.y < 600 ? 120 : 140), `${POI_ICON[poi.kind] || '❔'} ${poi.name}`, {
         fontFamily: FONT, fontSize: '12px', color: '#fff6dc', fontStyle: '800',
@@ -280,8 +337,9 @@ export class WorldScene extends Phaser.Scene {
 
   // ================================================================ khong khi: ngay dem, mua, nang
   setupAtmosphere() {
-    this.overlay = this.add.rectangle(0, 0, this.scale.width, this.scale.height, 0x0a1030, 0)
-      .setOrigin(0).setScrollFactor(0).setDepth(5000);
+    // Phu rong gap 3 man hinh: camera zoom van co tac dung len doi tuong scrollFactor 0
+    this.overlay = this.add.rectangle(0, 0, 1, 1, 0x0a1030, 0).setOrigin(0.5).setScrollFactor(0).setDepth(5000);
+    this.sizeOverlay();
     this.rain = this.add.particles(0, 0, 'raindrop', {
       x: { min: -100, max: 2600 }, y: -20, lifespan: 1100, speedY: { min: 700, max: 900 }, speedX: -90,
       quantity: 4, frequency: 12, alpha: { start: 0.7, end: 0.3 }, emitting: false,
@@ -406,7 +464,7 @@ export class WorldScene extends Phaser.Scene {
     for (const s of m.st) {
       seenS.add(s.o);
       let o = this.stallObjs.get(s.o);
-      if (o && o.u !== s.u) {
+      if (o && o.key !== stallSprite(s)) {
         this.destroyStall(o);
         o = null;
       }
@@ -421,6 +479,7 @@ export class WorldScene extends Phaser.Scene {
     const shadow = this.add.image(d.x, d.y, 'shadow');
     const sprite = this.add.sprite(d.x, d.y, d.sk, 0).setOrigin(0.5, 1);
     const rider = this.add.image(d.x, d.y, 'cub_rider').setOrigin(0.5, 1).setVisible(false);
+    const veh = this.add.image(d.x, d.y, 'veh_cub').setOrigin(0.5, 1).setVisible(false);
     const aura = this.add.image(d.x, d.y, 'aura').setBlendMode(Phaser.BlendModes.ADD).setVisible(false);
     const label = this.add.text(d.x, d.y, d.n, {
       fontFamily: FONT, fontSize: '12px', fontStyle: '800', color: isMe ? '#ffe680' : CLASS_COLOR[d.c] || '#fff',
@@ -430,7 +489,7 @@ export class WorldScene extends Phaser.Scene {
       fontFamily: FONT, fontSize: '10px', color: '#ffd34d', stroke: '#1a120c', strokeThickness: 3,
     }).setOrigin(0.5, 1);
     const a = {
-      id: d.id, isMe, sprite, shadow, rider, aura, label, titleText, skin: d.sk, title: d.ti,
+      id: d.id, isMe, sprite, shadow, rider, veh, aura, label, titleText, skin: d.sk, title: d.ti,
       x: d.x, y: d.y, tx: d.x, ty: d.y, dir: 'down', moving: false, bubbles: [], anim: '',
     };
     this.avatars.set(d.id, a);
@@ -440,7 +499,7 @@ export class WorldScene extends Phaser.Scene {
   removeAvatar(id) {
     const a = this.avatars.get(id);
     if (!a || a.isMe) return;
-    for (const o of [a.sprite, a.shadow, a.rider, a.aura, a.label, a.titleText, ...a.bubbles]) o.destroy();
+    for (const o of [a.sprite, a.shadow, a.rider, a.veh, a.aura, a.label, a.titleText, ...a.bubbles]) o.destroy();
     this.avatars.delete(id);
   }
 
@@ -468,15 +527,15 @@ export class WorldScene extends Phaser.Scene {
   }
 
   spawnStall(s) {
-    const img = this.add.image(s.x, s.y + 4, s.u ? 'ganh_hang' : 'stall').setOrigin(0.5, 1).setDepth(s.y);
-    if (s.u) img.setScale(0.75);
+    const key = stallSprite(s);
+    const img = this.add.image(s.x, s.y + 4, key).setOrigin(0.5, 1).setDepth(s.y);
     const label = this.add.text(s.x, s.y - img.displayHeight - 4, '', {
       fontFamily: FONT, fontSize: '11px', fontStyle: '800', color: s.lg ? '#ffe680' : '#ff9a85',
       backgroundColor: 'rgba(30,22,16,0.75)', padding: { x: 5, y: 2 },
     }).setOrigin(0.5, 1).setDepth(4000);
     img.setInteractive({ useHandCursor: true }).on('pointerdown', () =>
       this.goInteract(s.x, s.y + 30, () => this.net.send({ t: 'poi', id: `stall:${s.o}` }), 150));
-    const o = { img, label, u: s.u };
+    const o = { img, label, key };
     this.stallObjs.set(s.o, o);
     return o;
   }
@@ -522,9 +581,12 @@ export class WorldScene extends Phaser.Scene {
     const left = Math.random() < 0.5;
     const y = left ? 660 : 750;
     const x = left ? view.right + 150 : view.left - 150;
-    const img = this.add.image(x, y, 'cub_rider').setOrigin(0.5, 1).setDepth(y).setFlipX(left);
-    img.setTint([0xffffff, 0xd8e6ff, 0xffe0d0, 0xe0ffe0, 0xf0e0ff][Math.floor(Math.random() * 5)]);
-    const speed = (150 + Math.random() * 120) * (this.weather === 'rain' ? 0.5 : 1);
+    const total = TRAFFIC.reduce((n, [, w]) => n + w, 0);
+    let r = Math.random() * total;
+    const key = TRAFFIC.find(([, w]) => (r -= w) < 0)[0];
+    const img = this.add.image(x, y, key).setOrigin(0.5, 1).setDepth(y).setFlipX(left);
+    if (key === 'cub_rider') img.setTint([0xffffff, 0xd8e6ff, 0xffe0d0, 0xe0ffe0, 0xf0e0ff][Math.floor(Math.random() * 5)]);
+    const speed = (key === 'veh_bus' ? 110 : 150 + Math.random() * 120) * (this.weather === 'rain' ? 0.5 : 1);
     this.traffic.push({ img, vx: left ? -speed : speed });
   }
 
@@ -568,8 +630,13 @@ export class WorldScene extends Phaser.Scene {
   }
 
   animKey(skin, dir, moving) {
-    if (!moving) return dir === 'down' ? `${skin}_idle` : null;
-    return `${skin}_${dir === 'left' || dir === 'right' ? 'side' : dir}`;
+    const side = dir === 'left' || dir === 'right';
+    if (!moving) {
+      if (dir === 'down') return `${skin}_idle`;
+      const key = `${skin}_${side ? 'idle_side' : 'idle_up'}`;
+      return this.anims.exists(key) ? key : null; // art cu: dung frame dau
+    }
+    return `${skin}_${side ? 'side' : dir}`;
   }
 
   playAnim(o, key, dir) {
@@ -593,10 +660,28 @@ export class WorldScene extends Phaser.Scene {
 
   drawAvatar(a, time) {
     const riding = !!a.vehicleId;
-    a.sprite.setVisible(!riding);
-    a.rider.setVisible(riding);
+    if (a.dir === 'left' || a.dir === 'right') a.face = a.dir;
+    const face = a.face || 'left';
+    // Art moi co tu the ngoi lai rieng -> ghep len xe; art cu -> anh nguoi di Cub chung
+    const rideKey = `${a.skin}_ride`;
+    const ownRide = riding && this.anims.exists(rideKey);
+    a.sprite.setVisible(!riding || ownRide);
+    a.rider.setVisible(riding && !ownRide);
+    a.veh.setVisible(ownRide);
     let top;
-    if (riding) {
+    if (ownRide) {
+      const bob = a.moving ? Math.abs(Math.sin(time / 80)) * 1.5 : 0;
+      const R = RIDE_FIT;
+      a.veh.setTexture(VEHICLE_SPRITE[a.vehicleId] || 'veh_cub');
+      a.veh.setScale(R.scale).setPosition(a.x, a.y - bob).setDepth(a.y).setFlipX(face === 'left');
+      const dx = a.veh.displayWidth * R.dx * (face === 'left' ? -1 : 1);
+      a.sprite.setPosition(a.x + dx, a.y - a.veh.displayHeight * R.dy - bob).setDepth(a.y + 0.5).setFlipX(face === 'right');
+      if (a.anim !== rideKey) {
+        a.sprite.play(rideKey);
+        a.anim = rideKey;
+      }
+      top = Math.min(a.veh.y - a.veh.displayHeight, a.sprite.y - a.sprite.displayHeight);
+    } else if (riding) {
       a.rider.setPosition(a.x, a.y - (a.moving ? Math.abs(Math.sin(time / 80)) * 1.5 : 0)).setDepth(a.y);
       a.rider.setFlipX(a.dir === 'left');
       a.rider.setTint(a.vehicleId === 'xe_ga' ? 0xb8d4ff : 0xffffff);

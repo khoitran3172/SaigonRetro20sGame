@@ -16,7 +16,7 @@ test('PostgreSQL: luu va nap lai nguoi choi, the gioi, so cai', { skip: !URL && 
   const ws = { readyState: 1, out: [], send(d) { this.out.push(JSON.parse(d)); }, on() {}, close() {} };
   const s = g.connect(ws);
   g.onMessage(s, JSON.stringify({ t: 'hello', name: 'Tèo Postgres', cls: 'tt', skin: 'baba_female' }));
-  Object.assign(s, { x: 3930, y: 480 });
+  Object.assign(s, { x: 4290, y: 480 });
   g.onMessage(s, JSON.stringify({ t: 'act', poi: 'atm2', act: 'deposit', inputs: { amount: 50000 } }));
   g.day = 7;
   await g.saveAll();

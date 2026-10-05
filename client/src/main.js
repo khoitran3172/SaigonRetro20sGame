@@ -3,12 +3,12 @@ import { UI } from './ui.js';
 import { WorldScene } from './world.js';
 
 const load = (n) => fetch(`assets/${n}.json`).then((r) => r.json());
-const [chars, props, anims] = await Promise.all([load('chars'), load('props'), load('anim')]);
+const [chars, props, anims, icons] = await Promise.all([load('chars'), load('props'), load('anim'), load('icons')]);
 // Bang hieu ve bang canvas can font tieng Viet san sang truoc
 await Promise.race([document.fonts.load('800 20px "Be Vietnam Pro"'), new Promise((r) => setTimeout(r, 2500))]).catch(() => {});
 
 const net = new Net();
-const ui = new UI(net, { chars });
+const ui = new UI(net, { chars, icons });
 let game = null;
 
 net.on('close', () => ui.disconnected());

@@ -1,12 +1,52 @@
 {
- "anim_suaxe": {
-  "frameWidth": 108,
-  "frameHeight": 67,
+ "npc_banhmi": {
+  "frameWidth": 46,
+  "frameHeight": 87,
+  "frames": 6
+ },
+ "npc_veso": {
+  "frameWidth": 50,
+  "frameHeight": 89,
+  "frames": 6
+ },
+ "npc_barber": {
+  "frameWidth": 49,
+  "frameHeight": 87,
+  "frames": 6
+ },
+ "npc_cafe": {
+  "frameWidth": 43,
+  "frameHeight": 79,
+  "frames": 2
+ },
+ "npc_taphoa": {
+  "frameWidth": 47,
+  "frameHeight": 79,
   "frames": 4
  },
- "anim_catoc": {
+ "npc_mechanic": {
+  "frameWidth": 48,
+  "frameHeight": 72,
+  "frames": 6
+ },
+ "npc_vechai": {
+  "frameWidth": 47,
+  "frameHeight": 66,
+  "frames": 6
+ },
+ "npc_auction": {
+  "frameWidth": 68,
+  "frameHeight": 88,
+  "frames": 6
+ },
+ "npc_guard": {
   "frameWidth": 39,
-  "frameHeight": 70,
-  "frames": 4
+  "frameHeight": 89,
+  "frames": 6
+ },
+ "npc_netco": {
+  "frameWidth": 41,
+  "frameHeight": 62,
+  "frames": 6
  }
 }

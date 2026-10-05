@@ -27,7 +27,7 @@ const money = (...ps) => ps.reduce((n, p) => n + p.cash + p.bank, 0);
 test('ATM: phi giao dich va khong cho rut qua so du', () => {
   const { g, join, msg, toasts } = setup();
   const a = join('An', 'sv');
-  Object.assign(a, { x: 3930, y: 480 }); // canh ATM VietBank
+  Object.assign(a, { x: 4290, y: 480 }); // canh ATM VietBank
   const before = money(a.p);
   msg(a, { t: 'act', poi: 'atm2', act: 'deposit', inputs: { amount: 50000 } });
   assert.equal(a.p.bank, 100000 + 50000);
@@ -89,7 +89,7 @@ test('Gui thu: loi thi khong mat do (nguyen tu)', () => {
   const { g, join, msg } = setup();
   const a = join('Gui', 'sv');
   join('Nhan', 'sv');
-  Object.assign(a, { x: 1985, y: 480 });
+  Object.assign(a, { x: 2060, y: 480 });
   const cassette = g.econ.addItem(a.p, 'bang_cassette', 1);
   void cassette;
   const uid = a.p.inv.find((i) => i.id === 'bang_cassette').uid;

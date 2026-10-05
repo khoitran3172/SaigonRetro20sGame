@@ -193,7 +193,7 @@ export class Game {
     const c = CLASSES[cls];
     const p = {
       name, token: crypto.randomBytes(16).toString('hex'), cls, skin, rank: 0,
-      x: cls === 'sv' ? 600 : cls === 'vp' ? 4400 : 2300, y: 620,
+      x: cls === 'sv' ? 600 : cls === 'vp' ? 4800 : 2300, y: 620,
       cash: c.cash, bank: c.bank, social: 0, diamonds: 30, data: 30,
       stats: { stamina: 100, stress: 10, charisma: 0, attendance: 0, kpi: 0, reputation: 0 },
       inv: [], equip: {}, buffs: [], cd: {}, daily: { day: this.day }, renting: false,
