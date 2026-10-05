@@ -1,0 +1,21 @@
+{
+  "name": "hangrong",
+  "version": "0.1.0",
+  "description": "Hàng Rong — 2D top-down MMORPG / Social Life-Sim đô thị Việt Nam (vertical slice)",
+  "type": "module",
+  "main": "server/index.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "assets": "python tools/extract_sprites.py && python tools/build_assets.py",
+    "test": "node --test server/tests/"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "phaser": "3.80.1",
+    "ws": "^8.18.0"
+  }
+}

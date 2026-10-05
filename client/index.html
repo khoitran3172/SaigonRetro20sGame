@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hàng Rong — Phố Thị Online</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="game"></div>
+
+  <!-- Banner LED chay chu -->
+  <div id="led" class="hidden"><div id="led-track"></div></div>
+
+  <!-- Dang nhap -->
+  <div id="login">
+    <div class="login-card">
+      <h1>HÀNG RONG <span>Phố Thị Online</span></h1>
+      <p class="sub">Mô phỏng đời sống đô thị Việt Nam · Bày sạp, đi làm, đi học, tán gẫu cùng cả thành phố</p>
+      <div id="resume" class="hidden">
+        <button id="btn-resume" class="primary"></button>
+        <button id="btn-new" class="link">Tạo nhân vật mới</button>
+      </div>
+      <div id="create">
+        <label>Tên nhân vật</label>
+        <input id="in-name" maxlength="16" placeholder="Ví dụ: Tèo Bán Mía" autocomplete="off">
+        <label>Tầng lớp</label>
+        <div id="classes" class="choices"></div>
+        <label>Ngoại hình</label>
+        <div id="skins" class="choices skins"></div>
+        <button id="btn-play" class="primary">Vào thành phố</button>
+      </div>
+      <div id="login-err" class="err"></div>
+    </div>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud" class="hidden">
+    <div id="card" class="panel">
+      <div class="who"><b id="h-name"></b> <span id="h-title" class="title"></span></div>
+      <div id="h-class" class="muted"></div>
+      <div class="bar"><span>Thể lực</span><i><em id="b-stamina"></em></i><small id="v-stamina"></small></div>
+      <div class="bar stress"><span>Căng thẳng</span><i><em id="b-stress"></em></i><small id="v-stress"></small></div>
+      <div class="bar cls"><span id="l-cls"></span><i><em id="b-cls"></em></i><small id="v-cls"></small></div>
+      <div class="money">
+        <div title="Tiền mặt (có thể bị trộm)">💵 <b id="m-cash"></b></div>
+        <div title="Tài khoản ngân hàng (an toàn, sinh lãi)">🏦 <b id="m-bank"></b></div>
+        <div title="Kim cương (cao cấp)">💎 <b id="m-dia"></b> · ⭐ <b id="m-social" title="Điểm Danh Vọng"></b> · 📶 <b id="m-data" title="Cước 4G"></b></div>
+        <div class="muted" id="m-extra"></div>
+      </div>
+    </div>
+
+    <div id="topbar" class="panel">
+      <div id="clock"></div>
+      <div id="zone"></div>
+      <div id="minimap"></div>
+    </div>
+
+    <div id="toasts"></div>
+
+    <div id="chat" class="panel">
+      <div class="tabs">
+        <button data-tab="all" class="on">Tất cả</button>
+        <button data-tab="near">Gần</button>
+        <button data-tab="global">Thế giới</button>
+        <button data-tab="news">Tin tức</button>
+      </div>
+      <div id="chat-log"></div>
+      <form id="chat-form">
+        <select id="chat-ch" title="Kênh">
+          <option value="near">💬 Gần</option>
+          <option value="global">🌏 Thế giới (−1 tin 4G)</option>
+          <option value="led">🌈 Loa LED (−10💎)</option>
+        </select>
+        <input id="chat-in" maxlength="120" placeholder="Nhấn Enter để chat..." autocomplete="off">
+      </form>
+    </div>
+
+    <div id="actions">
+      <button data-act="inv" title="Túi đồ (I)">🎒<span>Túi đồ</span></button>
+      <button data-act="equip" title="Trang bị (C)">👕<span>Trang bị</span></button>
+      <button data-act="phone" title="Điện thoại (P)">📱<span>Điện thoại</span></button>
+      <button data-act="stall" title="Mở/xem sạp (B)">🧺<span>Sạp</span></button>
+      <button data-act="emote" title="Biểu cảm">😀<span>Biểu cảm</span></button>
+      <button data-act="help" title="Hướng dẫn (H)">❓<span>Hướng dẫn</span></button>
+    </div>
+    <div id="emotes" class="panel hidden"></div>
+
+    <div id="dialog" class="panel hidden">
+      <button class="x" data-close>✕</button>
+      <h3 id="dlg-title"></h3>
+      <div id="dlg-text"></div>
+      <div id="dlg-opts"></div>
+    </div>
+
+    <div id="inv" class="panel side hidden">
+      <button class="x" data-close>✕</button>
+      <h3>🎒 Túi đồ</h3>
+      <div id="inv-list"></div>
+    </div>
+
+    <div id="equip" class="panel side hidden">
+      <button class="x" data-close>✕</button>
+      <h3>👕 Trang bị</h3>
+      <div id="equip-stats"></div>
+      <div id="equip-slots"></div>
+      <div id="equip-buffs" class="muted"></div>
+    </div>
+
+    <div id="help" class="panel side hidden">
+      <button class="x" data-close>✕</button>
+      <h3>❓ Hướng dẫn nhanh</h3>
+      <div class="help-body">
+        <p><b>Di chuyển:</b> WASD / phím mũi tên, hoặc click xuống đất. <b>E</b>: tương tác điểm gần nhất. Click NPC / cửa hàng / sạp để đi tới và mở.</p>
+        <p><b>Sinh viên:</b> điểm danh ở Giảng đường (07–11h), phụ bán bánh mì, cày net, nhặt ve chai. Đủ điểm danh → Thực tập sinh → nộp CV vào TechCorp.</p>
+        <p><b>Nhân viên VP:</b> chấm công TechCorp 07:30–09:00, làm việc tăng KPI, lương về tài khoản 17:00. Gửi tiết kiệm lấy lãi.</p>
+        <p><b>Tiểu thương:</b> nhập nguyên liệu ở Tạp hóa, mở sạp (B) ở ô quy hoạch (khung vàng), chế biến bánh mì / trà đá / nước mía rồi bày bán. Khách NPC và người chơi sẽ ghé mua.</p>
+        <p><b>Rủi ro:</b> giữ nhiều tiền mặt dễ bị Ăn trộm (click tên trộm để đuổi). Giang hồ đòi bảo kê sạp — trả tiền, gọi Cảnh sát hoặc kêu gọi người chơi khác. Bày sạp ngoài ô quy hoạch có thể bị Cảnh sát phạt.</p>
+        <p><b>Điện thoại:</b> chat Thế giới (tốn cước 4G), chuyển khoản, định vị bạn bè, đấu giá từ xa (20:00).</p>
+        <p><b>Thời tiết:</b> mưa làm xe chậm 50% & sạp không dù che bị ế; nắng gắt hao thể lực, nước mía bán chạy.</p>
+      </div>
+    </div>
+  </div>
+
+  <script src="/lib/phaser.min.js"></script>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>

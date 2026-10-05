@@ -1,0 +1,186 @@
+{
+ "bld_buudien": [
+  567,
+  303
+ ],
+ "bld_bida": [
+  570,
+  298
+ ],
+ "cart_banhmi": [
+  59,
+  73
+ ],
+ "cart_veso": [
+  57,
+  67
+ ],
+ "cart_hoaquynh": [
+  143,
+  141
+ ],
+ "ganh_hang": [
+  144,
+  165
+ ],
+ "barber_set": [
+  57,
+  65
+ ],
+ "sign_buudien": [
+  43,
+  29
+ ],
+ "stools_family": [
+  106,
+  86
+ ],
+ "tv": [
+  40,
+  50
+ ],
+ "cub": [
+  53,
+  46
+ ],
+ "cub_rider": [
+  67,
+  89
+ ],
+ "npc_bacu": [
+  53,
+  79
+ ],
+ "npc_onglao": [
+  36,
+  77
+ ],
+ "npc_thanhnien": [
+  28,
+  77
+ ],
+ "npc_girl": [
+  20,
+  54
+ ],
+ "npc_boy": [
+  20,
+  57
+ ],
+ "npc_mom": [
+  19,
+  58
+ ],
+ "npc_dad": [
+  21,
+  58
+ ],
+ "npc_buuta": [
+  28,
+  72
+ ],
+ "npc_ngoi": [
+  33,
+  62
+ ],
+ "npc_suaxe": [
+  56,
+  56
+ ],
+ "stool_blue": [
+  19,
+  22
+ ],
+ "stool_red": [
+  19,
+  22
+ ],
+ "stool_small": [
+  15,
+  20
+ ],
+ "poster_beer": [
+  22,
+  28
+ ],
+ "poster_tea": [
+  18,
+  24
+ ],
+ "poster_1": [
+  29,
+  37
+ ],
+ "poster_2": [
+  29,
+  37
+ ],
+ "poster_3": [
+  23,
+  35
+ ],
+ "poster_4": [
+  28,
+  35
+ ],
+ "poster_5": [
+  28,
+  35
+ ],
+ "power_pole": [
+  54,
+  173
+ ],
+ "roof_tin": [
+  75,
+  23
+ ],
+ "coffee_phin": [
+  13,
+  19
+ ],
+ "glass_tea": [
+  8,
+  11
+ ],
+ "bowl_pho": [
+  15,
+  11
+ ],
+ "flowers": [
+  34,
+  28
+ ],
+ "books": [
+  13,
+  18
+ ],
+ "tex_wall": [
+  144,
+  146
+ ],
+ "tex_floor": [
+  145,
+  146
+ ],
+ "plant_tall": [
+  20,
+  38
+ ],
+ "tires": [
+  24,
+  29
+ ],
+ "plants_pair": [
+  32,
+  30
+ ],
+ "stool_pink": [
+  21,
+  24
+ ],
+ "sign_buudien_stand": [
+  31,
+  47
+ ]
+}

@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: saigon-retro-20s
+    runtime: node
+    plan: free
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/status
+    envVars:
+      - key: NODE_VERSION
+        value: "20"

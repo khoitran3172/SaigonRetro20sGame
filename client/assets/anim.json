@@ -1,0 +1,12 @@
+{
+ "anim_suaxe": {
+  "frameWidth": 108,
+  "frameHeight": 67,
+  "frames": 4
+ },
+ "anim_catoc": {
+  "frameWidth": 39,
+  "frameHeight": 70,
+  "frames": 4
+ }
+}
