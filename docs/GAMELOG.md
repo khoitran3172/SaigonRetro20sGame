@@ -15,7 +15,8 @@
 | 2026-10-06 | `e8a932e` · `a3e1e41` | README quảng cáo, tách docs, file bàn giao CLAUDE.md, bản chơi online |
 | 2026-10-06 | `1b91b67` | Thiết kế lại gameplay V2 (chờ duyệt) + trang copy prompt asset |
 | 2026-10-07 | `cbd4d26` | Gameplay V2 đợt 1 theo art mới: UI kit, điện thoại, nghề + mini-game, túi đồ lưới |
-| 2026-10-07 | *(commit này)* | Hộp thoại NPC tự đóng khi đi xa · nhật ký phát triển |
+| 2026-10-07 | `e7ce286` | Hộp thoại NPC tự đóng khi đi xa · nhật ký phát triển |
+| 2026-10-07 | *(commit này)* | README mới có ảnh chụp game, dẫn link sang nhật ký |
 
 ---
 
@@ -93,6 +94,11 @@
 
 - Panel NPC / cửa hàng / sạp chỉ hiện khi bấm vào (nhân vật tự đi tới rồi mở), **tự đóng khi đi xa quá 200px** (rộng hơn tầm thao tác 170px của server để không chớp tắt). Điện thoại, đấu giá từ xa, Giang hồ, bảng nhiệm vụ không bị đóng.
 - Thêm nhật ký phát triển này.
+
+## 2026-10-07 · README mới
+
+- Làm lại README cho đẹp: nút "Chơi ngay", huy hiệu, icon pixel của chính game làm tiêu đề mục, ảnh chụp thật (phố, quán cơm tấm, 3 mini-game, túi đồ, trang bị, điện thoại), bảng phím tắt, mục **Nhật ký phát triển** dẫn sang file này.
+- Ảnh chụp lưu ở `docs/screenshots/` (chụp bằng Playwright 1280×720, ẩn khung chat/thông báo).
 
 ---
 
