@@ -16,7 +16,7 @@ Game web **2D top-down MMORPG / Life-Sim đô thị Sài Gòn**, pixel art. 3 t�
 - **KHÔNG tự vẽ art mới.** Người dùng tự tạo ảnh bằng AI. Thiếu asset thì ghi vào `docs/ASSET_STATUS.md` và báo lại, không vẽ thay bằng code. (Các ảnh tạm vẽ bằng code trong `client/src/textures.js` là di sản từ bản đầu — giữ làm placeholder, không thêm mới.)
 - **Hỏi trước khi commit/push.** Push lên `main` sẽ kích hoạt Render tự deploy bản online.
 - README chỉ để **quảng cáo game**; chi tiết kỹ thuật viết trong `docs/`.
-- **Khi liệt kê asset còn thiếu, LUÔN kèm prompt đầy đủ cho từng ảnh.** Nguồn: `docs/ASSET_TODO.md`, sinh bởi `python tools/asset_todo.py` — cập nhật bảng dữ liệu trong script (xóa mục đã có art, thêm mục mới) rồi chạy lại.
+- **Khi liệt kê asset còn thiếu, LUÔN kèm prompt đầy đủ cho từng ảnh.** Nguồn: `docs/ASSET_TODO.md` + trang **`docs/asset_todo.html`** (nút Copy từng prompt, bấm xong tự đánh dấu ✅ đã dùng, lưu trong localStorage theo tên file ảnh nên giữ nguyên khi sinh lại). Cả hai sinh bởi `python tools/asset_todo.py` — cập nhật nhóm `SEGMENTS` / `DEFER` trong script (xóa mục đã có art, thêm mục mới) rồi chạy lại. Người dùng mở file HTML trực tiếp bằng trình duyệt.
 - Commit message kết thúc bằng dòng `Co-Authored-By` theo hướng dẫn của môi trường hiện tại.
 
 ## 3. Chạy & kiểm tra
@@ -73,6 +73,12 @@ Người dùng bỏ ảnh vào **`asset_new_by_Khoit/`** (chữ K hoa trên đĩ
 6. Cập nhật `tools/asset_todo.py` (bỏ asset đã nhận, thêm ảnh cần làm lại kèm prompt) → `python tools/asset_todo.py`.
 
 ## 7. Trạng thái hiện tại & việc tiếp theo
+
+> **ĐANG LÀM: Thiết kế lại gameplay V2 — CHỜ NGƯỜI DÙNG DUYỆT, CHƯA CODE.**
+> Tài liệu: `docs/GAMEPLAY_V2.md` (mã G1–G41), `docs/ANIMATION_V2.md` (A1–A14), `docs/INVENTORY_V2.md` (I1–I15), asset kèm prompt `docs/ASSET_TODO.md` (sinh từ `tools/asset_todo.py`).
+> Người dùng sẽ trả lời theo mã (vd "G1 ok, G24 chọn A"). Cập nhật tài liệu theo phản hồi trước, rồi mới code theo thứ tự ở GAMEPLAY_V2 mục 9.
+> Đã chốt (vòng 2): G6–G9, G32 (bỏ toàn bộ xe máy), G53 (bỏ bày bán vỉa hè → Sạp hàng hóa), G54 (bỏ nghề Grab).
+> Hướng chính: chỉ Sinh viên nam; làm nhiều nghề bất kỳ lúc nào (J1–J9); trọng tâm nấu ăn, ngủ, trang trí phòng; giải trí ẩn; nội thất 3 phân khúc + tiền điện; Chợ Sạp Hàng Hóa (bán cả khi offline); trang bị mua ở quầy + Gacha (G60–G64); chỉ xe buýt + taxi; túi đồ dạng lưới ô.
 
 **Đã xong (commit gần nhất trên `main`):** dựng lại game với art mới (sv_male, sv_female, 8 công trình, 10 NPC làm việc, 8 xe, sạp 3 cấp, 56 icon, ~27 props, ảnh nền đăng nhập); README quảng cáo; PostgreSQL; docs.
 
