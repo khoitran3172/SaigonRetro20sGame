@@ -21,6 +21,7 @@ from scipy import ndimage
 
 import import_new_art
 import new_manifest
+import ui_manifest
 from extract_sprites import ROOT, SHEETS, background_mask
 
 OUT = os.path.join(ROOT, "tools", "out")
@@ -202,6 +203,14 @@ def main():
     # Art moi: cong trinh, xe, props, NPC lam viec, icon, anh dang nhap
     new_props, anim_meta = new_manifest.build(DST, pack_anchor_bottom)
     props_meta.update(new_props)
+    # UI kit, cong trinh moi, mini-game nghe, icon mon an moi
+    ui_props, ui_icons = ui_manifest.build(DST)
+    props_meta.update(ui_props)
+    icons_path = os.path.join(DST, "icons.json")
+    with open(icons_path) as fp:
+        icons = json.load(fp)
+    with open(icons_path, "w") as fp:
+        json.dump(icons + [i for i in ui_icons if i not in icons], fp)
     with open(os.path.join(DST, "props.json"), "w") as fp:
         json.dump(props_meta, fp, indent=1)
     with open(os.path.join(DST, "anim.json"), "w") as fp:

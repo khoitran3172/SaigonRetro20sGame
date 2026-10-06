@@ -2,7 +2,7 @@
 
 > **Danh sách cần làm kèm prompt copy dán được ngay: [`ASSET_TODO.md`](ASSET_TODO.md).**
 
-Cập nhật sau lần nhập `asset_new_by_khoit/` (13 file). Quy trình build: `npm run assets`.
+Cập nhật sau lần nhập `asset_new_by_khoit/` (30 file). Quy trình build: `npm run assets`.
 
 ## ✅ Đã dùng trong game
 
@@ -16,6 +16,27 @@ Cập nhật sau lần nhập `asset_new_by_khoit/` (13 file). Quy trình build:
 | 7 | 48 icon vật phẩm + 8 icon tiền tệ / giao diện | `item.png` |
 | 8 | 27 props: sạp 3 cấp, xe đẩy, gánh, ghế nhựa, cây, cột điện, đèn đường, ATM, bàn trà đá, cờ tướng, lốp, thùng rác, ghế đá, khung thành, bộ cắt tóc, biển đứng, đống phế liệu, ve chai, nắp cống | `props.jpg` |
 | — | Ảnh nền màn đăng nhập | `Img_Login.jpg` |
+
+### Đợt V2 — nhận 2026-10-07 (17 file đơn, cắt bằng `tools/ui_manifest.py`)
+
+| Asset | Dùng ở đâu | File nguồn |
+|---|---|---|
+| Khung panel + thanh tiêu đề + nút đóng | Mọi hộp thoại, Túi đồ, Trang bị, HUD, mini-game (`assets/ui/panel.png` …) | `ui_wood_paper_panel.png` |
+| 8 ô túi (trống, chọn, khóa, 4 độ hiếm, ô nhanh) | Túi đồ dạng lưới | `ui_slots.png` |
+| 6 icon tab lọc | Túi đồ (tab Nội thất tạm ẩn — chưa có nội thất) | `ui_tabs.png` |
+| Nút 4 trạng thái | Mọi nút | `ui_buttons.png` |
+| Khung thông tin + thanh dùng nhanh 5 ô | Ô thông tin rê chuột, thông báo (toast), thanh phím 1–5 | `ui_tooltip_hotbar.png` |
+| Nền búp bê giấy 8 ô | Màn Trang bị (phím C) | `ui_equipment_screen.png` |
+| 8 icon ô trang bị trống | Đã cắt (`assets/ui/eq_*.png`) — chưa cần vì nền búp bê đã vẽ sẵn | `ui_equip_placeholders.png` |
+| 8 icon HUD | No bụng / Năng lượng / Tinh thần, đồng hồ, nhiệm vụ. Nhà, ngủ, tiền điện: chưa có tính năng → chưa dùng | `ui_hud_icons.png` |
+| Khung điện thoại + 8 icon app | Điện thoại (phím P). App Taxi tạm ẩn | `ui_phone.png`, `ui_phone_apps.png` |
+| Quán cơm tấm, Tiệm trà sữa | Công trình mới (Khu 1 x=3905, Khu 3 x=1545) | `building_com_tam_facade.png`, `building_bubble_tea_facade.png` |
+| Màn hình code + 6 khối lệnh + 2 bug | Mini-game J1 IT | `job_it.png` |
+| Sàn quán + 8 món | Mini-game J2 Phục vụ; 4 món làm icon vật phẩm mới (cơm sườn, cơm bì chả, canh, trứng ốp la) | `job_waiter_floor.png`, `job_waiter_items.png` |
+| Quầy pha trà sữa | Mini-game J3 Trà sữa | `job_milktea_items.png` (**nội dung là quầy**, không phải icon ly/topping) |
+| Bàn pha cà phê (nhìn nghiêng) | Đồ trang trí cạnh Cà Phê Vỉa Hè | `prop_coffee_prep_table.png` |
+
+**Lỗi nhỏ đợt này (không chặn):** ✦ watermark Gemini dính trên ảnh *nền kín* `job_waiter_floor.png` (góc phải dưới) và `job_milktea_items.png` (góc phải dưới) — ảnh nền magenta thì pipeline tự xóa được. `job_milktea_items.png` gửi nhầm nội dung (quầy thay vì 12 icon ly & topping).
 
 ## ❌ Còn thiếu — đang dùng art cũ hoặc ảnh tạm vẽ bằng code
 

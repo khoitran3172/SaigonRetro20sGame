@@ -17,6 +17,7 @@ Game web **2D top-down MMORPG / Life-Sim đô thị Sài Gòn**, pixel art. 3 t�
 - **Hỏi trước khi commit/push.** Push lên `main` sẽ kích hoạt Render tự deploy bản online.
 - README chỉ để **quảng cáo game**; chi tiết kỹ thuật viết trong `docs/`.
 - **Khi liệt kê asset còn thiếu, LUÔN kèm prompt đầy đủ cho từng ảnh.** Nguồn: `docs/ASSET_TODO.md` + trang **`docs/asset_todo.html`** (nút Copy từng prompt, bấm xong tự đánh dấu ✅ đã dùng, lưu trong localStorage theo tên file ảnh nên giữ nguyên khi sinh lại). Cả hai sinh bởi `python tools/asset_todo.py` — cập nhật nhóm `SEGMENTS` / `DEFER` trong script (xóa mục đã có art, thêm mục mới) rồi chạy lại. Người dùng mở file HTML trực tiếp bằng trình duyệt.
+- Người dùng vẽ bằng **Gem Gemini "Họa sĩ Hàng Rong"** — hướng dẫn Gem (style bible, bảng màu rút từ art đã duyệt, quy chuẩn kỹ thuật) ở `docs/GEMINI_GEM.md`. Đổi quy chuẩn asset thì cập nhật cả file này.
 - Commit message kết thúc bằng dòng `Co-Authored-By` theo hướng dẫn của môi trường hiện tại.
 
 ## 3. Chạy & kiểm tra
@@ -50,9 +51,12 @@ npm run assets     # build lại asset (cần Python 3 + pillow numpy scipy)
 | `server/economy.js` | Giao dịch nguyên tử + sổ cái |
 | `server/dialogs.js` | Hội thoại mọi POI (server dựng UI, client chỉ hiển thị) |
 | `server/npcs.js` / `auction.js` | NPC động / đấu giá |
+| `server/jobs.js` | Nghề + mini-game: server sinh đề, client chơi, server chấm (`scoreJob`), cấp nghề |
 | `server/db.js` / `pgdb.js` | Lưu JSON / PostgreSQL |
 | `client/src/world.js` | Scene Phaser: map, nhân vật, xe, NPC, giao thông, ngày/đêm |
-| `client/src/ui.js` | HUD, chat, hội thoại, túi đồ (icon từ `assets/icons/`) |
+| `client/src/ui.js` | HUD, chat, hội thoại, túi đồ lưới, búp bê giấy, điện thoại, thanh nhanh (icon từ `assets/icons/`, khung từ `assets/ui/`) |
+| `client/src/jobs.js` | Màn mini-game J1 IT / J2 Phục vụ / J3 Trà sữa (tọa độ điểm bấm theo ảnh nền 1024×572) |
+| `client/ui-v2.css` | Giao diện UI kit V2 (khung giấy-gỗ `border-image` 9 phần, nút, ô độ hiếm) |
 
 ## 6. Quy trình asset (việc lặp lại nhiều nhất)
 
@@ -68,19 +72,22 @@ Người dùng bỏ ảnh vào **`asset_new_by_Khoit/`** (chữ K hoa trên đĩ
    - Chạy `python tools/contact_new.py` → xem `tools/out/new/_contact_*.png` để lấy mã blob `hàng.cột` (thêm file vào `PARAMS` nếu là sheet mới; tham số `(dilate, min_ratio, erode)` — nét mảnh dùng erode 1).
    - Map mã blob → tên asset, kích thước trong game (người đứng = 86px, công trình scale 1.25 từ ảnh 1024px).
    - Công trình mới: thêm vào `BUILDINGS` trong config (`sprite`, `sign.box` = tỉ lệ ô biển hiệu trống trong ảnh) và chỉnh `POIS`.
+   - **Ảnh đơn** (UI kit, `building_*`, `job_*`, `prop_*`…) → `tools/ui_manifest.py`: khai báo hộp cắt `(x0,y0,x1,y1)` theo ảnh gốc 1024×572; file có tiền tố `ui_ job_ building_ prop_ bld_ icons_ furn_ room_` được bộ nhập nhân vật bỏ qua.
 4. `npm run assets` (hoặc `cd tools && python build_assets.py`) → xem ảnh preview, kiểm tra trong game, cập nhật `docs/ASSET_STATUS.md`.
 5. Nhắc người dùng các lỗi ảnh (watermark ✦ Gemini, thiếu frame) — **không tự sửa art**.
 6. Cập nhật `tools/asset_todo.py` (bỏ asset đã nhận, thêm ảnh cần làm lại kèm prompt) → `python tools/asset_todo.py`.
 
 ## 7. Trạng thái hiện tại & việc tiếp theo
 
-> **ĐANG LÀM: Thiết kế lại gameplay V2 — CHỜ NGƯỜI DÙNG DUYỆT, CHƯA CODE.**
-> Tài liệu: `docs/GAMEPLAY_V2.md` (mã G1–G41), `docs/ANIMATION_V2.md` (A1–A14), `docs/INVENTORY_V2.md` (I1–I15), asset kèm prompt `docs/ASSET_TODO.md` (sinh từ `tools/asset_todo.py`).
-> Người dùng sẽ trả lời theo mã (vd "G1 ok, G24 chọn A"). Cập nhật tài liệu theo phản hồi trước, rồi mới code theo thứ tự ở GAMEPLAY_V2 mục 9.
-> Đã chốt (vòng 2): G6–G9, G32 (bỏ toàn bộ xe máy), G53 (bỏ bày bán vỉa hè → Sạp hàng hóa), G54 (bỏ nghề Grab).
-> Hướng chính: chỉ Sinh viên nam; làm nhiều nghề bất kỳ lúc nào (J1–J9); trọng tâm nấu ăn, ngủ, trang trí phòng; giải trí ẩn; nội thất 3 phân khúc + tiền điện; Chợ Sạp Hàng Hóa (bán cả khi offline); trang bị mua ở quầy + Gacha (G60–G64); chỉ xe buýt + taxi; túi đồ dạng lưới ô.
+> **ĐANG LÀM: Gameplay V2 — code dần theo art người dùng gửi.** Tài liệu: `docs/GAMEPLAY_V2.md` (G…, đầu file có mục "Đã code"), `docs/ANIMATION_V2.md` (A…), `docs/INVENTORY_V2.md` (I…), asset kèm prompt `docs/ASSET_TODO.md`.
+> Nguyên tắc người dùng chốt (2026-10-07): **làm phần nào có art; phần chưa có art thì tạm ẩn; nhân vật giữ art & UI cũ, chưa sửa** (chưa làm G1 chỉ-Sinh-viên-nam, chưa đổi animation).
+> Đã chốt: G6–G9, G32 (bỏ xe máy — CHƯA gỡ khỏi code), G53, G54. Hướng chính: một SV làm nhiều nghề, nấu ăn, ngủ, trang trí phòng, Chợ Sạp Hàng Hóa, chỉ xe buýt + taxi.
 
-**Đã xong (commit gần nhất trên `main`):** dựng lại game với art mới (sv_male, sv_female, 8 công trình, 10 NPC làm việc, 8 xe, sạp 3 cấp, 56 icon, ~27 props, ảnh nền đăng nhập); README quảng cáo; PostgreSQL; docs.
+**Phiên gần nhất (2026-10-07):** nhập 17 ảnh V2 (UI kit, điện thoại, quán cơm tấm, tiệm trà sữa, mini-game J1–J3) → code: 3 nhu cầu (thêm No bụng), nhiệm vụ ngày, hệ thống nghề + 3 mini-game, túi đồ lưới + thanh nhanh + ô thông tin, búp bê giấy, điện thoại có app, dời nhà trọ/net cỏ sang trái để chừa chỗ tiệm trà sữa. Thêm test nghề/nhiệm vụ. Chưa commit — hỏi người dùng.
+
+**Phiên trước (2026-10-06):** viết bộ tài liệu thiết kế V2 (GAMEPLAY / ANIMATION / INVENTORY), danh sách 132 ảnh kèm prompt + trang `docs/asset_todo.html` có nút Copy, và hướng dẫn Gem Gemini `docs/GEMINI_GEM.md`. **Chưa code gì cho V2.** Việc kế tiếp: chờ người dùng trả lời các mã G/A/I còn mở → cập nhật tài liệu → code theo GAMEPLAY_V2 mục 11 (đợt 1 trước).
+
+**Đã xong trước đó:** dựng lại game với art mới (sv_male, sv_female, 8 công trình, 10 NPC làm việc, 8 xe, sạp 3 cấp, 56 icon, ~27 props, ảnh nền đăng nhập); README quảng cáo; PostgreSQL; docs.
 
 **Đang chờ người dùng:**
 - Asset còn thiếu (danh sách đầy đủ `docs/ASSET_STATUS.md`): `sv_female/walk_down`; bộ `vp_male`, `vp_female`, `tt_male`, `tt_female`; Cảnh sát, Ăn trộm, Giang hồ, Bưu tá, người đi đường; ngân hàng, TechCorp, đấu giá, showroom, thời trang, vựa ve chai, nhà ống; tạo lại xe buýt (dính watermark), cô cà phê (2 frame), cô Ba (4 frame).

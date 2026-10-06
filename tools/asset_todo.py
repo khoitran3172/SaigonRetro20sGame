@@ -183,65 +183,12 @@ seg("4. [Đợt 1] Giao thông — xe buýt, trạm, taxi",
       "Single game asset: a small taxi waiting point: a pole with an EMPTY blank sign box on top and a painted "
       "yellow curb section, 3/4 top-down front view.", STYLE)])
 
-seg("5. [Đợt 1] Bộ giao diện (UI kit) — túi đồ, trang bị, HUD",
-    "INVENTORY_V2 + G6. Khung phẳng, viền đều để co giãn (9-slice).",
-    [("Khung panel lớn", "ui_panel.png",
-      "A large empty rectangular game window panel made of aged cream paper with a warm teak wood border and small "
-      "brass corner pieces, plus a separate matching title bar strip and a separate small round close button. The "
-      "border thickness is uniform on all sides so it can be stretched.", STYLE_UI),
-     ("Ô túi đồ (các trạng thái)", "ui_slots.png",
-      "A row of 8 square inventory slot frames of identical size with wide gaps: (1) empty slot, (2) selected slot "
-      "with a bright glowing border, (3) locked slot with a small padlock, (4) common rarity grey border, (5) good "
-      "rarity green border, (6) rare rarity blue border, (7) limited rarity gold border with a soft glow, (8) "
-      "hotbar slot with a darker inset.", STYLE_UI),
-     ("Icon tab lọc", "ui_tabs.png",
-      "A row of 6 small square tab icons of identical size with wide gaps: (1) all items: a backpack, (2) food and "
-      "drink: a bowl with chopsticks, (3) ingredients: a basket of vegetables, (4) equipment: a t-shirt, (5) "
-      "furniture: a small sofa, (6) other: a cardboard box.", STYLE_UI),
-     ("Nút bấm 4 trạng thái", "ui_buttons.png",
-      "Four empty rectangular game buttons of identical size in one row with wide gaps: (1) normal warm orange, (2) "
-      "hover brighter orange, (3) pressed darker and pushed down, (4) disabled grey. Uniform borders for "
-      "stretching.", STYLE_UI),
-     ("Khung thông tin & thanh dùng nhanh", "ui_tooltip_hotbar.png",
-      "Two separate elements with a wide gap: (1) an empty dark tooltip box with a thin brass border and a small "
-      "pointer notch, (2) a horizontal hotbar frame holding 5 square slots in a row.", STYLE_UI),
-     ("Nền trang bị (búp bê giấy)", "ui_paperdoll.png",
-      "An empty equipment screen background: a vertical cream paper card with a faint pale silhouette of a standing "
-      "person in the center and 8 empty square slot frames arranged around the silhouette: hat at the top, glasses "
-      "at the upper right, shirt at the left, watch at the right, pants at the lower left, backpack at the lower "
-      "right, shoes at the bottom left, phone at the bottom right.", STYLE_UI),
-     ("Icon ô trang bị trống", "ui_equip_placeholders.png",
-      "A row of 8 faint outline silhouette icons of identical size with wide gaps, single light-grey color: (1) "
-      "cap, (2) glasses, (3) t-shirt, (4) wristwatch, (5) trousers, (6) backpack, (7) sneakers, (8) smartphone.",
-      STYLE_UI),
-     ("Icon nhu cầu & HUD", "ui_needs.png",
-      "A row of 8 small square HUD icons of identical size with wide gaps: (1) hunger: a bowl of rice, (2) energy: a "
-      "lightning bolt, (3) mood: a smiling face, (4) daily quest: a scroll with a check mark, (5) clock, (6) home: a "
-      "small house, (7) sleeping: a crescent moon with Zzz, (8) electricity bill: a light bulb.", STYLE_UI)])
-
-seg("6. [Đợt 1] Điện thoại & app",
-    "G58. Điện thoại là nơi mở app Việc Làm, Ngân hàng, Bản đồ, Gọi taxi, Chợ, Nhiệm vụ.",
-    [("Khung điện thoại", "ui_phone.png",
-      "An empty modern smartphone frame seen straight from the front, slim dark bezel, a large empty bright screen "
-      "area, a small top speaker notch. Nothing on the screen.", STYLE_UI),
-     ("Icon app điện thoại", "ui_phone_apps.png",
-      "A grid of 4 columns x 2 rows of rounded-square smartphone app icons of identical size with wide gaps: (1) jobs: "
-      "a briefcase, (2) bank: a bank building, (3) map: a folded city map with a pin, (4) taxi: a green taxi car, (5) "
-      "market: a market stall awning, (6) quests: a checklist, (7) contacts: two people, (8) settings: a gear.",
-      STYLE_UI)])
+# Muc 5 (UI kit) va 6 (dien thoai & app) — DA NHAN art 2026-10-07, da dung trong game.
 
 # ===================== ĐỢT 2 — nghề
 seg("7. [Đợt 2] Nơi làm việc mới",
-    "J2 Phục vụ quán cơm tấm, J3 Pha trà sữa. Nhà học sinh (J8) dùng một căn nhà ống ở nhóm 11.",
-    [("Quán cơm tấm", "bld_comtam.png", BUILDING.format(
-        what="a busy Saigon broken-rice restaurant (com tam)", ratio="1.4:1",
-        detail="open front, a grill with smoke at the entrance, steel tables and plastic stools inside, a glass food "
-               "display case"), STYLE),
-     ("Tiệm trà sữa", "bld_trasua.png", BUILDING.format(
-         what="a trendy small bubble tea shop", ratio="1.2:1",
-         detail="pastel pink and mint facade, a big glass window with a counter and a menu board without text, potted "
-                "plants, a neon cup shape"), STYLE),
-     ("Bà chủ quán cơm tấm", "npc_boss_comtam.png", npc_idle(
+    "Đã nhận mặt tiền quán cơm tấm + tiệm trà sữa. Còn thiếu NPC chủ quán (tạm để quán không người).",
+    [("Bà chủ quán cơm tấm", "npc_boss_comtam.png", npc_idle(
          "Vietnamese woman around 50 with a white apron and a headscarf, holding a ladle"), STYLE),
      ("Chủ tiệm trà sữa", "npc_boss_trasua.png", npc_idle(
          "trendy Vietnamese young woman around 24 with a pastel cap and a shop apron"), STYLE),
@@ -253,24 +200,10 @@ seg("7. [Đợt 2] Nơi làm việc mới",
          desc="plump Vietnamese woman around 50, curly short hair, pink-checked blouse and trousers, sandals"), STYLE)])
 
 seg("8. [Đợt 2] Mini-game các nghề",
-    "G34. Mỗi nghề một màn chơi. J9 ve chai dùng anim `pickup_down`, không cần thêm.",
-    [("J1 IT — màn hình code", "job_it.png",
-      "Two separate elements with a wide gap: (1) an empty retro laptop screen frame seen straight on, showing an "
-      "empty dark code editor window with a sidebar and line-number gutter but NO text; (2) a row of 6 colorful "
-      "rounded code-block tiles of identical size with no text, plus 2 small cute pixel bug creatures.", STYLE_UI),
-     ("J2 Phục vụ — sàn quán", "job_waiter_floor.png",
-      "A top-down 16:9 view of a small com tam restaurant floor: 6 steel tables with plastic stools arranged in 2 rows, "
-      "a kitchen pass counter at the top, a clear walking path between tables. No people, no text. Fill the whole "
-      "image.", STYLE_UI.replace("Plain solid flat magenta background #FF00FF around every element.", "")),
-     ("J2 Phục vụ — món & khay", "job_waiter_items.png", icon_grid([
-         "a plate of com tam with grilled pork chop", "com tam with shredded pork skin and egg meatloaf",
-         "a bowl of soup", "a glass of iced tea", "a round metal serving tray", "a paper order ticket",
-         "a plate of fried egg", "a bowl of fish sauce"]), STYLE_UI),
-     ("J3 Trà sữa — quầy pha chế", "job_milktea_counter.png",
-      "A top-down 16:9 view of a bubble tea preparation counter: a shaker in the center, empty cup holders, tea "
-      "dispensers at the top, topping containers along the bottom, a sealing machine at the right. No people, no "
-      "text.", STYLE_UI),
-     ("J3 Trà sữa — ly & topping", "job_milktea_items.png", icon_grid([
+    "G34. Đã nhận J1 IT, J2 Phục vụ, quầy J3 (file job_milktea_items.png gửi nhầm là ảnh quầy — đang dùng làm quầy). "
+    "Ảnh J3 bên dưới là tùy chọn (icon cho phiếu order). J4 cần ảnh quầy NHÌN TỪ TRÊN XUỐNG — ảnh prop_coffee_prep_table "
+    "nhìn nghiêng nên đang dùng làm đồ trang trí ở quán cà phê.",
+    [("J3 Trà sữa — ly & topping (tùy chọn)", "job_milktea_items.png", icon_grid([
          "a small empty plastic cup", "a medium empty plastic cup", "a large empty plastic cup", "black tea pitcher",
          "green tea pitcher", "a bowl of tapioca pearls", "a bowl of fruit jelly", "a bowl of pudding",
          "cheese foam topping", "a scoop of ice", "a sugar syrup bottle", "a finished sealed bubble tea"]), STYLE_UI),
@@ -607,6 +540,7 @@ def main():
           "> File tự sinh bởi `python tools/asset_todo.py` theo thiết kế [GAMEPLAY_V2](GAMEPLAY_V2.md), "
           "[ANIMATION_V2](ANIMATION_V2.md), [INVENTORY_V2](INVENTORY_V2.md). **Đang chờ bạn duyệt thiết kế** — "
           "nếu bỏ ý nào thì asset tương ứng cũng bỏ.\n",
+          "> **Vẽ bằng Gem *Họa sĩ Hàng Rong*:** hướng dẫn tạo Gem ở [GEMINI_GEM.md](GEMINI_GEM.md) — Gem tự áp phong cách & quy chuẩn.\n",
           "> **Có trang copy nhanh:** mở `docs/asset_todo.html` bằng trình duyệt — mỗi prompt có nút **Copy**, bấm xong tự đánh dấu ✅ đã dùng.\n",
           "> **Cách dùng:** mỗi khối là **một ảnh** → copy nguyên khối dán vào Gemini. Đính kèm ảnh tham chiếu "
           "phong cách (`NPC.png`, hoặc ảnh đầu tiên của chính nhân vật đó). Lưu đúng tên file ở tiêu đề khối, bỏ vào "
@@ -685,6 +619,7 @@ pre.open{max-height:none}
 <body>
 <header><div class="wrap">
   <h1>Prompt asset Hàng Rong — V2 (__TOTAL__ ảnh)</h1>
+  <p class="count" style="margin:0 0 6px">Dán vào Gem <b>Họa sĩ Hàng Rong</b> (cách tạo: <a href="GEMINI_GEM.md">docs/GEMINI_GEM.md</a>). Bấm Copy → tự đánh dấu đã dùng.</p>
   <div class="bar"><i id="totalBar"></i></div>
   <div class="tools">
     <span id="totalText" class="count"></span>

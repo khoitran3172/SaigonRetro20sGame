@@ -1,10 +1,11 @@
 import crypto from 'node:crypto';
 import {
-  CHAT, CLASSES, ECON, FORMAT, ITEMS, PLOTS, POIS, RECIPES, SKINS, SLOTS, SPEED, TIME, WORLD, zoneAt,
+  CHAT, CLASSES, ECON, FORMAT, ITEMS, JOBS, PLOTS, POIS, QUEST_BONUS, QUESTS, RECIPES, SKINS, SLOTS, SPEED, TIME, WORLD, zoneAt,
 } from '../shared/config.js';
 import { Auction } from './auction.js';
 import { DIALOGS, addStat } from './dialogs.js';
 import { EconError, Economy, newUid } from './economy.js';
+import { Jobs, jobInfo } from './jobs.js';
 import { NpcSystem } from './npcs.js';
 
 const AOI_CELL = 640;
@@ -38,6 +39,7 @@ export class Game {
     this.tokenIndex = new Map(Object.values(db.data.players).map((p) => [p.token, p]));
     this.npcs = new NpcSystem(this);
     this.auction = new Auction(this);
+    this.jobs = new Jobs(this);
   }
 
   get minute() { return this.db.data.world.minute; }
@@ -141,6 +143,9 @@ export class Game {
         case 'stall_open': return this.openStall(s);
         case 'stall_list': return this.listOnStall(s, m);
         case 'emote': return this.chatNear(s, cleanText(m.e, 8), true);
+        case 'job_start': return this.jobs.start(s, String(m.job || ''));
+        case 'job_end': return this.jobs.end(s, m);
+        case 'inv_sort': return this.sortInv(s);
         default: return undefined;
       }
     } catch (e) {
@@ -173,6 +178,8 @@ export class Game {
       this.disconnect(old);
     }
     s.p = p;
+    p.stats.hunger ??= 80;
+    p.jobs ??= {};
     s.x = clamp(p.x, WORLD.walk.x0, WORLD.walk.x1);
     s.y = clamp(p.y, WORLD.walk.y0, WORLD.walk.y1);
     this.ensureDaily(p);
@@ -195,8 +202,8 @@ export class Game {
       name, token: crypto.randomBytes(16).toString('hex'), cls, skin, rank: 0,
       x: cls === 'sv' ? 600 : cls === 'vp' ? 4800 : 2300, y: 620,
       cash: c.cash, bank: c.bank, social: 0, diamonds: 30, data: 30,
-      stats: { stamina: 100, stress: 10, charisma: 0, attendance: 0, kpi: 0, reputation: 0 },
-      inv: [], equip: {}, buffs: [], cd: {}, daily: { day: this.day }, renting: false,
+      stats: { stamina: 100, stress: 10, hunger: 100, charisma: 0, attendance: 0, kpi: 0, reputation: 0 },
+      inv: [], equip: {}, buffs: [], cd: {}, daily: { day: this.day }, renting: false, jobs: {},
       title: '', titles: [], lotto: [], mail: [], counters: {}, created: Date.now(), lastLoginDay: this.day,
     };
     const st = STARTER[cls];
@@ -214,6 +221,40 @@ export class Game {
 
   ensureDaily(p) {
     if (p.daily.day !== this.day) p.daily = { day: this.day };
+    p.daily.q ??= this.pickQuests(p);
+  }
+
+  // ================================================================ nhiem vu ngay (G7)
+  pickQuests(p) {
+    const pool = Object.entries(QUESTS).filter(([, q]) => (!q.cls || q.cls === p.cls) && (!q.rent || p.renting));
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    return pool.slice(0, 3).map(([id]) => ({ id, have: 0, done: false }));
+  }
+
+  questProgress(s, key, n = 1) {
+    const p = s.p;
+    this.ensureDaily(p);
+    for (const q of p.daily.q) {
+      const def = QUESTS[q.id];
+      if (!def || q.done || def.key !== key) continue;
+      q.have = Math.min(def.need, q.have + n);
+      if (q.have < def.need) continue;
+      q.done = true;
+      this.econ.grant(p, def.reward, 'cash', `quest:${q.id}`);
+      p.social += 2;
+      this.toast(s, `📜 Hoàn thành nhiệm vụ "${def.name}" · +${this.vnd(def.reward)}, +2 Danh Vọng`, 'good');
+    }
+    if (!p.daily.qBonus && p.daily.q.every((q) => q.done)) {
+      p.daily.qBonus = true;
+      p.diamonds += QUEST_BONUS.diamonds;
+      p.social += QUEST_BONUS.social;
+      this.toast(s, `🎁 Xong cả 3 nhiệm vụ hôm nay! +${QUEST_BONUS.diamonds} 💎, +${QUEST_BONUS.social} Danh Vọng`, 'good');
+    }
+    s.dirty = true;
+    this.db.markDirty();
   }
 
   worldState() {
@@ -274,6 +315,7 @@ export class Game {
       calc: s.stats, inv: p.inv, equip: p.equip, title: p.title, titles: p.titles, renting: p.renting,
       buffs: p.buffs.map((b) => ({ name: b.name, left: b.until - this.absMinute() })),
       daily: p.daily, mail: p.mail.length,
+      jobs: Object.fromEntries(Object.keys(JOBS).map((id) => [id, jobInfo(p, id)])),
       stall: st ? { x: st.x, y: st.y, legal: !!st.plot, listings: st.listings.map((l) => ({ lid: l.lid, id: l.stack.id, qty: l.stack.qty, price: l.price, lvl: l.stack.lvl })) } : null,
     };
   }
@@ -325,7 +367,10 @@ export class Game {
     const text = cleanText(m.text, CHAT.maxLen);
     if (!text) return;
     s.lastInput = Date.now();
-    if (m.ch !== 'global') return this.chatNear(s, text);
+    if (m.ch !== 'global') {
+      this.questProgress(s, 'chat', 1);
+      return this.chatNear(s, text);
+    }
     const p = s.p;
     if (!this.hasPhone(p)) throw new EconError('Cần trang bị Điện thoại để chat Thế giới');
     if (p.data <= 0) throw new EconError('Hết cước 4G! Mua gói cước ở Bưu điện hoặc qua app điện thoại.');
@@ -357,6 +402,7 @@ export class Game {
     if (id.startsWith('thief:')) return this.npcs.chase(s, id.slice(6));
     if (id === 'phone') {
       if (!this.hasPhone(s.p)) throw new EconError('Bạn chưa trang bị điện thoại');
+      s.phoneApp = 'home';
       return this.pushDialog(s, { ...DIALOGS.phone.open(this, s), poi: 'phone' });
     }
     const poi = this.findPoi(id);
@@ -450,6 +496,7 @@ export class Game {
       for (const [k, v] of Object.entries(def.eff)) addStat(p, k, v * (v > 0 ? bonus : 1));
       this.econ.removeItems(p, { [st.id]: 1 });
       this.toast(s, `Bạn dùng ${def.icon} ${def.name}${bonus > 1 ? ' — mát lạnh giữa trời nắng!' : ''}`, 'good');
+      this.questProgress(s, 'eat', 1);
     } else if (def.type === 'data') {
       this.econ.removeItems(p, { [st.id]: 1 });
       p.data += def.data;
@@ -476,6 +523,18 @@ export class Game {
     if (!SLOTS[slot]) return;
     delete s.p.equip[slot];
     s.stats = this.computeStats(s.p);
+    this.db.markDirty();
+  }
+
+  // Gom & xep tui theo loai (INVENTORY_V2 I3). Server sap xep -> client chi hien thi.
+  sortInv(s) {
+    const order = { food: 0, ingredient: 1, equip: 2, material: 3, collectible: 4, data: 5, stall: 6 };
+    const key = (it) => [order[ITEMS[it.id].type] ?? 9, ITEMS[it.id].slot || '', ITEMS[it.id].name];
+    s.p.inv.sort((a, b) => {
+      const ka = key(a);
+      const kb = key(b);
+      return ka[0] - kb[0] || ka[1].localeCompare(kb[1]) || ka[2].localeCompare(kb[2], 'vi');
+    });
     this.db.markDirty();
   }
 
@@ -719,6 +778,14 @@ export class Game {
       const p = s.p;
       this.ensureDaily(p);
       p.stats.stamina = Math.max(0, p.stats.stamina - 0.03 * hot);
+      // No bung (G6): giam dan; doi la -> hao nang luong va tinh than
+      const wasHungry = p.stats.hunger < 20;
+      p.stats.hunger = Math.max(0, p.stats.hunger - 0.06);
+      if (!wasHungry && p.stats.hunger < 20) this.toast(s, '🍚 Bạn đang đói bụng. Kiếm gì ăn đi!', 'warn');
+      if (p.stats.hunger <= 0) {
+        p.stats.stamina = Math.max(0, p.stats.stamina - 0.05);
+        p.stats.stress = Math.min(100, p.stats.stress + 0.03);
+      }
       const workHours = p.cls === 'vp' && h >= 8 && h < 18 ? 0.03 : 0;
       p.stats.stress = Math.min(100, p.stats.stress + 0.02 + workHours);
       const before = p.buffs.length;

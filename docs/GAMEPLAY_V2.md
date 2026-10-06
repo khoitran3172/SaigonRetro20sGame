@@ -3,6 +3,10 @@
 > **Trạng thái:** đã chốt **G6–G9, G32, G53, G54**. Các ý còn lại vẫn là đề xuất — trả lời theo mã *"G42 ok, G54 chọn B"*.
 > Ký hiệu: ✅ đã chốt · ✏️ đã sửa theo phản hồi vòng 1 · 🆕 ý mới · 🙈 tạm ẩn ở V2.
 >
+>
+> **Đã code (2026-10-07, theo art đã có):** G6 3 nhu cầu (thêm chỉ số No bụng) · G7 3 nhiệm vụ/ngày · G11 + G43 hệ thống nghề có cấp 1–5 với 3 mini-game J1 IT (ở phòng trọ, cần thuê), J2 Phục vụ (Quán Cơm Tấm), J3 Trà sữa (Tiệm Trà Sữa) · G58 điện thoại (Việc Làm, Ngân hàng, Bản đồ bấm-để-đi, Chợ, Nhiệm vụ, Bạn bè, Cài đặt) · INVENTORY_V2 I1/I3/I4/I5/I6/I7/I11/I12/I14 (túi lưới, tab, chọn/bấm đúp, thanh nhanh 1–5, ô thông tin so sánh, viền độ hiếm, búp bê giấy 8 ô). Chưa chặn khi túi đầy (I1 chỉ hiển thị). Nhân vật giữ nguyên art & màn tạo nhân vật cũ.
+> Tạm ẩn vì chưa có art: J4–J8, app Taxi, tab Nội thất, icon nhà/ngủ/tiền điện.
+>
 > Tài liệu liên quan: [ANIMATION_V2.md](ANIMATION_V2.md) · [INVENTORY_V2.md](INVENTORY_V2.md) · [ASSET_TODO.md](ASSET_TODO.md)
 
 ---

@@ -322,6 +322,7 @@ export class NpcSystem {
     g.econ.addItem(s.p, rare ? 'linh_kien' : 've_chai', 1);
     s.dirty = true;
     g.toast(s, rare ? 'Nhặt được ⚙️ Linh kiện cũ!' : 'Nhặt được 🥫 Ve chai', 'good');
+    g.questProgress(s, 'scrap', 1);
   }
 
   // ------------------------------------------------------------------ moi phut trong game

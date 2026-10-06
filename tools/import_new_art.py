@@ -43,6 +43,8 @@ FACING = {
 
 # Sheet do vat / cong trinh (xu ly trong new_manifest.py)
 NOT_CHARACTERS = {"Congtrinh.jpg", "Img_Login.jpg", "NPC.jpg", "VEHICLE.png", "item.png", "props.jpg"}
+# Anh UI / cong trinh / mini-game don le (xu ly trong ui_manifest.py)
+NOT_CHARACTER_PREFIX = ("ui_", "job_", "building_", "prop_", "bld_", "icons_", "furn_", "room_")
 
 # Sheet gop: file -> danh sach (skin, action, hang, cot_bat_dau)
 SHEETS = {
@@ -146,7 +148,7 @@ def collect():
                 continue
             path = os.path.join(dirpath, fname)
             rel = os.path.relpath(path, SRC).replace("\\", "/")
-            if fname in NOT_CHARACTERS:
+            if fname in NOT_CHARACTERS or fname.lower().startswith(NOT_CHARACTER_PREFIX):
                 continue
             if fname in SHEETS:
                 rows = frames_in(path)

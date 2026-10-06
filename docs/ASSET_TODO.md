@@ -2,12 +2,14 @@
 
 > File tự sinh bởi `python tools/asset_todo.py` theo thiết kế [GAMEPLAY_V2](GAMEPLAY_V2.md), [ANIMATION_V2](ANIMATION_V2.md), [INVENTORY_V2](INVENTORY_V2.md). **Đang chờ bạn duyệt thiết kế** — nếu bỏ ý nào thì asset tương ứng cũng bỏ.
 
+> **Vẽ bằng Gem *Họa sĩ Hàng Rong*:** hướng dẫn tạo Gem ở [GEMINI_GEM.md](GEMINI_GEM.md) — Gem tự áp phong cách & quy chuẩn.
+
 > **Có trang copy nhanh:** mở `docs/asset_todo.html` bằng trình duyệt — mỗi prompt có nút **Copy**, bấm xong tự đánh dấu ✅ đã dùng.
 
 > **Cách dùng:** mỗi khối là **một ảnh** → copy nguyên khối dán vào Gemini. Đính kèm ảnh tham chiếu phong cách (`NPC.png`, hoặc ảnh đầu tiên của chính nhân vật đó). Lưu đúng tên file ở tiêu đề khối, bỏ vào `asset_new_by_Khoit/`. Nếu ra sai số frame → tạo lại, đừng cắt ghép.
 
 
-**Tổng bản V2: 132 ảnh.**
+**Tổng bản V2: 116 ảnh.**
 
 | Nhóm | Số ảnh |
 |---|---|
@@ -15,10 +17,8 @@
 | 2. [Đợt 1] Cảnh sát & Ăn trộm | 9 |
 | 3. [Đợt 1] Người đi đường | 16 |
 | 4. [Đợt 1] Giao thông — xe buýt, trạm, taxi | 4 |
-| 5. [Đợt 1] Bộ giao diện (UI kit) — túi đồ, trang bị, HUD | 8 |
-| 6. [Đợt 1] Điện thoại & app | 2 |
-| 7. [Đợt 2] Nơi làm việc mới | 6 |
-| 8. [Đợt 2] Mini-game các nghề | 11 |
+| 7. [Đợt 2] Nơi làm việc mới | 4 |
+| 8. [Đợt 2] Mini-game các nghề | 7 |
 | 9. [Đợt 2] Trường học & giao diện tòa nhà | 7 |
 | 10. [Đợt 3] Nền phòng & tòa nhà ở | 3 |
 | 11. [Đợt 3] Nội thất 3 phân khúc (Bình dân · Tầm trung · Cao cấp) | 24 |
@@ -316,103 +316,9 @@ STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro l
 ```
 
 
-## 5. [Đợt 1] Bộ giao diện (UI kit) — túi đồ, trang bị, HUD
-
-*INVENTORY_V2 + G6. Khung phẳng, viền đều để co giãn (9-slice).*
-
-#### Khung panel lớn — `ui_panel.png`
-```
-A large empty rectangular game window panel made of aged cream paper with a warm teak wood border and small brass corner pieces, plus a separate matching title bar strip and a separate small round close button. The border thickness is uniform on all sides so it can be stretched.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Ô túi đồ (các trạng thái) — `ui_slots.png`
-```
-A row of 8 square inventory slot frames of identical size with wide gaps: (1) empty slot, (2) selected slot with a bright glowing border, (3) locked slot with a small padlock, (4) common rarity grey border, (5) good rarity green border, (6) rare rarity blue border, (7) limited rarity gold border with a soft glow, (8) hotbar slot with a darker inset.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Icon tab lọc — `ui_tabs.png`
-```
-A row of 6 small square tab icons of identical size with wide gaps: (1) all items: a backpack, (2) food and drink: a bowl with chopsticks, (3) ingredients: a basket of vegetables, (4) equipment: a t-shirt, (5) furniture: a small sofa, (6) other: a cardboard box.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Nút bấm 4 trạng thái — `ui_buttons.png`
-```
-Four empty rectangular game buttons of identical size in one row with wide gaps: (1) normal warm orange, (2) hover brighter orange, (3) pressed darker and pushed down, (4) disabled grey. Uniform borders for stretching.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Khung thông tin & thanh dùng nhanh — `ui_tooltip_hotbar.png`
-```
-Two separate elements with a wide gap: (1) an empty dark tooltip box with a thin brass border and a small pointer notch, (2) a horizontal hotbar frame holding 5 square slots in a row.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Nền trang bị (búp bê giấy) — `ui_paperdoll.png`
-```
-An empty equipment screen background: a vertical cream paper card with a faint pale silhouette of a standing person in the center and 8 empty square slot frames arranged around the silhouette: hat at the top, glasses at the upper right, shirt at the left, watch at the right, pants at the lower left, backpack at the lower right, shoes at the bottom left, phone at the bottom right.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Icon ô trang bị trống — `ui_equip_placeholders.png`
-```
-A row of 8 faint outline silhouette icons of identical size with wide gaps, single light-grey color: (1) cap, (2) glasses, (3) t-shirt, (4) wristwatch, (5) trousers, (6) backpack, (7) sneakers, (8) smartphone.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Icon nhu cầu & HUD — `ui_needs.png`
-```
-A row of 8 small square HUD icons of identical size with wide gaps: (1) hunger: a bowl of rice, (2) energy: a lightning bolt, (3) mood: a smiling face, (4) daily quest: a scroll with a check mark, (5) clock, (6) home: a small house, (7) sleeping: a crescent moon with Zzz, (8) electricity bill: a light bulb.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-
-## 6. [Đợt 1] Điện thoại & app
-
-*G58. Điện thoại là nơi mở app Việc Làm, Ngân hàng, Bản đồ, Gọi taxi, Chợ, Nhiệm vụ.*
-
-#### Khung điện thoại — `ui_phone.png`
-```
-An empty modern smartphone frame seen straight from the front, slim dark bezel, a large empty bright screen area, a small top speaker notch. Nothing on the screen.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Icon app điện thoại — `ui_phone_apps.png`
-```
-A grid of 4 columns x 2 rows of rounded-square smartphone app icons of identical size with wide gaps: (1) jobs: a briefcase, (2) bank: a bank building, (3) map: a folded city map with a pin, (4) taxi: a green taxi car, (5) market: a market stall awning, (6) quests: a checklist, (7) contacts: two people, (8) settings: a gear.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-
 ## 7. [Đợt 2] Nơi làm việc mới
 
-*J2 Phục vụ quán cơm tấm, J3 Pha trà sữa. Nhà học sinh (J8) dùng một căn nhà ống ở nhóm 11.*
-
-#### Quán cơm tấm — `bld_comtam.png`
-```
-Game asset: front elevation facade of a busy Saigon broken-rice restaurant (com tam), Vietnamese urban architecture, seen straight from the front with a slight top-down tilt, standing on a flat ground line along the bottom edge (no sidewalk, no street in front). The main entrance door is at the bottom center, door height about 1.3 times an adult's height. Above the entrance there is a large EMPTY blank signboard with NO text on it. Width to height ratio 1.4:1. open front, a grill with smoke at the entrance, steel tables and plastic stools inside, a glass food display case.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Tiệm trà sữa — `bld_trasua.png`
-```
-Game asset: front elevation facade of a trendy small bubble tea shop, Vietnamese urban architecture, seen straight from the front with a slight top-down tilt, standing on a flat ground line along the bottom edge (no sidewalk, no street in front). The main entrance door is at the bottom center, door height about 1.3 times an adult's height. Above the entrance there is a large EMPTY blank signboard with NO text on it. Width to height ratio 1.2:1. pastel pink and mint facade, a big glass window with a counter and a menu board without text, potted plants, a neon cup shape.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
+*Đã nhận mặt tiền quán cơm tấm + tiệm trà sữa. Còn thiếu NPC chủ quán (tạm để quán không người).*
 
 #### Bà chủ quán cơm tấm — `npc_boss_comtam.png`
 ```
@@ -445,37 +351,9 @@ STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro l
 
 ## 8. [Đợt 2] Mini-game các nghề
 
-*G34. Mỗi nghề một màn chơi. J9 ve chai dùng anim `pickup_down`, không cần thêm.*
+*G34. Đã nhận J1 IT, J2 Phục vụ, quầy J3 (file job_milktea_items.png gửi nhầm là ảnh quầy — đang dùng làm quầy). Ảnh J3 bên dưới là tùy chọn (icon cho phiếu order). J4 cần ảnh quầy NHÌN TỪ TRÊN XUỐNG — ảnh prop_coffee_prep_table nhìn nghiêng nên đang dùng làm đồ trang trí ở quán cà phê.*
 
-#### J1 IT — màn hình code — `job_it.png`
-```
-Two separate elements with a wide gap: (1) an empty retro laptop screen frame seen straight on, showing an empty dark code editor window with a sidebar and line-number gutter but NO text; (2) a row of 6 colorful rounded code-block tiles of identical size with no text, plus 2 small cute pixel bug creatures.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### J2 Phục vụ — sàn quán — `job_waiter_floor.png`
-```
-A top-down 16:9 view of a small com tam restaurant floor: 6 steel tables with plastic stools arranged in 2 rows, a kitchen pass counter at the top, a clear walking path between tables. No people, no text. Fill the whole image.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine.  No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### J2 Phục vụ — món & khay — `job_waiter_items.png`
-```
-Game item icon set: a grid of 4 columns x 2 rows, each icon centered in its own equal square cell with generous spacing, all icons the same scale and lighting, front 3/4 view, bold pixel outlines. Icons in this order (left to right, top to bottom): (1) a plate of com tam with grilled pork chop; (2) com tam with shredded pork skin and egg meatloaf; (3) a bowl of soup; (4) a glass of iced tea; (5) a round metal serving tray; (6) a paper order ticket; (7) a plate of fried egg; (8) a bowl of fish sauce.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### J3 Trà sữa — quầy pha chế — `job_milktea_counter.png`
-```
-A top-down 16:9 view of a bubble tea preparation counter: a shaker in the center, empty cup holders, tea dispensers at the top, topping containers along the bottom, a sealing machine at the right. No people, no text.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### J3 Trà sữa — ly & topping — `job_milktea_items.png`
+#### J3 Trà sữa — ly & topping (tùy chọn) — `job_milktea_items.png`
 ```
 Game item icon set: a grid of 4 columns x 3 rows, each icon centered in its own equal square cell with generous spacing, all icons the same scale and lighting, front 3/4 view, bold pixel outlines. Icons in this order (left to right, top to bottom): (1) a small empty plastic cup; (2) a medium empty plastic cup; (3) a large empty plastic cup; (4) black tea pitcher; (5) green tea pitcher; (6) a bowl of tapioca pearls; (7) a bowl of fruit jelly; (8) a bowl of pudding; (9) cheese foam topping; (10) a scoop of ice; (11) a sugar syrup bottle; (12) a finished sealed bubble tea.
 

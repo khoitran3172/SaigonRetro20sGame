@@ -13,7 +13,7 @@ const NPC_STYLE = {
 const POI_ICON = {
   school: '🏫', tro: '🏠', net: '🖥️', veso: '🎫', buudien: '📮', cafe: '☕', banhmi: '🥖', bangdia: '📼', bida: '🎱',
   barber: '💈', cho: '🧺', mechanic: '🔧', atm: '🏧', bank: '🏦', office: '🏢', auction: '🔨', showroom: '🛵',
-  fashion: '👗', junk: '♻️',
+  fashion: '👗', junk: '♻️', comtam: '🍛', trasua: '🧋',
 };
 // Vi tri nguoi ngoi tren xe (theo ty le anh xe): dx > 0 = tien ve dau xe, dy = nang len
 export const RIDE_FIT = { scale: 0.75, dx: -0.05, dy: 0.32 };
@@ -24,6 +24,7 @@ const TRAFFIC = [['cub_rider', 5], ['veh_taxi', 2], ['veh_taxi2', 2], ['veh_bus'
 const stallSprite = (s) => (s.u ? 'stall_lv3' : s.lg ? 'stall_lv2' : 'stall_lv1');
 const SEND_HZ = 15;
 const INTERACT_RANGE = 120;
+const DIALOG_CLOSE_RANGE = 200; // xa hon tam tuong tac cua server (170) mot chut
 const lerp = (a, b, t) => a + (b - a) * t;
 
 export class WorldScene extends Phaser.Scene {
@@ -73,6 +74,7 @@ export class WorldScene extends Phaser.Scene {
     this.buildPois();
     this.setupAtmosphere();
     this.setupInput();
+    this.ui.onNavigate = (poi) => this.navigateTo(poi);
     this.setupNet();
 
     const w = this.welcome;
@@ -385,7 +387,7 @@ export class WorldScene extends Phaser.Scene {
       this.moveTarget = { x: pointer.worldX, y: pointer.worldY };
     });
     this.input.keyboard.on('keydown-E', () => {
-      if (this.ui.typing) return;
+      if (this.ui.typing || this.ui.jobs.active) return;
       let best = null;
       for (const poi of POIS) {
         const d = Phaser.Math.Distance.Between(poi.x, poi.y, this.me.x, this.me.y);
@@ -393,6 +395,11 @@ export class WorldScene extends Phaser.Scene {
       }
       if (best) this.net.send({ t: 'poi', id: best.poi.id });
     });
+  }
+
+  // App Ban do tren dien thoai: tu di toi dia diem roi mo hop thoai
+  navigateTo(poi) {
+    this.goInteract(poi.x, poi.y + 24, () => this.net.send({ t: 'poi', id: poi.id }));
   }
 
   goInteract(x, y, fn, range = INTERACT_RANGE) {
@@ -535,7 +542,7 @@ export class WorldScene extends Phaser.Scene {
     }).setOrigin(0.5, 1).setDepth(4000);
     img.setInteractive({ useHandCursor: true }).on('pointerdown', () =>
       this.goInteract(s.x, s.y + 30, () => this.net.send({ t: 'poi', id: `stall:${s.o}` }), 150));
-    const o = { img, label, key };
+    const o = { img, label, key, x: s.x, y: s.y };
     this.stallObjs.set(s.o, o);
     return o;
   }
@@ -590,10 +597,26 @@ export class WorldScene extends Phaser.Scene {
     this.traffic.push({ img, vx: left ? -speed : speed });
   }
 
+  // Hop thoai NPC / cua hang / sap tu dong khi nguoi choi di xa (hop thoai tu xa nhu dau gia qua dien thoai thi giu)
+  autoCloseDialog() {
+    const d = this.ui.dialog;
+    const box = document.getElementById('dialog');
+    if (!d || box.classList.contains('hidden') || d.remote || !this.me) return;
+    let at = null;
+    if (typeof d.poi === 'string' && d.poi.startsWith('stall:')) at = this.stallObjs.get(d.poi.slice(6));
+    else at = POIS.find((p) => p.id === d.poi);
+    if (!at) return;
+    if (Phaser.Math.Distance.Between(at.x, at.y, this.me.x, this.me.y) > DIALOG_CLOSE_RANGE) {
+      box.classList.add('hidden');
+      this.ui.dialog = null;
+    }
+  }
+
   // ================================================================ vong lap
   update(time, deltaMs) {
     const dt = Math.min(0.05, deltaMs / 1000);
     this.updateMe(dt, time);
+    this.autoCloseDialog();
     for (const a of this.avatars.values()) {
       if (!a.isMe) {
         const k = Math.min(1, dt * 10);
@@ -713,7 +736,7 @@ export class WorldScene extends Phaser.Scene {
     if (!me || !self) return;
     let vx = 0;
     let vy = 0;
-    if (!this.ui.typing) {
+    if (!this.ui.typing && !this.ui.jobs.active) {
       const k = this.keys;
       if (k.A.isDown || k.LEFT.isDown) vx -= 1;
       if (k.D.isDown || k.RIGHT.isDown) vx += 1;

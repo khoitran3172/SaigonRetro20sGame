@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="ui-v2.css">
 </head>
 <body>
   <div id="game"></div>
@@ -41,8 +42,9 @@
     <div id="card" class="panel">
       <div class="who"><b id="h-name"></b> <span id="h-title" class="title"></span></div>
       <div id="h-class" class="muted"></div>
-      <div class="bar"><span>Thể lực</span><i><em id="b-stamina"></em></i><small id="v-stamina"></small></div>
-      <div class="bar stress"><span>Căng thẳng</span><i><em id="b-stress"></em></i><small id="v-stress"></small></div>
+      <div class="bar need hunger" title="No bụng — ăn uống để hồi"><img src="assets/ui/hud_hunger.png" alt=""><span>No bụng</span><i><em id="b-hunger"></em></i><small id="v-hunger"></small></div>
+      <div class="bar need energy" title="Năng lượng — đi làm, đi bộ tốn; ăn, nghỉ để hồi"><img src="assets/ui/hud_energy.png" alt=""><span>Năng lượng</span><i><em id="b-stamina"></em></i><small id="v-stamina"></small></div>
+      <div class="bar need mood" title="Tinh thần — làm việc mệt giảm; trà sữa, cà phê, nghỉ ngơi tăng"><img src="assets/ui/hud_mood.png" alt=""><span>Tinh thần</span><i><em id="b-mood"></em></i><small id="v-mood"></small></div>
       <div class="bar cls"><span id="l-cls"></span><i><em id="b-cls"></em></i><small id="v-cls"></small></div>
       <div class="money">
         <div title="Tiền mặt (có thể bị trộm)"><img class="icon" src="assets/icons/ui_cash.png" alt=""> <b id="m-cash"></b></div>
@@ -55,7 +57,7 @@
     </div>
 
     <div id="topbar" class="panel">
-      <div id="clock"></div>
+      <div id="clock-row"><img src="assets/ui/hud_clock.png" alt=""><div id="clock"></div></div>
       <div id="zone"></div>
       <div id="minimap"></div>
     </div>
@@ -81,9 +83,10 @@
     </div>
 
     <div id="actions">
-      <button data-act="inv" title="Túi đồ (I)">🎒<span>Túi đồ</span></button>
-      <button data-act="equip" title="Trang bị (C)">👕<span>Trang bị</span></button>
+      <button data-act="inv" title="Túi đồ (I)"><img src="assets/ui/tab_all.png" alt=""><span>Túi đồ</span></button>
+      <button data-act="equip" title="Trang bị (C)"><img src="assets/ui/tab_equip.png" alt=""><span>Trang bị</span></button>
       <button data-act="phone" title="Điện thoại (P)"><img src="assets/icons/ui_phone.png" alt=""><span>Điện thoại</span></button>
+      <button data-act="quests" title="Nhiệm vụ hôm nay (Q)"><img src="assets/ui/hud_quest.png" alt=""><span>Nhiệm vụ</span><b id="q-badge" class="badge hidden"></b></button>
       <button data-act="stall" title="Mở/xem sạp (B)">🧺<span>Sạp</span></button>
       <button data-act="emote" title="Biểu cảm">😀<span>Biểu cảm</span></button>
       <button data-act="help" title="Hướng dẫn (H)">❓<span>Hướng dẫn</span></button>
@@ -91,24 +94,50 @@
     <div id="emotes" class="panel hidden"></div>
 
     <div id="dialog" class="panel hidden">
-      <button class="x" data-close>✕</button>
+      <button class="x" data-close aria-label="Đóng"></button>
       <h3 id="dlg-title"></h3>
       <div id="dlg-text"></div>
       <div id="dlg-opts"></div>
     </div>
 
     <div id="inv" class="panel side hidden">
-      <button class="x" data-close>✕</button>
-      <h3>🎒 Túi đồ</h3>
-      <div id="inv-list"></div>
+      <button class="x" data-close aria-label="Đóng"></button>
+      <h3>Túi đồ <small id="inv-count"></small></h3>
+      <div id="inv-tabs"></div>
+      <div id="inv-grid"></div>
+      <div id="inv-detail"></div>
+      <div id="inv-foot"><span id="inv-cash"></span><button id="inv-sort" class="btn">Sắp xếp</button></div>
     </div>
 
     <div id="equip" class="panel side hidden">
-      <button class="x" data-close>✕</button>
-      <h3>👕 Trang bị</h3>
-      <div id="equip-stats"></div>
-      <div id="equip-slots"></div>
+      <button class="x" data-close aria-label="Đóng"></button>
+      <h3>Trang bị</h3>
+      <div id="equip-wrap">
+        <div id="doll"></div>
+        <div id="equip-stats"></div>
+      </div>
+      <div id="equip-extra"></div>
       <div id="equip-buffs" class="muted"></div>
+    </div>
+
+    <div id="phone" class="hidden">
+      <div id="phone-screen">
+        <div id="phone-bar"><span id="phone-time"></span><span>📶 4G</span></div>
+        <div id="phone-body"></div>
+      </div>
+      <button id="phone-home" title="Về màn hình chính" aria-label="Về màn hình chính"></button>
+      <button class="x" id="phone-x" aria-label="Đóng"></button>
+    </div>
+
+    <div id="hotbar" title="Thanh dùng nhanh — phím 1–5. Chọn món trong Túi đồ → Thêm vào thanh nhanh"></div>
+    <div id="tip" class="hidden"></div>
+
+    <div id="job" class="hidden">
+      <div id="job-box">
+        <div id="job-head"><b id="job-title"></b><span id="job-score"></span><span id="job-time"></span><button id="job-quit" class="btn small">Nghỉ ca</button></div>
+        <div id="job-stage"></div>
+        <div id="job-hint"></div>
+      </div>
     </div>
 
     <div id="help" class="panel side hidden">
@@ -120,7 +149,11 @@
         <p><b>Nhân viên VP:</b> chấm công TechCorp 07:30–09:00, làm việc tăng KPI, lương về tài khoản 17:00. Gửi tiết kiệm lấy lãi.</p>
         <p><b>Tiểu thương:</b> nhập nguyên liệu ở Tạp hóa, mở sạp (B) ở ô quy hoạch (khung vàng), chế biến bánh mì / trà đá / nước mía rồi bày bán. Khách NPC và người chơi sẽ ghé mua.</p>
         <p><b>Rủi ro:</b> giữ nhiều tiền mặt dễ bị Ăn trộm (click tên trộm để đuổi). Giang hồ đòi bảo kê sạp — trả tiền, gọi Cảnh sát hoặc kêu gọi người chơi khác. Bày sạp ngoài ô quy hoạch có thể bị Cảnh sát phạt.</p>
-        <p><b>Điện thoại:</b> chat Thế giới (tốn cước 4G), chuyển khoản, định vị bạn bè, đấu giá từ xa (20:00).</p>
+        <p><b>Nhu cầu:</b> 🍚 No bụng giảm dần — ăn ở Quán Cơm Tấm, bánh mì, tạp hóa. ⚡ Năng lượng tốn khi đi bộ, đi làm. 😊 Tinh thần giảm khi làm việc — trà sữa, cà phê, nghỉ ngơi giúp vui hơn.</p>
+        <p><b>Việc làm:</b> làm bất kỳ lúc nào — Phục vụ ở Quán Cơm Tấm, Pha trà sữa ở Tiệm Trà Sữa, IT ở phòng trọ (cần thuê phòng). Mỗi ca là một mini-game, làm càng chuẩn lương càng cao, lên cấp nghề tăng lương.</p>
+        <p><b>Nhiệm vụ (Q):</b> mỗi ngày 3 nhiệm vụ, xong cả 3 nhận thêm 💎.</p>
+        <p><b>Điện thoại (P):</b> app Việc Làm, Ngân hàng, Bản đồ (bấm địa điểm để đi tới), Chợ online, Nhiệm vụ, Bạn bè. Chat Thế giới tốn cước 4G.</p>
+        <p><b>Túi đồ (I):</b> bấm ô để chọn, bấm đúp để dùng/mặc. Phím 1–5 dùng nhanh món trên thanh dưới màn hình.</p>
         <p><b>Thời tiết:</b> mưa làm xe chậm 50% & sạp không dù che bị ế; nắng gắt hao thể lực, nước mía bán chạy.</p>
       </div>
     </div>

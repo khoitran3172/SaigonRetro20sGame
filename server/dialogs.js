@@ -1,7 +1,10 @@
 // Hoi thoai cua cac diem tuong tac (POI). Server dung UI -> client chi hien thi.
 // Moi kind: open(g, s, ctx) -> {title, text, options}; acts[act](g, s, args, inputs, ctx) -> string (toast)
-import { CLASSES, ECON, ITEMS, PROMOTION, RECIPES, SLOTS, zoneAt } from '../shared/config.js';
+import {
+  CLASSES, ECON, ITEMS, JOBS, JOBS_SOON, PROMOTION, QUESTS, QUEST_BONUS, RECIPES, SLOTS, zoneAt,
+} from '../shared/config.js';
 import { EconError } from './economy.js';
+import { jobInfo } from './jobs.js';
 
 const opt = (label, act, args = {}, extra = {}) => ({ label, act, args, ...extra });
 const hour = (g) => Math.floor(g.minute / 60);
@@ -40,7 +43,21 @@ function shop(items, markup, walletFor = () => 'cash') {
   };
 }
 
+// Nut "lam 1 ca" (mo mini-game). Tra ve false -> server khong mo lai hop thoai.
+function jobOption(g, s, id) {
+  const def = JOBS[id];
+  const info = jobInfo(s.p, id);
+  const pay = def.pay[info.lvl - 1];
+  return opt(`${def.icon} Làm 1 ca ${def.name} · Cấp ${info.lvl} · tới ${vnd(pay)} (−${def.energy} năng lượng)`, 'job', { id });
+}
+const jobAct = (g, s, a) => {
+  g.jobs.start(s, a.id);
+  return false;
+};
+
 const cafeShop = shop(['tra_da', 'ca_phe', 'nuoc_mia'], 1.3);
+const comtamShop = shop(['com_suon', 'com_bi_cha', 'canh_chua', 'trung_op_la', 'tra_da'], 1);
+const trasuaShop = shop(['tra_sua'], 1);
 const banhmiShop = shop(['banhmi'], 1.2);
 const choShop = shop(['phoi_banh', 'thit_nguoi', 'rau_thom', 'tra_kho', 'da_vien', 'cay_mia', 'du_che'], 1);
 const showroomShop = shop(['xe_dap', 'xe_cub', 'xe_ga', 'xe_pkl', 'non_bh'], 1, (price) => (price >= 100000 ? 'bank' : 'cash'));
@@ -125,6 +142,7 @@ export const DIALOGS = {
         addStat(p, 'stress', 5);
         const support = 25000 * (1 + p.rank * 0.5);
         g.econ.grant(p, support, 'cash', 'sv_support');
+        g.questProgress(s, 'attend', 1);
         return `Điểm danh thành công! +3 điểm danh, nhận ${vnd(support)} hỗ trợ.`;
       },
       study(g, s) {
@@ -152,10 +170,12 @@ export const DIALOGS = {
         options: [
           p.renting ? opt('Trả phòng', 'unrent') : opt(`Thuê phòng (${vnd(ECON.rentPerDay)}/ngày)`, 'rent'),
           opt(p.renting ? '😴 Ngủ một giấc (hồi phục mạnh)' : '🪑 Ngồi nghỉ ở bậc thềm', 'rest'),
+          ...(p.renting ? [jobOption(g, s, 'it')] : []),
         ],
       };
     },
     acts: {
+      job: jobAct,
       rent(g, s) {
         g.econ.pay(s.p, ECON.rentPerDay, 'bank', 'rent_first_day');
         s.p.renting = true;
@@ -303,6 +323,24 @@ export const DIALOGS = {
         return 'Ngồi tán gẫu một lúc, thấy nhẹ người.';
       },
     },
+  },
+
+  comtam: {
+    open: (g, s) => ({
+      title: '🍛 Quán Cơm Tấm Sài Gòn',
+      text: '"Cơm tấm sườn bì chả nóng hổi đây! Đông khách quá, phụ cô bưng mâm một ca nha con."\nĂn no bụng để có sức đi làm.',
+      options: [...comtamShop.options(g, s), jobOption(g, s, 'waiter')],
+    }),
+    acts: { buy: comtamShop.buy, job: jobAct },
+  },
+
+  trasua: {
+    open: (g, s) => ({
+      title: '🧋 Tiệm Trà Sữa Mây',
+      text: '"Trà sữa trân châu đường đen mới về! Cần người pha chế part-time, làm không em?"',
+      options: [...trasuaShop.options(g, s), jobOption(g, s, 'milktea')],
+    }),
+    acts: { buy: trasuaShop.buy, job: jobAct },
   },
 
   banhmi: {
@@ -575,49 +613,88 @@ export const DIALOGS = {
   },
 
   // ---------------------------------------------------------------- Dien thoai (UI portal)
+  // Dien thoai (G58): man hinh chinh (luoi app) ve o client; moi app la mot hop thoai co `app`.
+  // s.phoneApp nho app dang mo de sau mot thao tac (chuyen khoan...) hien lai dung app.
   phone: {
     open(g, s) {
-      const p = s.p;
-      return {
-        title: '📱 Điện thoại',
-        text: `4G: ${p.data} tin · Ngân hàng: ${vnd(p.bank)} · 💎 ${p.diamonds} · Danh Vọng ${p.social}\n${CLASSES[p.cls].name} — ${CLASSES[p.cls].ranks[p.rank]}`,
-        options: [
-          opt('🏦 Ngân hàng số: chuyển khoản (phí 2%)', 'transfer', {}, {
-            inputs: [{ name: 'to', type: 'text', ph: 'Người nhận', w: 110 }, { name: 'amount', type: 'number', value: 10000, w: 90 }],
-          }),
-          opt(`📶 Nạp 4G từ tài khoản (${vnd(10000)})`, 'data'),
-          opt('📍 Định vị bạn bè', 'locate'),
-          opt('🛒 Chợ online (xem các sạp đang mở)', 'market'),
-          opt('🔨 Đấu giá từ xa', 'auction'),
-          promoteOption(g, s),
-        ],
-      };
+      const app = PHONE_APPS[s.phoneApp] ? s.phoneApp : 'home';
+      if (app === 'home') {
+        const p = s.p;
+        return { app, title: '📱 Điện thoại', text: `4G: ${p.data} tin · 💎 ${p.diamonds} · Danh Vọng ${p.social}`, options: [] };
+      }
+      return { app, ...PHONE_APPS[app](g, s) };
     },
     acts: {
+      app(g, s, a) {
+        s.phoneApp = PHONE_APPS[a.app] ? a.app : 'home';
+      },
+      back(g, s) {
+        s.phoneApp = 'home';
+      },
       transfer: (g, s, a, inp) => g.bankTransfer(s, inp?.to, Number(inp?.amount), ECON.appTransferFeeRate),
       data(g, s) {
         g.econ.pay(s.p, 10000, 'bank', 'data_pack_app');
         s.p.data += 30;
         return 'Đã nạp 30 tin 4G.';
       },
-      locate(g, s) {
-        const rows = [...g.sessions.values()].map((o) => `• ${o.p.name} (${CLASSES[o.p.cls].name}) — ${zoneAt(o.x).name}`);
-        g.pushDialog(s, { title: '📍 Định vị', text: rows.join('\n'), options: [opt('« Quay lại', 'back')], poi: 'phone' });
-        return false;
-      },
-      market(g, s) {
-        const rows = [...g.stalls.values()].map((st) => `• Sạp ${st.owner} (${zoneAt(st.x).name}): ${st.listings.map((l) => `${ITEMS[l.stack.id].icon}${ITEMS[l.stack.id].name} ×${l.stack.qty} ${vnd(l.price)}`).join(', ') || 'trống'}`);
-        g.pushDialog(s, { title: '🛒 Chợ online', text: rows.join('\n') || 'Chưa có sạp nào mở.', options: [opt('« Quay lại', 'back')], poi: 'phone' });
-        return false;
-      },
+      job: jobAct,
       auction(g, s) {
         g.pushDialog(s, { ...g.auction.dialog(s), poi: 'auction', remote: true });
         return false;
       },
-      back() {},
       promote,
     },
   },
+};
+
+const PHONE_APPS = {
+  home: null,
+  bank: (g, s) => ({
+    title: '🏦 Ngân hàng số',
+    text: `Tiền mặt: ${vnd(s.p.cash)}\nTài khoản: ${vnd(s.p.bank)}\nChuyển khoản qua app phí ${ECON.appTransferFeeRate * 100}% (miễn phí tại quầy VietBank).`,
+    options: [
+      opt('Chuyển khoản', 'transfer', {}, {
+        inputs: [{ name: 'to', type: 'text', ph: 'Người nhận', w: 100 }, { name: 'amount', type: 'number', value: 10000, w: 80 }],
+      }),
+      opt(`📶 Nạp 4G +30 tin (${vnd(10000)})`, 'data'),
+    ],
+  }),
+  jobs(g, s) {
+    const rows = Object.entries(JOBS).map(([id, d]) => {
+      const info = jobInfo(s.p, id);
+      const xp = info.next ? `${info.xp}/${info.next} KN` : 'cấp tối đa';
+      return `${d.icon} ${d.name} — Cấp ${info.lvl} (${xp})\n   📍 ${d.place} · lương ${vnd(d.pay[info.lvl - 1])}/ca`;
+    });
+    return {
+      title: '💼 Việc Làm',
+      text: `${rows.join('\n')}\n🥫 Nhặt ve chai — Ngoại ô (bán ở Vựa Ve Chai)\n\nSắp có: ${JOBS_SOON.join(' · ')}\nTới đúng nơi làm rồi bấm "Làm ca".`,
+      options: Object.keys(JOBS).map((id) => jobOption(g, s, id)),
+    };
+  },
+  quests(g, s) {
+    g.ensureDaily(s.p);
+    const d = s.p.daily;
+    const rows = d.q.map((q) => {
+      const def = QUESTS[q.id];
+      const prog = def.key === 'earn' ? `${vnd(q.have)}/${vnd(def.need)}` : `${q.have}/${def.need}`;
+      return `${q.done ? '✅' : '⬜'} ${def.name} (${prog}) · +${vnd(def.reward)}`;
+    });
+    return {
+      title: '📜 Nhiệm vụ hôm nay',
+      text: `${rows.join('\n')}\n\nXong cả 3: +${QUEST_BONUS.diamonds} 💎, +${QUEST_BONUS.social} Danh Vọng${d.qBonus ? ' (đã nhận)' : ''}.\n${CLASSES[s.p.cls].name} — ${CLASSES[s.p.cls].ranks[s.p.rank]}`,
+      options: [promoteOption(g, s)],
+    };
+  },
+  friends: (g) => ({
+    title: '👥 Bạn bè đang online',
+    text: [...g.sessions.values()].map((o) => `• ${o.p.name} (${CLASSES[o.p.cls].name}) — ${zoneAt(o.x).name}`).join('\n'),
+    options: [],
+  }),
+  market: (g) => ({
+    title: '🛒 Chợ online',
+    text: [...g.stalls.values()].map((st) => `• Sạp ${st.owner} (${zoneAt(st.x).name}): ${st.listings.map((l) => `${ITEMS[l.stack.id].icon}${ITEMS[l.stack.id].name} ×${l.stack.qty} ${vnd(l.price)}`).join(', ') || 'trống'}`).join('\n') || 'Chưa có sạp nào mở.',
+    options: [opt('🔨 Đấu giá từ xa (20:00)', 'auction')],
+  }),
 };
 
 export { addStat, RECIPES, SLOTS };

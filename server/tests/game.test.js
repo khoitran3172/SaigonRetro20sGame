@@ -137,3 +137,38 @@ test('Canh sat phat sap lan chiem', () => {
   assert.equal(g.stalls.size, 0);
   assert.equal(money(a.p), before - ECON.fineIllegalStall);
 });
+
+test('Nghe: mini-game do server cham, khong khai diem duoc; nhiem vu ngay tra thuong', async () => {
+  const { g, join, msg, toasts } = setup();
+  const a = join('Phuc Vu', 'sv');
+  Object.assign(a, { x: 3905, y: 490 }); // truoc Quan Com Tam
+  a.p.daily.q = [{ id: 'job2', have: 0, done: false }, { id: 'eat3', have: 0, done: false }, { id: 'chat3', have: 0, done: false }];
+  const stamina = a.p.stats.stamina;
+  msg(a, { t: 'act', poi: 'comtam', act: 'job', args: { id: 'waiter' } });
+  const job = a.ws.out.find((m) => m.t === 'job');
+  assert.ok(job, 'nhan de mini-game');
+  assert.equal(a.p.stats.stamina, stamina - 12);
+  // tra loi dung 5 order dau, them 1 lan giao sai; gia lap da choi 30 giay
+  a.job.started -= 30000;
+  const answers = job.tasks.slice(0, 5).map((o, i) => ({ o: i, table: o.table, dish: o.dish }));
+  answers.push({ o: 9, table: (job.tasks[9].table + 1) % 6, dish: job.tasks[9].dish });
+  const cash = a.p.cash;
+  msg(a, { t: 'job_end', jid: job.jid, answers });
+  const res = a.ws.out.find((m) => m.t === 'job_result');
+  assert.equal(res.correct, 5);
+  assert.equal(res.wrong, 1);
+  assert.ok(res.pay > 0 && a.p.cash >= cash + res.pay);
+  assert.equal(a.p.jobs.waiter.xp, 5);
+  assert.equal(a.p.daily.q[0].have, 1);
+  // gui dap an qua nhanh (vua bat dau) -> bi cat bot
+  msg(a, { t: 'act', poi: 'comtam', act: 'job', args: { id: 'waiter' } });
+  const job2 = a.ws.out.filter((m) => m.t === 'job').at(-1);
+  msg(a, { t: 'job_end', jid: job2.jid, answers: job2.tasks.map((o, i) => ({ o: i, table: o.table, dish: o.dish })) });
+  assert.ok(a.ws.out.filter((m) => m.t === 'job_result').at(-1).correct <= 1);
+  assert.ok(a.p.daily.q[0].done, 'xong nhiem vu 2 ca');
+  assert.ok(toasts(a).some((t) => /Hoàn thành nhiệm vụ/.test(t)));
+  // IT can thue phong tro
+  Object.assign(a, { x: 910, y: 490 });
+  msg(a, { t: 'job_start', job: 'it' });
+  assert.match(toasts(a).at(-1), /thuê phòng/);
+});

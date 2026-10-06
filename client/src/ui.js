@@ -1,5 +1,8 @@
 // Giao dien HTML phu tren canvas: dang nhap, HUD, chat, hoi thoai, tui do, trang bi, LED.
-import { CLASSES, ECON, FORMAT, ITEMS, SKINS, SLOTS, WORLD, ZONES, zoneAt } from '/shared/config.js';
+import {
+  CLASSES, DOLL_SLOTS, ECON, FORMAT, INV, ITEMS, POIS, QUESTS, RARITY, SKINS, SLOTS, WORLD, ZONES, zoneAt,
+} from '/shared/config.js';
+import { JobGame } from './jobs.js';
 
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => {
@@ -29,6 +32,10 @@ export class UI {
     this.ledQueue = [];
     this.ledBusy = false;
     this.pick = { cls: 'sv', skin: 'sv_male' };
+    this.invTab = 'all';
+    this.invSel = null;
+    this.hotbar = null;
+    this.jobs = new JobGame(net, this);
 
     net.on('error', (m) => { $('login-err').textContent = m.msg; });
     net.on('self', (m) => this.setSelf(m.self));
@@ -139,6 +146,14 @@ export class UI {
     for (const b of document.querySelectorAll('[data-close]')) {
       b.onclick = () => b.parentElement.classList.add('hidden');
     }
+    $('phone-x').onclick = () => this.hide('phone');
+    $('phone-home').onclick = () => {
+      if (this.phoneApp && this.phoneApp !== 'home') this.net.send({ t: 'act', poi: 'phone', act: 'back' });
+      this.phoneHome();
+    };
+    setInterval(() => {
+      if (this.world) $('phone-time').textContent = FORMAT.clock(this.world.minute);
+    }, 1000);
     for (const b of document.querySelectorAll('#actions button')) {
       b.onclick = () => this.action(b.dataset.act);
     }
@@ -169,9 +184,10 @@ export class UI {
     };
     window.addEventListener('keydown', (e) => {
       if (!this.self) return;
+      if (this.jobs.active) return;
       if (e.key === 'Escape') {
         document.activeElement?.blur();
-        for (const id of ['dialog', 'inv', 'equip', 'help', 'emotes']) this.hide(id);
+        this.closePanels();
         return;
       }
       if (this.typing) return;
@@ -179,8 +195,10 @@ export class UI {
       if (e.key === 'Enter') {
         e.preventDefault();
         $('chat-in').focus();
-      } else if (k === 'i') this.action('inv');
+      } else if (k >= '1' && k <= '5') this.useHotbar(Number(k) - 1);
+      else if (k === 'i') this.action('inv');
       else if (k === 'c') this.action('equip');
+      else if (k === 'q') this.action('quests');
       else if (k === 'p') this.action('phone');
       else if (k === 'b') this.action('stall');
       else if (k === 'h') this.action('help');
@@ -206,7 +224,12 @@ export class UI {
       if (this.toggle('equip')) this.renderEquip();
     } else if (a === 'help') this.toggle('help');
     else if (a === 'emote') this.toggle('emotes');
-    else if (a === 'phone') this.net.send({ t: 'poi', id: 'phone' });
+    else if (a === 'phone') this.togglePhone();
+    else if (a === 'quests') {
+      if (!this.self.equip.phone) return this.toggleQuestsDialog();
+      this.net.send({ t: 'poi', id: 'phone' });
+      this.net.send({ t: 'act', poi: 'phone', act: 'app', args: { app: 'quests' } });
+    }
     else if (a === 'stall') {
       if (this.self.stall) this.net.send({ t: 'poi', id: `stall:${this.self.name}` });
       else this.net.send({ t: 'stall_open' });
@@ -222,8 +245,9 @@ export class UI {
       $(`b-${key}`).style.width = `${Math.max(0, Math.min(100, (v / max) * 100))}%`;
       $(`v-${key}`).textContent = Math.round(v);
     };
+    bar('hunger', s.stats.hunger ?? 100);
     bar('stamina', s.stats.stamina);
-    bar('stress', s.stats.stress);
+    bar('mood', 100 - s.stats.stress);
     $('l-cls').textContent = s.statName;
     bar('cls', s.stats[s.statKey], s.rank === 0 ? 40 : 100);
     $('m-cash').textContent = vnd(s.cash);
@@ -233,11 +257,33 @@ export class UI {
     $('m-data').textContent = s.data;
     const extra = [`Thu hút ${s.calc.charisma}`, `Tốc độ ${s.calc.speed}`];
     if (s.mail) extra.push(`📬 ${s.mail} thư`);
+    if ((s.stats.hunger ?? 100) < 20) extra.push('⚠️ Đói bụng');
     if (s.stats.stamina < 10) extra.push('⚠️ Kiệt sức');
-    if (s.stats.stress >= 90) extra.push('⚠️ Quá căng thẳng');
+    if (s.stats.stress >= 90) extra.push('⚠️ Tinh thần sa sút');
     $('m-extra').textContent = extra.join(' · ');
+    const left = (s.daily.q || []).filter((q) => !q.done).length;
+    $('q-badge').textContent = left;
+    $('q-badge').classList.toggle('hidden', !left);
+    // Chi ve lai tui / trang bi khi do dac thay doi (tranh nut bi thay lien tuc khi dang bam)
+    const sig = JSON.stringify([s.inv, s.equip, s.stall, s.cash, s.calc, s.buffs.length]);
+    if (sig === this.invSig) return;
+    this.invSig = sig;
+    this.renderHotbar();
     if (!$('inv').classList.contains('hidden')) this.renderInv();
     if (!$('equip').classList.contains('hidden')) this.renderEquip();
+  }
+
+  // Khong co dien thoai: xem nhiem vu trong hop thoai thuong
+  toggleQuestsDialog() {
+    const q = this.self.daily.q || [];
+    this.openDialog({
+      title: '📜 Nhiệm vụ hôm nay',
+      text: q.map((x) => {
+        const def = QUESTS[x.id];
+        return `${x.done ? '✅' : '⬜'} ${def.name} (${def.key === 'earn' ? `${vnd(x.have)}/${vnd(def.need)}` : `${x.have}/${def.need}`}) · +${vnd(def.reward)}`;
+      }).join('\n'),
+      options: [],
+    });
   }
 
   setWorld(w) {
@@ -325,11 +371,18 @@ export class UI {
 
   // ------------------------------------------------------------ hoi thoai
   openDialog(d) {
+    if (d.poi === 'phone') return this.renderPhone(d);
     this.dialog = d;
     $('dlg-title').textContent = d.title;
     $('dlg-text').textContent = d.text || '';
     const box = $('dlg-opts');
     box.textContent = '';
+    box.append(this.optionRows(d));
+    $('dialog').classList.remove('hidden');
+  }
+
+  optionRows(d) {
+    const box = document.createDocumentFragment();
     for (const o of d.options || []) {
       const row = el('div', `opt${o.inputs?.length ? ' has-in' : ''}`);
       const fields = {};
@@ -363,114 +416,468 @@ export class UI {
       row.prepend(b);
       box.append(row);
     }
-    $('dialog').classList.remove('hidden');
+    return box;
   }
 
-  // ------------------------------------------------------------ tui do / trang bi
+  // ------------------------------------------------------------ tui do dang luoi (INVENTORY_V2)
+  invCapacity() {
+    const s = this.self;
+    const bag = s.equip.lung && s.inv.some((i) => i.uid === s.equip.lung);
+    return INV.base + (bag ? INV.bag : 0);
+  }
+
   renderInv() {
     const s = this.self;
-    const list = $('inv-list');
-    list.textContent = '';
     const equipped = new Set(Object.values(s.equip));
-    if (s.stall) {
-      list.append(el('div', 'muted', `🧺 Sạp đang mở${s.stall.legal ? '' : ' (lấn chiếm!)'}: ${s.stall.listings.length}/8 món. Nhấn "Bày bán" để đưa hàng lên sạp.`));
-    } else {
-      list.append(el('div', 'muted', 'Mẹo: đứng vào ô quy hoạch (khung vàng ở vỉa hè dưới, Khu 1) rồi nhấn B để mở sạp hợp pháp.'));
+    const cap = this.invCapacity();
+    const tabs = $('inv-tabs');
+    if (!tabs.childElementCount) {
+      for (const t of INV_TABS) {
+        const b = el('button');
+        b.title = t.name;
+        b.dataset.tab = t.id;
+        const img = el('img');
+        img.src = `assets/ui/tab_${t.icon}.png`;
+        img.alt = t.name;
+        b.append(img);
+        b.onclick = () => {
+          this.invTab = t.id;
+          this.renderInv();
+        };
+        tabs.append(b);
+      }
+      $('inv-sort').onclick = () => this.net.send({ t: 'inv_sort' });
     }
-    if (!s.inv.length) list.append(el('div', 'muted', 'Túi trống.'));
-    for (const it of s.inv) {
+    for (const b of tabs.children) b.classList.toggle('on', b.dataset.tab === this.invTab);
+
+    $('inv-count').textContent = `${s.inv.length}/${cap}`;
+    $('inv-count').classList.toggle('over', s.inv.length > cap);
+    $('inv-cash').textContent = `💵 ${vnd(s.cash)}`;
+
+    const tab = INV_TABS.find((t) => t.id === this.invTab);
+    const items = s.inv.filter((it) => tab.match(ITEMS[it.id]));
+    const grid = $('inv-grid');
+    grid.textContent = '';
+    const total = this.invTab === 'all' ? Math.max(INV.base + INV.bag, s.inv.length) : Math.max(cap, items.length);
+    for (let i = 0; i < total; i++) {
+      const it = items[i];
+      const cell = el('div', 'cell');
+      if (!it) {
+        if (this.invTab === 'all' && i >= cap) {
+          cell.classList.add('lock');
+          cell.title = 'Đeo balo để mở thêm 10 ô';
+        }
+        grid.append(cell);
+        continue;
+      }
       const def = ITEMS[it.id];
-      const row = el('div', `item${equipped.has(it.uid) ? ' on' : ''}`);
-      const ic = el('div', 'ic');
-      ic.append(this.icon(it.id, def.icon, 34));
-      row.append(ic);
-      const info = el('div');
-      const nm = el('div', 'nm', `${def.name} `);
-      if (it.lvl) nm.append(el('span', 'lv', `+${it.lvl}`));
-      info.append(nm);
-      const meta = [];
-      if (def.type === 'equip') {
-        meta.push(SLOTS[def.slot]);
-        meta.push(Object.entries(def.st).map(([k, v]) => `${{ charisma: 'Thu hút', speed: 'Tốc độ%', staminaSave: 'Tiết kiệm thể lực%', vehicle: 'Xe ×' }[k]} ${v}`).join(', '));
-        if (equipped.has(it.uid)) meta.push('✅ đang dùng');
-      } else {
-        meta.push(`×${it.qty}`);
-        if (def.eff) meta.push(Object.entries(def.eff).map(([k, v]) => `${k === 'stamina' ? 'Thể lực' : 'Stress'} ${v > 0 ? '+' : ''}${v}`).join(', '));
-        meta.push(`giá gốc ${vnd(def.base)}`);
-      }
-      info.append(el('div', 'meta', meta.join(' · ')));
-      if (def.type === 'equip') {
-        const dur = el('div', 'dur');
-        const bar = el('i');
-        bar.style.width = `${it.dur}%`;
-        if (it.dur < 30) bar.style.background = 'var(--red)';
-        dur.append(bar);
-        dur.title = `Độ bền ${Math.round(it.dur)}%`;
-        info.append(dur);
-      }
-      row.append(info);
-      const btns = el('div', 'btns');
-      const btn = (label, fn) => {
-        const b = el('button', null, label);
-        b.onclick = fn;
-        btns.append(b);
+      if (def.type === 'equip') cell.classList.add(`r-${def.rar || 'common'}`);
+      if (it.uid === this.invSel) cell.classList.add('sel');
+      cell.append(this.icon(it.id, def.icon, 34));
+      if (def.type !== 'equip' && it.qty > 1) cell.append(el('span', 'q', it.qty));
+      if (it.lvl) cell.append(el('span', 'lv', `+${it.lvl}`));
+      if (equipped.has(it.uid)) cell.append(el('span', 'on', '✅'));
+      if (def.type === 'equip') cell.append(this.durBar(it));
+      cell.onclick = () => {
+        this.invSel = it.uid;
+        this.renderInv();
       };
-      if (def.type === 'food' || def.type === 'data') btn('Dùng', () => this.net.send({ t: 'use', uid: it.uid }));
-      if (def.type === 'equip') {
-        if (equipped.has(it.uid)) btn('Tháo', () => this.net.send({ t: 'unequip', slot: def.slot }));
-        else btn('Trang bị', () => this.net.send({ t: 'equip', uid: it.uid }));
+      cell.ondblclick = () => this.useOrEquip(it);
+      this.tipOn(cell, () => this.itemTip(it));
+      grid.append(cell);
+    }
+    this.renderInvDetail(s.inv.find((i) => i.uid === this.invSel), equipped);
+  }
+
+  durBar(it) {
+    const dur = el('div', 'dur');
+    const bar = el('i');
+    bar.style.width = `${it.dur}%`;
+    if (it.dur < 30) bar.style.background = 'var(--red)';
+    dur.append(bar);
+    return dur;
+  }
+
+  useOrEquip(it) {
+    const def = ITEMS[it.id];
+    if (def.type === 'equip') {
+      if (Object.values(this.self.equip).includes(it.uid)) this.net.send({ t: 'unequip', slot: def.slot });
+      else this.net.send({ t: 'equip', uid: it.uid });
+    } else if (def.type === 'food' || def.type === 'data') this.net.send({ t: 'use', uid: it.uid });
+  }
+
+  renderInvDetail(it, equipped) {
+    const s = this.self;
+    const box = $('inv-detail');
+    box.textContent = '';
+    if (!it) {
+      box.append(el('div', 'muted', s.stall
+        ? `🧺 Sạp đang mở${s.stall.legal ? '' : ' (lấn chiếm!)'}: ${s.stall.listings.length}/8 món. Chọn một món rồi bấm "Bày bán".`
+        : 'Bấm một ô để xem và thao tác. Bấm đúp để dùng / mặc. Rê chuột để xem thông tin.'));
+      return;
+    }
+    const def = ITEMS[it.id];
+    const on = equipped.has(it.uid);
+    const nm = el('div', `nm rar-${def.type === 'equip' ? def.rar || 'common' : 'common'}`, `${def.name}${it.lvl ? ` +${it.lvl}` : ''}${def.type !== 'equip' ? ` ×${it.qty}` : ''}`);
+    box.append(nm, el('div', 'desc', this.itemDesc(def)));
+    const row = el('div', 'row');
+    const btn = (label, fn) => {
+      const b = el('button', null, label);
+      b.onclick = fn;
+      row.append(b);
+      return b;
+    };
+    if (def.type === 'food' || def.type === 'data') btn('Dùng', () => this.net.send({ t: 'use', uid: it.uid }));
+    if (def.type === 'equip') {
+      if (on) btn('Tháo', () => this.net.send({ t: 'unequip', slot: def.slot }));
+      else btn('Trang bị', () => this.net.send({ t: 'equip', uid: it.uid }));
+    }
+    if (def.type === 'food' || def.type === 'data') btn('Thêm vào thanh nhanh', () => this.addHotbar(it.id));
+    if (s.stall && !on) {
+      const qty = el('input');
+      qty.type = 'number';
+      qty.value = it.qty;
+      qty.min = 1;
+      qty.max = it.qty;
+      qty.title = 'Số lượng';
+      const price = el('input');
+      price.type = 'number';
+      price.value = def.base || 100000;
+      price.title = 'Giá mỗi món';
+      if (it.qty > 1) row.append(qty);
+      row.append(price);
+      btn('Bày bán', () => this.net.send({ t: 'stall_list', uid: it.uid, qty: Number(qty.value), price: Number(price.value) }));
+    }
+    if (!on) {
+      btn('Vứt', () => {
+        if (confirm(`Vứt bỏ ${def.name}?`)) this.net.send({ t: 'drop', uid: it.uid });
+      });
+    }
+    box.append(row);
+  }
+
+  itemDesc(def) {
+    if (def.type === 'equip') {
+      return `${SLOTS[def.slot]} · ${RARITY[def.rar || 'common']} · ${Object.entries(def.st).map(([k, v]) => `${STAT_NAME[k]} ${v}`).join(', ')}`;
+    }
+    const parts = [TYPE_NAME[def.type]];
+    if (def.eff) parts.push(Object.entries(def.eff).map(([k, v]) => effText(k, v)).join(', '));
+    if (def.base) parts.push(`giá gốc ${vnd(def.base)}`);
+    return parts.join(' · ');
+  }
+
+  // O thong tin (I6): ten mau theo do hiem, cong dung, so sanh voi mon dang mac
+  itemTip(it) {
+    const s = this.self;
+    const def = ITEMS[it.id];
+    const rar = def.type === 'equip' ? def.rar || 'common' : 'common';
+    const w = el('div');
+    w.append(el('b', `rar-${rar}`, `${def.name}${it.lvl ? ` +${it.lvl}` : ''}`));
+    w.append(el('div', 'muted', def.type === 'equip' ? `${SLOTS[def.slot]} · ${RARITY[rar]}` : TYPE_NAME[def.type]));
+    if (def.eff) for (const [k, v] of Object.entries(def.eff)) w.append(el('div', null, effText(k, v)));
+    if (def.type === 'equip') {
+      const cur = s.inv.find((i) => i.uid === s.equip[def.slot]);
+      const curSt = cur && cur.uid !== it.uid ? ITEMS[cur.id].st : null;
+      for (const k of new Set([...Object.keys(def.st), ...Object.keys(curSt || {})])) {
+        const v = def.st[k] || 0;
+        const line = el('div', null, `${STAT_NAME[k]} ${v}`);
+        if (curSt) {
+          const d = v - (curSt[k] || 0);
+          if (d) line.append(el('span', d > 0 ? 'up' : 'down', `  (${d > 0 ? '+' : ''}${d})`));
+        }
+        w.append(line);
       }
-      if (s.stall && !equipped.has(it.uid)) {
-        const qty = el('input');
-        qty.type = 'number';
-        qty.value = it.qty;
-        qty.min = 1;
-        qty.max = it.qty;
-        qty.title = 'Số lượng';
-        const price = el('input');
-        price.type = 'number';
-        price.value = def.base || 100000;
-        price.title = 'Giá mỗi món';
-        if (it.qty > 1) btns.append(qty);
-        btns.append(price);
-        btn('Bày bán', () => this.net.send({ t: 'stall_list', uid: it.uid, qty: Number(qty.value), price: Number(price.value) }));
-      }
-      if (!equipped.has(it.uid)) {
-        btn('Vứt', () => {
-          if (confirm(`Vứt bỏ ${def.name}?`)) this.net.send({ t: 'drop', uid: it.uid });
-        });
-      }
-      row.append(btns);
-      list.append(row);
+      w.append(el('div', 'muted', `Độ bền ${Math.round(it.dur)}%`));
+    }
+    if (def.base) w.append(el('div', 'muted', `Bán lại khoảng ${vnd(def.base * 0.5)}`));
+    return w;
+  }
+
+  tipOn(node, build) {
+    const tip = $('tip');
+    node.onmouseenter = (e) => {
+      tip.textContent = '';
+      tip.append(build());
+      tip.classList.remove('hidden');
+      node.onmousemove(e);
+    };
+    node.onmousemove = (e) => {
+      const x = Math.min(e.clientX + 16, window.innerWidth - tip.offsetWidth - 8);
+      const y = Math.min(e.clientY + 16, window.innerHeight - tip.offsetHeight - 8);
+      tip.style.left = `${x}px`;
+      tip.style.top = `${y}px`;
+    };
+    node.onmouseleave = () => tip.classList.add('hidden');
+  }
+
+  // ------------------------------------------------------------ thanh dung nhanh (I5)
+  loadHotbar() {
+    try {
+      const v = JSON.parse(localStorage.getItem(`hr_hotbar_${this.self.name}`) || '[]');
+      this.hotbar = Array.from({ length: 5 }, (_, i) => (ITEMS[v[i]] ? v[i] : null));
+    } catch {
+      this.hotbar = [null, null, null, null, null];
     }
   }
 
+  saveHotbar() {
+    try {
+      localStorage.setItem(`hr_hotbar_${this.self.name}`, JSON.stringify(this.hotbar));
+    } catch { /* trinh duyet chan luu tru */ }
+  }
+
+  addHotbar(id) {
+    if (this.hotbar.includes(id)) return this.toast('Món này đã có trên thanh nhanh.');
+    const i = this.hotbar.indexOf(null);
+    if (i < 0) return this.toast('Thanh nhanh đã đầy — bấm chuột phải vào một ô để gỡ.', 'warn');
+    this.hotbar[i] = id;
+    this.saveHotbar();
+    this.renderHotbar();
+  }
+
+  useHotbar(i) {
+    const id = this.hotbar[i];
+    if (!id) return;
+    const st = this.self.inv.find((it) => it.id === id);
+    if (!st) return this.toast(`Hết ${ITEMS[id].name} rồi.`, 'warn');
+    this.net.send({ t: 'use', uid: st.uid });
+  }
+
+  renderHotbar() {
+    if (!this.hotbar) this.loadHotbar();
+    const bar = $('hotbar');
+    bar.textContent = '';
+    this.hotbar.forEach((id, i) => {
+      const hs = el('div', 'hs');
+      hs.style.left = `${HOTBAR_X[i]}%`;
+      hs.append(el('span', 'k', i + 1));
+      if (id) {
+        const n = this.self.inv.filter((it) => it.id === id).reduce((a, it) => a + it.qty, 0);
+        hs.append(this.icon(id, ITEMS[id].icon, 34));
+        hs.append(el('span', 'q', n));
+        if (!n) hs.classList.add('out');
+        hs.title = `${ITEMS[id].name} (phím ${i + 1}) — chuột phải để gỡ`;
+        hs.oncontextmenu = (e) => {
+          e.preventDefault();
+          this.hotbar[i] = null;
+          this.saveHotbar();
+          this.renderHotbar();
+        };
+      }
+      hs.onclick = () => this.useHotbar(i);
+      bar.append(hs);
+    });
+  }
+
+  // ------------------------------------------------------------ trang bi: bup be giay
   renderEquip() {
     const s = this.self;
-    const stats = $('equip-stats');
-    stats.textContent = '';
-    stats.append(
-      el('div', null, `✨ Thu hút: ${s.calc.charisma}`),
-      el('div', null, `🏃 Tốc độ: ${s.calc.speed}`),
-      el('div', null, `💪 Tiết kiệm thể lực: ${Math.round(s.calc.staminaSave)}%`),
-    );
-    const slots = $('equip-slots');
-    slots.textContent = '';
-    for (const [slot, name] of Object.entries(SLOTS)) {
+    const doll = $('doll');
+    doll.textContent = '';
+    for (const slot of DOLL_SLOTS) {
       const it = s.inv.find((i) => i.uid === s.equip[slot]);
-      const d = el('div', `slot${it ? ' full' : ''}`);
-      d.append(el('small', null, name));
+      const [x, y] = DOLL_POS[slot];
+      const d = el('div', 'ds');
+      d.style.left = `${x}%`;
+      d.style.top = `${y}%`;
       if (it) {
         const def = ITEMS[it.id];
-        const line = el('div', 'slot-item');
-        line.append(this.icon(it.id, def.icon, 22), ` ${def.name}${it.lvl ? ` +${it.lvl}` : ''}`);
-        d.append(line);
-        d.title = 'Click để tháo';
+        d.classList.add('full', `r-${def.rar || 'common'}`);
+        d.append(this.icon(it.id, def.icon, 40));
+        if (it.lvl) d.append(el('span', 'lv', `+${it.lvl}`));
+        d.append(this.durBar(it));
         d.onclick = () => this.net.send({ t: 'unequip', slot });
-      } else d.append(el('div', 'muted', '—'));
-      slots.append(d);
+        this.tipOn(d, () => {
+          const w = this.itemTip(it);
+          w.append(el('div', 'muted', 'Bấm để tháo'));
+          return w;
+        });
+      } else {
+        d.title = `${SLOTS[slot]} — trống. Mở Túi đồ để mặc.`;
+        d.onclick = () => this.action('inv');
+      }
+      doll.append(d);
     }
+    // O cu chua co tren bup be giay: chi hien khi dang mac do
+    const extra = $('equip-extra');
+    extra.textContent = '';
+    for (const slot of Object.keys(SLOTS).filter((k) => !DOLL_SLOTS.includes(k))) {
+      const it = s.inv.find((i) => i.uid === s.equip[slot]);
+      if (!it) continue;
+      const def = ITEMS[it.id];
+      const d = el('div', 'ex');
+      d.append(this.icon(it.id, def.icon, 20), `${SLOTS[slot]}: ${def.name}${it.lvl ? ` +${it.lvl}` : ''}`);
+      d.title = 'Bấm để tháo';
+      d.onclick = () => this.net.send({ t: 'unequip', slot });
+      extra.append(d);
+    }
+    const total = Object.values(s.equip).reduce((n, uid) => {
+      const it = s.inv.find((i) => i.uid === uid);
+      return n + (it ? ITEMS[it.id].base : 0);
+    }, 0);
+    const worn = DOLL_SLOTS.map((k) => s.inv.find((i) => i.uid === s.equip[k])).filter(Boolean)
+      .sort((a, b) => a.dur - b.dur)[0];
+    const stats = $('equip-stats');
+    stats.textContent = '';
+    const st = (label, v) => {
+      const d = el('div', 'st');
+      d.append(el('span', null, label), el('b', null, v));
+      stats.append(d);
+    };
+    st('✨ Thu hút', s.calc.charisma);
+    st('🏃 Tốc độ đi', s.calc.speed);
+    st('⚡ Tiết kiệm NL', `${Math.round(s.calc.staminaSave)}%`);
+    st('🎒 Sức chứa túi', this.invCapacity());
+    st('💰 Giá trị đồ mặc', vnd(total));
+    if (worn) st('🔧 Bền thấp nhất', `${SLOTS[ITEMS[worn.id].slot]} ${Math.round(worn.dur)}%`);
     const buffs = s.buffs.map((b) => `${b.name} (${Math.floor(b.left / 60)}h${b.left % 60}p)`);
-    $('equip-buffs').textContent = buffs.length ? `Hiệu ứng: ${buffs.join(', ')}` : `Cường hóa trang bị tại Chú Sửa Xe (cần ⚙️ linh kiện). Loa LED: ${ECON.ledCost}💎.`;
+    $('equip-buffs').textContent = buffs.length
+      ? `Hiệu ứng: ${buffs.join(', ')}`
+      : `Cường hóa / sửa đồ tại Chú Sửa Xe (cần ⚙️ linh kiện). Loa LED: ${ECON.ledCost}💎.`;
+  }
+
+  // ------------------------------------------------------------ dien thoai (G58)
+  togglePhone() {
+    if (!$('phone').classList.contains('hidden')) return this.hide('phone');
+    if (!this.self.equip.phone) return this.toast('Bạn chưa trang bị điện thoại', 'bad');
+    this.net.send({ t: 'poi', id: 'phone' });
+  }
+
+  phoneHome() {
+    this.phoneApp = 'home';
+    const body = $('phone-body');
+    body.textContent = '';
+    const grid = el('div', 'apps');
+    for (const a of PHONE_APPS) {
+      const b = el('button', 'app');
+      const img = el('img');
+      img.src = `assets/ui/app_${a.icon}.png`;
+      img.alt = '';
+      b.append(img, el('span', null, a.name));
+      b.onclick = () => {
+        if (a.client) this[a.client]();
+        else this.net.send({ t: 'act', poi: 'phone', act: 'app', args: { app: a.id } });
+      };
+      grid.append(b);
+    }
+    body.append(grid);
+    const s = this.self;
+    body.append(el('div', 'phone-hello', `${s.name} · ${s.clsName}\n4G: ${s.data} tin · 💎 ${s.diamonds}`));
+  }
+
+  phoneShell(title, iconId) {
+    const body = $('phone-body');
+    body.textContent = '';
+    const w = el('div', 'phone-app');
+    const h = el('h4');
+    const img = el('img');
+    img.src = `assets/ui/app_${iconId}.png`;
+    h.append(img, title);
+    w.append(h);
+    body.append(w);
+    return w;
+  }
+
+  renderPhone(d) {
+    $('phone').classList.remove('hidden');
+    this.hide('dialog');
+    this.dialog = d;
+    if (!d.app || d.app === 'home') return this.phoneHome();
+    this.phoneApp = d.app;
+    const meta = PHONE_APPS.find((a) => a.id === d.app);
+    const w = this.phoneShell(d.title.replace(/^\S+\s/, ''), meta?.icon || 'settings');
+    if (d.text) w.append(el('div', 'txt', d.text));
+    w.append(this.optionRows(d));
+  }
+
+  // App Ban do: bam dia diem -> nhan vat tu di toi
+  phoneMap() {
+    this.phoneApp = 'map';
+    const w = this.phoneShell('Bản đồ', 'map');
+    w.append(el('div', 'txt', 'Bấm một địa điểm để tự đi bộ tới.'));
+    for (const z of ZONES) {
+      const zh = el('div', 'map-zone', z.name);
+      zh.style.background = ZONE_COLORS[z.id];
+      w.append(zh);
+      for (const p of POIS.filter((x) => x.x >= z.x0 && x.x < z.x1 && !HIDDEN_POI.has(x.kind))) {
+        const b = el('button', 'map-poi', `${POI_EMOJI[p.kind] || '📍'} ${p.name}`);
+        b.onclick = () => {
+          this.hide('phone');
+          this.onNavigate?.(p);
+        };
+        w.append(b);
+      }
+    }
+  }
+
+  phoneSettings() {
+    this.phoneApp = 'settings';
+    const w = this.phoneShell('Cài đặt', 'settings');
+    const help = el('button', 'btn', '❓ Hướng dẫn chơi');
+    help.onclick = () => {
+      this.hide('phone');
+      this.action('help');
+    };
+    const out = el('button', 'btn', '🚪 Đăng xuất (đổi nhân vật)');
+    out.onclick = () => {
+      if (!confirm('Đăng xuất khỏi nhân vật này? Lần sau vào lại bằng nút "Tiếp tục" sẽ không còn — hãy nhớ tên nhân vật.')) return;
+      try {
+        localStorage.removeItem('hr_token');
+        localStorage.removeItem('hr_name');
+      } catch { /* bo qua */ }
+      location.reload();
+    };
+    for (const b of [help, out]) {
+      b.style.cssText = 'width:100%;margin-top:6px';
+      w.append(b);
+    }
+  }
+
+  closePanels() {
+    for (const id of ['dialog', 'inv', 'equip', 'help', 'emotes', 'phone']) this.hide(id);
+    $('tip').classList.add('hidden');
   }
 }
+
+// ------------------------------------------------------------ du lieu hien thi
+const INV_TABS = [
+  { id: 'all', name: 'Tất cả', icon: 'all', match: () => true },
+  { id: 'food', name: 'Ăn uống', icon: 'food', match: (d) => d.type === 'food' },
+  { id: 'ingredient', name: 'Nguyên liệu', icon: 'ingredient', match: (d) => d.type === 'ingredient' },
+  { id: 'equip', name: 'Trang bị', icon: 'equip', match: (d) => d.type === 'equip' },
+  // tab Noi that (tab_furniture) tam an: chua co do noi that
+  { id: 'other', name: 'Khác', icon: 'other', match: (d) => !['food', 'ingredient', 'equip'].includes(d.type) },
+];
+const TYPE_NAME = {
+  food: 'Ăn uống', ingredient: 'Nguyên liệu', material: 'Vật liệu', collectible: 'Sưu tầm', data: 'Gói cước', stall: 'Đồ bày sạp', equip: 'Trang bị',
+};
+const STAT_NAME = { charisma: 'Thu hút', speed: 'Tốc độ %', staminaSave: 'Tiết kiệm NL %', vehicle: 'Xe ×' };
+const EFF_NAME = { hunger: 'No bụng', stamina: 'Năng lượng', stress: 'Tinh thần' };
+// stress noi bo = nguoc voi Tinh than
+const effText = (k, v) => {
+  const d = k === 'stress' ? -v : v;
+  return `${EFF_NAME[k] || k} ${d > 0 ? '+' : ''}${d}`;
+};
+// Vi tri 5 o tren anh thanh dung nhanh (% chieu ngang)
+const HOTBAR_X = [7.4, 25.6, 43.0, 60.6, 77.7];
+// Vi tri 8 o tren anh bup be giay (% goc tren-trai)
+const DOLL_POS = {
+  non: [40.5, 7.7], kinh: [70.6, 12.6], ao: [10.6, 32.4], dongho: [70.6, 32.4],
+  quan: [10.6, 52.9], lung: [70.6, 52.9], giay: [10.6, 73.6], phone: [70.6, 73.6],
+};
+// App dien thoai. client: mo ngay o client (khong can server). Taxi tam an (chua co he thong taxi).
+const PHONE_APPS = [
+  { id: 'jobs', name: 'Việc Làm', icon: 'jobs' },
+  { id: 'bank', name: 'Ngân hàng', icon: 'bank' },
+  { id: 'map', name: 'Bản đồ', icon: 'map', client: 'phoneMap' },
+  { id: 'market', name: 'Chợ', icon: 'market' },
+  { id: 'quests', name: 'Nhiệm vụ', icon: 'quests' },
+  { id: 'friends', name: 'Bạn bè', icon: 'friends' },
+  { id: 'settings', name: 'Cài đặt', icon: 'settings', client: 'phoneSettings' },
+];
+const POI_EMOJI = {
+  school: '🏫', tro: '🏠', net: '🖥️', veso: '🎫', buudien: '📮', cafe: '☕', banhmi: '🥖', bangdia: '📼', bida: '🎱',
+  barber: '💈', cho: '🧺', mechanic: '🔧', atm: '🏧', bank: '🏦', office: '🏢', auction: '🔨', showroom: '🛵',
+  fashion: '👗', junk: '♻️', comtam: '🍛', trasua: '🧋',
+};
+const HIDDEN_POI = new Set();
