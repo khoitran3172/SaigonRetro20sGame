@@ -16,6 +16,7 @@ Game web **2D top-down MMORPG / Life-Sim đô thị Sài Gòn**, pixel art. 3 t�
 - **KHÔNG tự vẽ art mới.** Người dùng tự tạo ảnh bằng AI. Thiếu asset thì ghi vào `docs/ASSET_STATUS.md` và báo lại, không vẽ thay bằng code. (Các ảnh tạm vẽ bằng code trong `client/src/textures.js` là di sản từ bản đầu — giữ làm placeholder, không thêm mới.)
 - **Hỏi trước khi commit/push.** Push lên `main` sẽ kích hoạt Render tự deploy bản online.
 - README chỉ để **quảng cáo game**; chi tiết kỹ thuật viết trong `docs/`.
+- **Nhật ký phát triển `docs/GAMELOG.md`:** cuối mỗi phiên làm việc thêm một mục (ngày · commit · đã làm · quyết định · việc còn mở).
 - **Khi liệt kê asset còn thiếu, LUÔN kèm prompt đầy đủ cho từng ảnh.** Nguồn: `docs/ASSET_TODO.md` + trang **`docs/asset_todo.html`** (nút Copy từng prompt, bấm xong tự đánh dấu ✅ đã dùng, lưu trong localStorage theo tên file ảnh nên giữ nguyên khi sinh lại). Cả hai sinh bởi `python tools/asset_todo.py` — cập nhật nhóm `SEGMENTS` / `DEFER` trong script (xóa mục đã có art, thêm mục mới) rồi chạy lại. Người dùng mở file HTML trực tiếp bằng trình duyệt.
 - Người dùng vẽ bằng **Gem Gemini "Họa sĩ Hàng Rong"** — hướng dẫn Gem (style bible, bảng màu rút từ art đã duyệt, quy chuẩn kỹ thuật) ở `docs/GEMINI_GEM.md`. Đổi quy chuẩn asset thì cập nhật cả file này.
 - Commit message kết thúc bằng dòng `Co-Authored-By` theo hướng dẫn của môi trường hiện tại.
