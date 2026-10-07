@@ -94,7 +94,9 @@ export class GmPanel {
     n.max = 99;
     n.className = 'qty';
     const add = el('button', 'btn small', 'Thêm vào túi');
-    add.onclick = () => sel.value && this.send('item', { id: sel.value, qty: Number(n.value) });
+    add.onclick = () => {
+      if (sel.value) this.send('item', { id: sel.value, qty: Number(n.value) });
+    };
     row.append(q, sel, n, add);
     body.append(row);
     body.append(el('div', 'muted', 'Chỉ có khi chạy ở máy (không có DATABASE_URL) — bản online không có nút này.'));

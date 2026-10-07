@@ -145,7 +145,10 @@ export class UI {
       this.net.send({ t: 'hello', name, cls: this.pick.cls, skin: this.pick.skin });
     };
     $('btn-play').onclick = play;
-    $('in-name').onkeydown = (e) => e.key === 'Enter' && play();
+    // Khong tra ve gia tri: handler tra false se huy phim (chan go chu, nhat la tren ban phim ao iOS)
+    $('in-name').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') play();
+    });
   }
 
   // Loi dang nhap: hien ngay duoi o ten va cuon toi (tren dien thoai dong loi cuoi khung bi khuat)
