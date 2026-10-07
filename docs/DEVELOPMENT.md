@@ -60,11 +60,22 @@ client/src/
   world.js           Scene Phaser: bản đồ, nhân vật, NPC, giao thông, ngày/đêm, mưa
   ui.js              HUD, chat 3 kênh, LED RGB, hội thoại, túi đồ, trang bị
   textures.js        Ảnh tạm vẽ bằng code (chờ art)
+  layout.js          Bố cục PC: cỡ giao diện `--ui`, gom HUD vào 2 dock flex-wrap, chat thu gọn
+  touch.js           Cảm ứng: nút hướng, nút "Nói chuyện", menu ☰, nâng chat theo bàn phím ảo
+client/desktop.css · touch.css   Bố cục PC (`body:not(.touch)`) / cảm ứng (`body.touch`)
 ```
 
 - **Đồng bộ:** client gửi vị trí 15Hz, server chặn dịch chuyển vượt tốc độ. Snapshot theo lưới AOI (ô 640px, ±2 ô). Chat gần chỉ gửi trong bán kính 700px.
 - **Chống dupe:** mỗi thao tác tiền/đồ là một hàm đồng bộ kiểm tra hết điều kiện rồi mới ghi (Node đơn luồng → nguyên tử). Mọi biến động tiền vào sổ cái (`ledger`).
 - **Giới hạn:** dữ liệu ghi theo lô 5s — server sập đột ngột có thể mất ≤5s giao dịch gần nhất.
+
+## Responsive (PC / điện thoại)
+
+- `main.js` gắn class `touch` lên `<body>` nếu là thiết bị cảm ứng (`isTouchDevice` trong `touch.js`: pointer coarse, iPhone/iPad/Android, iPad chế độ desktop); ngược lại gọi `setupDesktopLayout()`.
+- **PC:** `layout.js` tính `--ui` = min(1, rộng/1440, cao/820), tối thiểu 0.55, áp bằng `zoom` cho các khung HUD. HUD gom vào `.dock-top` / `.dock-bottom` (flex-wrap) nên tự xuống dòng, không đè nhau. Không dùng mốc px để đổi bố cục; cỡ nhỏ (`--ui` < 0.96) thì thẻ nhân vật gọn (`hud-compact`, bấm để mở rộng) và chat thu gọn mặc định.
+- **Cảm ứng:** HUD chỉ còn thẻ nhân vật gọn + nút hướng + nút ☰ (mở bảng chức năng và thanh nhanh); chat mở bằng nút 💬. Chạm NPC / cửa hàng chỉ đi tới; đứng gần thì hiện nút "Nói chuyện" (`nearestInteract` trong `world.js`) → bấm mới mở hộp thoại.
+- Các `@media` px cũ viết cho điện thoại (trong `style.css`, `ui-v2.css`) đã giới hạn bằng `body.touch`.
+- **Cạm bẫy:** handler `onXxx = (e) => a && b()` trả `false` sẽ hủy phím/hành vi mặc định (từng chặn gõ chữ trên iOS) — dùng `addEventListener` hoặc khối `{ if (...) ... }`. Phần tử con `position:absolute` (ô thanh nhanh) cần cha `position:relative` khi đưa vào dock.
 
 ## Điều khiển
 
