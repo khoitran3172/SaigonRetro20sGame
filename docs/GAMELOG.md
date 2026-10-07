@@ -18,7 +18,7 @@
 | 2026-10-07 | `e7ce286` | Hộp thoại NPC tự đóng khi đi xa · nhật ký phát triển |
 | 2026-10-07 | `83c182b` | README mới có ảnh chụp game, dẫn link sang nhật ký |
 | 2026-10-07 | `977ec5b` · `29706c6` | Nhập 68 ảnh V2 lần 2: nhà ống, vựa ve chai, xe buýt & trạm, chân dung NPC, 60 icon, cắt sẵn nội thất / phòng / UI |
-| 2026-10-07 | _(chưa commit)_ | Chung cư (G20) thay Nhà Đấu Giá; đi bộ không tốn năng lượng |
+| 2026-10-07 | `675ce8a` | Chung cư (G20) thay Nhà Đấu Giá; đi bộ không tốn năng lượng |
 | 2026-10-07 | `2721100` | Chợ Sạp Hàng Hóa thay CLB Bida; gỡ sạp vỉa hè, ô quy hoạch, giang hồ (G53) |
 | 2026-10-07 | `4f83e1f` | Code theo art lần 2: nghề tờ rơi / shipper / gia sư + thi chứng chỉ, phòng trọ & nội thất, ngủ, nấu ăn, TTTM + Gacha |
 
@@ -152,7 +152,7 @@ Người dùng tải 68 ảnh lên thẳng GitHub (`977ec5b`, thư mục `asset_
 
 **Kiểm thử:** 11 test pass (bỏ 2 test sạp cũ, thêm test chợ: thuê, chế biến, khung giá, mua khi chủ offline, giá trung bình, hết hạn trả hàng). Chạy thử trong trình duyệt: tòa chợ trên phố, thuê sạp, bày hàng, 3 tab.
 
-## 2026-10-07 · Chung cư (G20) + đi bộ không tốn năng lượng
+## 2026-10-07 · `675ce8a` — Chung cư (G20) + đi bộ không tốn năng lượng + nút GM
 
 **Người dùng chốt:** chung cư thay tòa Nhà Đấu Giá (Khu 2); thuê **trả trước theo tuần** (600.000đ / 7 ngày, hết hạn không gia hạn thì bị trả phòng) hoặc **mua đứt** 2 tỷ. Than năng lượng hết nhanh → **đi bộ không tốn năng lượng**.
 
