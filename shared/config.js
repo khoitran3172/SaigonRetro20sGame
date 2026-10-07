@@ -172,7 +172,7 @@ export const BUILDINGS = [
   { id: 'bank', x: 4480, gen: { w: 420, h: 380, wall: 0x9fc4d8, roof: 0x24495e, sign: 'VIETBANK', signBg: 0x0d2a4a, neon: 0xffd34d, windows: 'glass' } },
   { id: 'office', x: 5020, gen: { w: 480, h: 400, wall: 0xa9b8c9, roof: 0x2f3b4a, sign: 'TECHCORP TOWER', signBg: 0x202a36, neon: 0x5fd0ff, windows: 'glass' } },
   { id: 'auction', x: 5440, gen: { w: 300, h: 300, wall: 0xc9a86a, roof: 0x5a3d1a, sign: 'NHÀ ĐẤU GIÁ', signBg: 0x5a1a1a, neon: 0xff5fa8, windows: 'arch' } },
-  { id: 'junk', x: 6250, gen: { w: 520, h: 200, wall: 0x7a6a55, roof: 0x4a3f33, sign: 'VỰA VE CHAI CHÚ TƯ', signBg: 0x3a2f22, windows: 'shed' } },
+  { id: 'junk', x: 6250, sprite: 'b_vechai', sign: { text: 'VỰA VE CHAI CHÚ TƯ', box: [0.28, 0.13, 0.75, 0.32] } },
 ];
 
 // Diem tuong tac. kind quyet dinh hop thoai phia server.

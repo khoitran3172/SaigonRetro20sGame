@@ -44,7 +44,8 @@ FACING = {
 # Sheet do vat / cong trinh (xu ly trong new_manifest.py)
 NOT_CHARACTERS = {"Congtrinh.jpg", "Img_Login.jpg", "NPC.jpg", "VEHICLE.png", "item.png", "props.jpg"}
 # Anh UI / cong trinh / mini-game don le (xu ly trong ui_manifest.py)
-NOT_CHARACTER_PREFIX = ("ui_", "job_", "building_", "prop_", "bld_", "icons_", "furn_", "room_")
+NOT_CHARACTER_PREFIX = ("ui_", "job_", "building_", "prop_", "bld_", "icons_", "furn_", "room_",
+                        "tube_", "veh_", "npc_mall_", "banner_", "bus_stop", "taxi_stand", "market_")
 
 # Sheet gop: file -> danh sach (skin, action, hang, cot_bat_dau)
 SHEETS = {

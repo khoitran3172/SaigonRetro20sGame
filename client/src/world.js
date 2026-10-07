@@ -203,25 +203,38 @@ export class WorldScene extends Phaser.Scene {
         this.lamps.push({ img: glow, max: 0.7 });
       }
     }
-    // Lap khoang trong: nha ong (anh tam, cho art) / cay o ngoai o
+    // Lap khe giua cong trinh bang nha ong (art tube_1..8; chua co art thi dung anh tam): dat lui sau,
+    // khe hep thi hai mep khuat sau cong trinh ben canh. Ngoai o (x > 5600) trong cay.
+    const tubes = [1, 2, 3, 4, 5, 6, 7, 8].map((i) => `tube_${i}`).filter((k) => this.textures.exists(k));
     let seed = 1;
-    const free = (x0, x1) => used.every(([a, b]) => x1 < a - 4 || x0 > b + 4);
-    for (let x = 0; x < WORLD.width;) {
-      if (x > 5600) {
-        if (free(x, x + 90)) this.prop(seed++ % 2 ? 'tree_bang' : 'tree_me', x + 45, 446, { depth: 439, scale: 0.85 });
-        x += 110;
-        continue;
+    const nextTube = () => {
+      seed++;
+      if (tubes.length) {
+        const key = tubes[(seed * 3) % tubes.length];
+        return { key, w: this.textures.get(key).getSourceImage().width };
       }
       const key = `tube_${seed}`;
-      const { w } = genTubeHouse(this, key, seed * 7919);
-      if (free(x, x + w)) {
-        this.add.image(x + w / 2, base, key).setOrigin(0.5, 1).setDepth(WORLD.buildingBase - 1);
-        used.push([x, x + w]);
+      return { key, w: genTubeHouse(this, key, seed * 7919).w };
+    };
+    const CITY_END = 5600;
+    const gaps = [];
+    let prev = 0;
+    for (const [a, b] of [...used].sort((p, q) => p[0] - q[0])) {
+      if (a - prev >= 20) gaps.push([prev, Math.min(a, CITY_END)]);
+      prev = Math.max(prev, b);
+    }
+    if (prev < CITY_END) gaps.push([prev, CITY_END]);
+    for (const [a, b] of gaps) {
+      for (let x = a; b - x >= 20;) {
+        const { key, w } = nextTube();
+        const cx = b - x < w ? (x + b) / 2 : x + w / 2;
+        this.add.image(cx, base, key).setOrigin(0.5, 1).setDepth(WORLD.buildingBase - 1);
         x += w;
-        seed++;
-      } else {
-        x += 10;
       }
+    }
+    const free = (x0, x1) => used.every(([a, b]) => x1 < a - 4 || x0 > b + 4);
+    for (let x = CITY_END; x < WORLD.width; x += 110) {
+      if (free(x, x + 90)) this.prop(seed++ % 2 ? 'tree_bang' : 'tree_me', x + 45, 446, { depth: 439, scale: 0.85 });
     }
   }
 
@@ -262,6 +275,9 @@ export class WorldScene extends Phaser.Scene {
         this.lampGlow(x + lamp.width * 0.3, 590 - lamp.height + 10);
       }
     }
+    // Tram xe buyt (G29: moi khu 1 tram) + diem don taxi — hien chi trang tri, chua co he thong buyt/taxi
+    for (const x of [790, 3310, 4990, 5830]) this.prop('bus_stop', x, 578);
+    for (const x of [370, 4150]) this.prop('taxi_stand', x, 578);
     // Cay via he duoi (tranh khu o quy hoach), thung rac, nap cong
     for (let i = 0, x = 120; x < WORLD.width; x += 330, i++) {
       if (x > 1780 && x < 3620) continue;

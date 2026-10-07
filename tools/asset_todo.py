@@ -167,23 +167,7 @@ seg("3. [Đợt 1] Người đi đường",
     [(f"{k} · {a}", f"{k}_{a}.png", strip(k, d, a), STYLE)
      for k, d in WALKERS.items() for a in ["idle_down", "walk_down", "walk_up", "walk_left"]])
 
-seg("4. [Đợt 1] Giao thông — xe buýt, trạm, taxi",
-    "G29–G32. Không còn xe máy. Xe buýt cũ dính watermark ✦ nên vẽ lại; thêm bản cửa mở khi dừng trạm. Taxi đã có art.",
-    [("Xe buýt (cửa đóng)", "veh_bus.png",
-      "Single game asset: a green Saigon city bus, side profile with the front pointing to the RIGHT, slight 3/4 "
-      "top-down tilt, doors closed, no passengers visible, wheels on an invisible flat baseline, length about 5 "
-      "times an adult's height.", STYLE),
-     ("Xe buýt (cửa mở)", "veh_bus_open.png",
-      "Single game asset: the SAME green Saigon city bus as the attached image, side profile with the front pointing "
-      "to the RIGHT, both side doors folded OPEN showing the lit interior steps, stopped.", STYLE),
-     ("Trạm xe buýt", "bus_stop.png",
-      "Single game asset: a Saigon bus stop shelter with a curved metal roof, a bench, a glass side panel and a tall "
-      "route pole with an EMPTY blank route board, 3/4 top-down front view, about 1.5 times an adult's height.", STYLE),
-     ("Điểm đón taxi", "taxi_stand.png",
-      "Single game asset: a small taxi waiting point: a pole with an EMPTY blank sign box on top and a painted "
-      "yellow curb section, 3/4 top-down front view.", STYLE)])
-
-# Muc 5 (UI kit) va 6 (dien thoai & app) — DA NHAN art 2026-10-07, da dung trong game.
+# Muc 4 (xe buyt, tram, taxi), 5 (UI kit), 6 (dien thoai & app) — DA NHAN art 2026-10-07.
 
 # ===================== ĐỢT 2 — nghề
 seg("7. [Đợt 2] Nơi làm việc mới",
@@ -200,7 +184,8 @@ seg("7. [Đợt 2] Nơi làm việc mới",
          desc="plump Vietnamese woman around 50, curly short hair, pink-checked blouse and trousers, sandals"), STYLE)])
 
 seg("8. [Đợt 2] Mini-game các nghề",
-    "G34. Đã nhận J1 IT, J2 Phục vụ, quầy J3 (file job_milktea_items.png gửi nhầm là ảnh quầy — đang dùng làm quầy). "
+    "G34. Đã nhận J1 IT, J2 Phục vụ, quầy J3 (file job_milktea_items.png gửi nhầm là ảnh quầy — đang dùng làm quầy), "
+    "J5 tờ rơi, J6 bản đồ + đồ shipper, J8 vở & bảng. "
     "Ảnh J3 bên dưới là tùy chọn (icon cho phiếu order). J4 cần ảnh quầy NHÌN TỪ TRÊN XUỐNG — ảnh prop_coffee_prep_table "
     "nhìn nghiêng nên đang dùng làm đồ trang trí ở quán cà phê.",
     [("J3 Trà sữa — ly & topping (tùy chọn)", "job_milktea_items.png", icon_grid([
@@ -214,150 +199,24 @@ seg("8. [Đợt 2] Mini-game các nghề",
       "A row of 6 game sprites of identical size with wide gaps showing a Vietnamese phin coffee being made, seen from "
       "the front: (1) empty glass with phin on top, (2) ground coffee in the phin, (3) hot water poured in, (4) coffee "
       "dripping, (5) glass with black coffee and condensed milk at the bottom, (6) finished iced milk coffee with "
-      "ice.", STYLE_UI),
-     ("J5 Tờ rơi", "job_flyer.png",
-      "Two separate game item icons with a wide gap: (1) a single colorful advertising flyer without readable text, "
-      "(2) a thick stack of the same flyers held by a rubber band.", STYLE),
-     ("J6 Shipper — bản đồ thành phố", "job_city_map.png",
-      "A stylized top-down city map panel of a small Saigon district split into 4 zones from left to right: a "
-      "university village with a football field, a food street with stalls, a business district with glass towers, "
-      "an outskirts scrap yard. A main road runs horizontally through all zones. No text, no labels.", STYLE_UI),
-     ("J6 Shipper — thẻ địa chỉ & thùng hàng", "job_shipper_items.png",
-      "Three separate elements with wide gaps: (1) an empty paper delivery address card with a barcode area, (2) a "
-      "sealed delivery box with fragile tape, (3) a stopwatch timer icon.", STYLE_UI),
-     ("J8 Gia sư — vở & bảng", "job_tutor.png",
-      "Two separate elements with a wide gap: (1) an open Vietnamese school notebook with empty ruled pages, (2) a "
-      "small empty whiteboard on a stand with a marker tray.", STYLE_UI)])
+      "ice.", STYLE_UI)])
 
-seg("9. [Đợt 2] Trường học & giao diện tòa nhà",
-    "G33, G38–G41. Banner tỉ lệ 3:1 đặt ở đầu panel.",
-    [("Banner Trường học", "banner_school.png",
-      "A wide 3:1 illustrated header banner: the front gate of a Vietnamese university with a red flag and students "
-      "walking in, morning light. Pixel art, no text.", STYLE_UI),
-     ("Bảng đen câu hỏi", "ui_chalkboard.png",
-      "An empty classroom chalkboard with a wooden frame and a chalk tray, plus 4 separate empty answer cards of "
-      "identical size in red, blue, green and yellow.", STYLE_UI),
-     ("Khung màn hình ATM", "ui_atm.png",
-      "An ATM machine front panel seen straight on: an empty blue screen area at the top, a 12-key metal number pad "
-      "below, a card slot and a cash slot. No text on the keys.", STYLE_UI),
-     ("Banner Bưu điện & phong bì", "ui_post.png",
-      "Two separate elements: (1) a wide 3:1 illustrated header banner of the yellow French colonial Saigon post "
-      "office interior with wooden counters, (2) an empty open paper envelope with a red and blue airmail border.",
-      STYLE_UI),
-     ("Hợp đồng thuê & hóa đơn tuần", "ui_contract_bill.png",
-      "Two separate elements with a wide gap: (1) an empty aged paper rental contract with a red stamp area and a "
-      "signature line, (2) an empty narrow paper bill receipt with a torn bottom edge and a small light bulb symbol "
-      "at the top.", STYLE_UI),
-     ("Sơ đồ tuyến xe buýt", "ui_bus_map.png",
-      "A stylized bus route map panel: a single green route line connecting 4 round stop markers from left to right, "
-      "each stop with a small picture next to it: a university gate, a street food stall, glass office towers, a "
-      "scrap yard. No text.", STYLE_UI),
-     ("Chân dung NPC hội thoại", "ui_portraits.png",
-      "Character portrait set: a grid of 4 columns x 2 rows of bust portraits (head and shoulders), each centered in "
-      "its own equal square cell with a simple warm background circle, same scale, facing slightly left: (1) old "
-      "banh mi grandmother with conical hat, (2) coffee lady with a bun, (3) grocery lady with curly hair, (4) com tam "
-      "restaurant owner with headscarf, (5) young bubble tea shop owner with pastel cap, (6) mechanic, (7) scrap "
-      "collector, (8) postman in blue uniform.", STYLE_UI)])
+seg("9. [Đợt 2] Chân dung NPC — vẽ lại 2 ô",
+    "Đã nhận ui_portraits.png (8 ô) nhưng ô 4 (chủ quán cơm tấm) vẽ thành đàn ông, ô 5 (chủ tiệm trà sữa) vẽ thành "
+    "cậu bé đội nón lưỡi trai. 6 ô còn lại đang dùng trong hội thoại. Đính kèm ui_portraits.png làm tham chiếu.",
+    [("Chân dung chủ quán cơm tấm & chủ tiệm trà sữa", "ui_portraits_2.png",
+      "Character portrait set in the SAME style as the attached portrait grid: 2 columns x 1 row of bust portraits "
+      "(head and shoulders), each centered in its own equal square cream card with a simple warm background circle, "
+      "same scale, facing slightly left: (1) a Vietnamese WOMAN around 50, restaurant owner, kind face, a headscarf "
+      "and a white apron over a brown blouse; (2) a trendy Vietnamese YOUNG WOMAN around 24, bubble tea shop owner, "
+      "long hair, a pastel pink cap and a light shop apron. Both clearly female.", STYLE_UI)])
 
 # ===================== ĐỢT 3 — nhà ở, ngủ, nấu ăn
-seg("10. [Đợt 3] Nền phòng & tòa nhà ở",
-    "G19–G21. Phòng trống có lưới sàn rõ để đặt đồ.",
-    [("Phòng trọ 15m² gác lửng", "room_tro.png",
-      "Interior of a small cheap Vietnamese student rental room (phong tro) about 4 by 3 meters: peeling pale green "
-      "walls, one small window with iron bars on the back wall, a wooden door on the right wall, a wooden mezzanine "
-      "loft edge visible along the top of the back wall, beige ceramic tile floor in a clear 8 x 6 grid.", STYLE_ROOM),
-     ("Căn hộ chung cư", "room_apartment.png",
-      "Interior of a modern Saigon apartment living space: light cream walls, a large sliding glass door to a "
-      "balcony on the back wall showing city towers outside, a door on the right wall, warm wooden plank floor in a "
-      "clear 12 x 8 grid.", STYLE_ROOM),
-     ("Tòa chung cư", "bld_apartment.png", BUILDING.format(
-         what="a mid-rise Saigon apartment building (chung cu)", ratio="1:1.6",
-         detail="8 storeys with balconies and potted plants, air conditioner units, a guarded lobby with glass doors "
-                "at the bottom"), STYLE)])
-
-seg("11. [Đợt 3] Nội thất 3 phân khúc (Bình dân · Tầm trung · Cao cấp)",
-    "G22, G51. Mỗi ảnh = 1 loại đồ × 3 mẫu. Hình đặt trong phòng thu nhỏ làm luôn icon. Đồ treo tường vẽ nhìn thẳng.",
-    [("Giường", "furn_bed.png", tiers("bed",
-        "a thin foam mattress on the floor with one flat pillow",
-        "a simple single wooden bed with a cotton blanket",
-        "a large double bed with a padded headboard, thick spring mattress and fluffy duvet"), STYLE),
-     ("Tủ quần áo", "furn_wardrobe.png", tiers("wardrobe",
-        "a fabric zip-up portable wardrobe on a metal frame",
-        "a two-door wooden wardrobe",
-        "a tall three-door glossy white wardrobe with a full-length mirror"), STYLE),
-     ("Rương / kho", "furn_chest.png", tiers("storage chest",
-        "a stack of two plastic storage boxes",
-        "a wooden chest with metal latches",
-        "an antique carved teak chest with brass corners"), STYLE),
-     ("Tủ lạnh", "furn_fridge.png", tiers("refrigerator",
-        "a small old mini fridge with a rusty door",
-        "a two-door 180-liter white fridge",
-        "a large stainless steel side-by-side fridge with a water dispenser"), STYLE),
-     ("Bếp nấu", "furn_stove.png", tiers("cooking stove",
-        "a single-burner portable gas stove on the floor",
-        "a double gas stove on a tiled counter",
-        "a sleek black induction cooktop built into a modern kitchen counter with a range hood"), STYLE),
-     ("Nồi cơm điện", "furn_ricecooker.png", tiers("rice cooker on a small counter",
-        "a dented old aluminium rice cooker",
-        "a standard white electric rice cooker",
-        "a premium digital rice cooker with a display panel"), STYLE),
-     ("Lò vi sóng", "furn_microwave.png", tiers("microwave oven",
-        "a yellowed old microwave with a dial",
-        "a white microwave with buttons",
-        "a black convection microwave oven with a digital display"), STYLE),
-     ("Bồn rửa", "furn_sink.png", tiers("kitchen sink",
-        "a plastic basin on a wooden stand",
-        "a stainless steel sink counter",
-        "a double sink in a marble counter with a pull-out faucet"), STYLE),
-     ("Bàn ăn", "furn_dining.png", tiers("dining table set",
-        "a low folding table with two plastic stools",
-        "a wooden table with two wooden chairs",
-        "a glass-top dining table with four upholstered chairs"), STYLE),
-     ("Bàn học / làm việc", "furn_desk.png", tiers("study desk with chair",
-        "a small folding desk with a plastic stool",
-        "a wooden study desk with an office chair and a desk lamp",
-        "a large L-shaped desk with an ergonomic mesh chair"), STYLE),
-     ("Máy tính để bàn (cho nghề IT)", "furn_pc.png", tiers("desktop computer setup on a desk",
-        "an old beige PC with a bulky CRT monitor",
-        "an office PC with a flat monitor",
-        "a gaming PC with RGB lights and two wide monitors"), STYLE),
-     ("Kệ sách", "furn_bookshelf.png", tiers("bookshelf",
-        "a small plastic shelf with a few books",
-        "a five-tier wooden bookshelf full of books",
-        "a tall modern bookcase with decor items and LED strip lights"), STYLE),
-     ("Sofa", "furn_sofa.png", tiers("sofa",
-        "a worn two-seat bamboo bench with thin cushions",
-        "a fabric two-seat sofa",
-        "a large leather L-shaped sofa with pillows"), STYLE),
-     ("Bàn trà", "furn_coffeetable.png", tiers("coffee table",
-        "a small plastic stool used as a table",
-        "a low wooden coffee table",
-        "a marble coffee table with gold legs"), STYLE),
-     ("TV & kệ TV", "furn_tv.png", tiers("television on a TV stand",
-        "an old small CRT TV on a wooden stool",
-        "a 32-inch flat TV on a wooden cabinet",
-        "a 65-inch ultra thin TV on a long modern media console with a soundbar"), STYLE),
-     ("Quạt", "furn_fan.png", tiers("electric fan",
-        "a small desk fan with a cracked blade cover",
-        "a standing electric fan",
-        "a tall bladeless tower fan"), STYLE),
-     ("Máy lạnh (treo tường)", "furn_aircon.png", tiers("wall-mounted air conditioner",
-        "an old yellowed boxy air conditioner",
-        "a white inverter air conditioner",
-        "a premium slim air conditioner with a glossy black panel and a small display", wall=True), STYLE),
-     ("Máy giặt", "furn_washer.png", tiers("washing machine",
-        "an old twin-tub washing machine",
-        "a white top-loading washing machine",
-        "a front-loading washer with a large round glass door and a digital panel"), STYLE),
-     ("Đèn", "furn_lamp.png", tiers("lamp",
-        "a bare light bulb clip lamp",
-        "a fabric floor lamp",
-        "a designer arc floor lamp with a warm glow"), STYLE),
-     ("Thảm", "furn_rug.png", tiers("floor rug, seen from above at an angle",
-        "a small woven straw mat",
-        "a rectangular patterned fabric rug",
-        "a large fluffy Persian-style rug"), STYLE),
-     ("Cây cảnh", "furn_plant.png", tiers("indoor plant",
+seg("11. [Đợt 3] Nội thất còn thiếu (Bình dân · Tầm trung · Cao cấp)",
+    "G22, G51. Đã nhận 20/24 loại (giường, tủ, rương, tủ lạnh, bếp, nồi cơm, lò vi sóng, bồn rửa, bàn ăn, bàn học, "
+    "máy tính, kệ sách, sofa, bàn trà, TV, quạt, máy lạnh, máy giặt, đèn, thảm). Còn 4 loại dưới đây. "
+    "Lưu ý: KHÔNG vẽ người mẫu tham chiếu và KHÔNG ghi chữ BUDGET/PREMIUM dưới đồ.",
+    [("Cây cảnh", "furn_plant.png", tiers("indoor plant",
         "a small cactus in a plastic cup",
         "a money plant in a ceramic pot",
         "a tall fiddle-leaf fig in a large woven basket"), STYLE),
@@ -374,130 +233,30 @@ seg("11. [Đợt 3] Nội thất 3 phân khúc (Bình dân · Tầm trung · Cao
         "a round wall clock",
         "a smart digital clock with a glowing display"), STYLE)])
 
-seg("12. [Đợt 3] Nấu ăn — nguyên liệu, món, giao diện bếp",
-    "G44–G48. Icon nguyên liệu và món ăn; mặt bếp nhìn từ trên cho mini-game nấu.",
-    [("Nguyên liệu", "icons_ingredients.png", icon_grid([
-        "a small bag of rice", "a tray of eggs", "a pack of instant noodles", "a bunch of water spinach (rau muong)",
-        "a piece of raw pork belly", "a whole raw fish", "a block of tofu", "red tomatoes", "spring onions and garlic",
-        "a bottle of fish sauce", "a bottle of cooking oil", "a pack of rice noodles"]), STYLE),
-     ("Món nấu", "icons_dishes.png", icon_grid([
-        "a bowl of steamed white rice", "a fried egg on a plate", "stir-fried water spinach with garlic",
-        "a bowl of sour fish soup (canh chua)", "braised pork with eggs (thit kho trung)",
-        "caramelized fish in a clay pot (ca kho to)", "stir-fried noodles", "fried rice",
-        "tofu in tomato sauce", "a bowl of rice porridge", "instant noodles with an egg", "stir-fried rice vermicelli"]),
-      STYLE),
-     ("Mặt bếp nấu (mini-game)", "ui_cooking_stove.png",
-      "A top-down 16:9 view of a home cooking area for a mini-game: a two-burner stove with a pot and a frying pan on "
-      "it, a cutting board with a knife on the left, small bowls for ingredients along the bottom, a flame-level dial. "
-      "No people, no text.", STYLE_UI),
-     ("Sách công thức & đánh giá sao", "ui_recipe.png",
-      "Three separate elements with wide gaps: (1) an open recipe book with two empty cream pages and a ribbon "
-      "bookmark, (2) a row of three gold stars (one empty, one half, one full), (3) a small cooking timer.", STYLE_UI)])
-
-seg("13. [Đợt 3] Icon đồ điện tử (3 phân khúc)",
-    "Điện thoại & laptop quyết định nghề Shipper / IT (G43).",
-    [("Điện tử", "icons_electronics.png", icon_grid([
-        "a cheap old button phone", "a mid-range smartphone", "a premium smartphone with three cameras",
-        "an old thick laptop", "a slim office laptop", "a high-end gaming laptop with RGB keyboard",
-        "earbuds", "over-ear headphones", "a bluetooth speaker", "a power bank", "a wireless mouse",
-        "a recipe book"]), STYLE)])
+# Muc 10 (phong, chung cu), 12 (nau an), 13 (dien tu) — DA NHAN art 2026-10-07 (commit 977ec5b).
 
 # ===================== ĐỢT 4 — mua sắm & chợ
-seg("14. [Đợt 4] Trung Tâm Mua Sắm",
-    "G25–G28.",
-    [("Tòa Trung Tâm Mua Sắm", "bld_mall.png", BUILDING.format(
-        what="a modern Saigon shopping mall", ratio="1.8:1",
-        detail="3 storeys, big glass display windows showing furniture, TVs and clothes, colorful banners without "
-               "text, automatic glass doors, a red carpet at the entrance"), STYLE),
-     ("Sảnh bên trong", "room_mall.png",
-      "Interior of a Saigon shopping mall ground floor seen in 3/4 top-down view: polished light marble floor, an "
-      "entrance at the bottom center, five shop counters along the walls each with an EMPTY blank sign above: a "
-      "household goods counter, a furniture showroom corner, an electronics counter with TV screens, a clothing "
-      "rack corner, and a small supermarket with shelves and a checkout. Bright ceiling lights.",
-      STYLE_ROOM.replace("EMPTY room: no furniture, no people", "No people").replace(
-          "The floor shows a clear even grid of square tiles or planks so furniture can be placed on it. ", "")),
-     ("Banner 5 quầy", "ui_mall_banners.png",
-      "Five wide 3:1 illustrated header banners stacked vertically with gaps: (1) household goods shelves, (2) a "
-      "furniture showroom with a sofa and bed, (3) an electronics counter with TVs and laptops, (4) a clothing rack "
-      "boutique, (5) supermarket shelves with groceries. No text.", STYLE_UI)]
-    + [(f"Nhân viên quầy {q}", f"npc_mall_{k}.png", npc_idle(
+seg("14. [Đợt 4] Trung Tâm Mua Sắm — nhân viên quầy còn thiếu",
+    "G25–G28. Đã nhận tòa nhà, sảnh, banner 5 quầy, nhân viên quầy Gia dụng. Ảnh npc_mall_noithat.png nhận được "
+    "mặc áo CAM giống hệt quầy Gia dụng → vẽ lại áo NÂU. Đính kèm npc_mall_giadung.png làm tham chiếu dáng.",
+    [(f"Nhân viên quầy {q}", f"npc_mall_{k}.png", npc_idle(
         f"Vietnamese shop assistant around 25 wearing a mall uniform polo shirt in {c} with a name badge, dark "
-        "trousers"), STYLE)
-       for k, q, c in [("giadung", "Gia dụng", "orange"), ("noithat", "Nội thất", "brown"),
-                       ("dientu", "Điện tử", "blue"), ("thoitrang", "Thời trang", "pink"),
-                       ("sieuthi", "Siêu thị", "green")]])
+        "trousers" + extra), STYLE)
+     for k, q, c, extra in [
+         ("noithat", "Nội thất (vẽ lại)", "chocolate BROWN (not orange)", ", short neat hair, a different face from "
+          "the attached reference"),
+         ("dientu", "Điện tử", "blue", ""), ("thoitrang", "Thời trang", "pink", ", a young woman with a ponytail"),
+         ("sieuthi", "Siêu thị", "green", "")]])
 
-RARITY = ("4 rarity versions of the same item type in a row: (1) COMMON: plain and simple, dull colors; (2) GOOD: "
-          "nicer material and color, small green accent; (3) RARE: stylish design with blue accents and a subtle "
-          "shine; (4) LIMITED: luxurious, gold details and a soft golden glow")
+# Muc 15 (trang bi 4 cap hiem & gacha), 16 (cho sap hang hoa) — DA NHAN art 2026-10-07.
 
-
-def rarity_icons(a, b):
-    return ("Game item icon set: a grid of 4 columns x 2 rows, each icon centered in its own equal square cell with "
-            "generous spacing, same scale and lighting, front 3/4 view, bold pixel outlines. Row 1 shows " + RARITY +
-            " — item type: " + a + ". Row 2 shows the same 4 rarity versions — item type: " + b + ".")
-
-
-seg("15. [Đợt 4] Trang bị theo độ hiếm & Gacha",
-    "G60–G64: trang bị mua ở quầy Thời trang (Thường/Tốt) hoặc quay gacha hên xui ra Hiếm/Giới hạn. "
-    "Mỗi ô trang bị có 4 mẫu theo độ hiếm.",
-    [("Áo & Quần (4 cấp hiếm)", "icons_gear_shirt_pants.png", rarity_icons("a shirt / t-shirt", "trousers / jeans"),
-      STYLE),
-     ("Giày & Nón (4 cấp hiếm)", "icons_gear_shoes_hat.png", rarity_icons("shoes / sneakers", "a cap / hat"), STYLE),
-     ("Kính & Đồng hồ (4 cấp hiếm)", "icons_gear_glasses_watch.png", rarity_icons("sunglasses / glasses",
-                                                                                   "a wristwatch"), STYLE),
-     ("Balo (4 cấp hiếm) & vật phẩm gacha", "icons_gear_bag_gacha.png",
-      "Game item icon set: a grid of 4 columns x 2 rows, each icon centered in its own equal square cell with generous "
-      "spacing, same scale and lighting, front 3/4 view, bold pixel outlines. Row 1 shows " + RARITY +
-      " — item type: a backpack. Row 2: (1) a closed plastic gacha capsule half red half white, (2) a gacha token "
-      "coin, (3) a pile of glittering fragments (from recycling duplicates), (4) a golden lucky ticket.", STYLE),
-     ("Máy gacha", "prop_gacha.png",
-      "Single game asset: a cute capsule toy gacha machine as tall as an adult, glass dome full of colorful capsules, "
-      "a big turning crank, a coin slot and a capsule exit flap, decorated with lights, 3/4 top-down front view.",
-      STYLE),
-     ("Hoạt ảnh mở gacha", "ui_gacha_open.png",
-      "Sprite sheet: one single horizontal row of EXACTLY 6 frames of a gacha capsule opening, evenly spaced, same "
-      "size: (1) closed capsule, (2) capsule shaking left, (3) capsule shaking right, (4) capsule cracking open with "
-      "light leaking out, (5) capsule halves flying apart with a bright burst, (6) empty glowing light burst.",
-      STYLE_UI),
-     ("Nền lộ diện theo độ hiếm", "ui_gacha_reveal.png",
-      "Four square reveal background cards in a row with wide gaps, same size, radiating light rays and sparkles: "
-      "(1) grey for common, (2) green for good, (3) blue for rare, (4) gold with extra sparkles for limited. Empty "
-      "center for an item icon.", STYLE_UI)])
-
-seg("16. [Đợt 4] Chợ Sạp Hàng Hóa",
-    "G24, G55–G57: người chơi thuê sạp, bày bán, đặt giá; xem & mua hàng của người khác.",
-    [("Tòa Chợ Sạp Hàng Hóa", "bld_market.png", BUILDING.format(
-        what="a covered Saigon community market hall", ratio="2:1",
-        detail="a tall corrugated roof on steel columns, an arched entrance, rows of colorful stalls visible inside, "
-               "hanging lanterns"), STYLE),
-     ("Bên trong chợ", "room_market.png",
-      "Interior of a covered Vietnamese market hall seen in 3/4 top-down view: concrete floor, three long rows of "
-      "EMPTY wooden stall tables with numbered-style blank plaques (no text), wide walking aisles between them, "
-      "hanging bulbs from the roof beams, an entrance at the bottom center.",
-      STYLE_ROOM.replace("EMPTY room: no furniture, no people", "No people, no goods on the tables").replace(
-          "The floor shows a clear even grid of square tiles or planks so furniture can be placed on it. ", "")),
-     ("Sạp của người chơi (3 cỡ)", "market_stalls.png",
-      "Game asset set: 3 market stall tables in one row with wide gaps, same scale, 3/4 top-down front view, EMPTY "
-      "of goods, each with a blank wooden name plaque: (1) a small single folding table with a cloth, (2) a medium "
-      "wooden stall with a striped awning, (3) a large glass display stall with shelves and lights.", STYLE),
-     ("Giao diện chợ", "ui_market.png",
-      "Four separate UI elements with wide gaps: (1) an empty product listing card with an image area on top and two "
-      "blank lines below, (2) an empty paper price tag with a string, (3) a red rubber stamp mark shaped like a "
-      "circle with a check, (4) an empty search bar with a magnifying glass icon.", STYLE_UI)])
-
-seg("17. [Đợt 4] Công trình lấp phố",
-    "Thay ảnh tạm vẽ bằng code. Nhà ống số 1 dùng làm Nhà học sinh cho nghề Gia sư (J8).",
-    [("Vựa ve chai", "bld_vechai.png", BUILDING.format(
-        what="a scrap metal and recycling yard shed", ratio="2.5:1",
-        detail="corrugated rusty tin walls, piles of cans, bottles, cardboard and old fans"), STYLE)]
-    + [(f"Nhà ống {i} ({c})", f"tube_{i}.png",
-        "Game asset: front elevation of a narrow Vietnamese tube house (nha ong), 3 to 4 storeys, " + c + " walls, "
-        "small balconies with potted plants and laundry, an air conditioner unit, ground floor shop with a "
-        "half-open rolling metal shutter and an EMPTY blank signboard, standing on a flat ground line, width to "
-        "height ratio 1:3.", STYLE)
-       for i, c in enumerate(["mustard yellow", "salmon pink", "mint green", "sky blue", "cream white", "lavender",
-                              "terracotta orange", "pale lime"], 1)])
+seg("17. [Đợt 4] Công trình lấp phố — nhà ống còn thiếu",
+    "Đã nhận vựa ve chai + nhà ống 1–4, 6–8 (đang dùng trong game). Còn thiếu nhà ống số 5.",
+    [("Nhà ống 5 (xanh cốm — tube_8 nhận được đã là màu kem)", "tube_5.png",
+      "Game asset: front elevation of a narrow Vietnamese tube house (nha ong), 3 to 4 storeys, pale lime green walls, "
+      "small balconies with potted plants and laundry, an air conditioner unit, ground floor shop with a "
+      "half-open rolling metal shutter and an EMPTY blank signboard, standing on a flat ground line, width to "
+      "height ratio 1:3.", STYLE)])
 
 # ---------------------------------------------------------------- hoan lai (sau V2)
 DEFER_CHARS = {

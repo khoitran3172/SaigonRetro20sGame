@@ -20,6 +20,8 @@ const CLASS_DESC = {
   tt: 'Nhập hàng, chế biến, bày sạp. Động cơ của cả khu chợ.',
 };
 const DEFAULT_SKIN = { sv: 'sv_male', vp: 'vp_male', tt: 'baba_female' };
+// Chan dung hoi thoai theo POI (assets/ui/portrait_*.png). Com tam / tra sua: art ve sai nguoi — cho ve lai
+const PORTRAIT = { banhmi: 'banhmi', cafe: 'cafe', kiot: 'taphoa', mechanic: 'mechanic', junkyard: 'vechai', buudien: 'buuta' };
 const EMOTES = ['😀', '😂', '😍', '😡', '😭', '👍', '🙏', '🍻', '💸', '🔥'];
 
 export class UI {
@@ -373,6 +375,9 @@ export class UI {
   openDialog(d) {
     if (d.poi === 'phone') return this.renderPhone(d);
     this.dialog = d;
+    const face = PORTRAIT[d.poi];
+    $('dlg-portrait').classList.toggle('hidden', !face);
+    if (face) $('dlg-portrait').src = `assets/ui/portrait_${face}.png`;
     $('dlg-title').textContent = d.title;
     $('dlg-text').textContent = d.text || '';
     const box = $('dlg-opts');

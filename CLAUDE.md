@@ -26,7 +26,7 @@ Game web **2D top-down MMORPG / Life-Sim đô thị Sài Gòn**, pixel art. 3 t�
 ```bash
 npm install
 npm start          # http://localhost:3000 ; không có DATABASE_URL -> lưu data/db.json
-npm test           # 6 test logic server; thêm TEST_DATABASE_URL=postgres://... để chạy test PostgreSQL (test XÓA bảng!)
+npm test           # 7 test logic server (Node 24: chạy `node --test server/tests/*.js`); thêm TEST_DATABASE_URL=postgres://... để chạy test PostgreSQL (test XÓA bảng!)
 npm run assets     # build lại asset (cần Python 3 + pillow numpy scipy)
 ```
 
@@ -73,7 +73,8 @@ Người dùng bỏ ảnh vào **`asset_new_by_Khoit/`** (chữ K hoa trên đĩ
    - Chạy `python tools/contact_new.py` → xem `tools/out/new/_contact_*.png` để lấy mã blob `hàng.cột` (thêm file vào `PARAMS` nếu là sheet mới; tham số `(dilate, min_ratio, erode)` — nét mảnh dùng erode 1).
    - Map mã blob → tên asset, kích thước trong game (người đứng = 86px, công trình scale 1.25 từ ảnh 1024px).
    - Công trình mới: thêm vào `BUILDINGS` trong config (`sprite`, `sign.box` = tỉ lệ ô biển hiệu trống trong ảnh) và chỉnh `POIS`.
-   - **Ảnh đơn** (UI kit, `building_*`, `job_*`, `prop_*`…) → `tools/ui_manifest.py`: khai báo hộp cắt `(x0,y0,x1,y1)` theo ảnh gốc 1024×572; file có tiền tố `ui_ job_ building_ prop_ bld_ icons_ furn_ room_` được bộ nhập nhân vật bỏ qua.
+   - **Ảnh đơn** (UI kit, `building_*`, `job_*`, `prop_*`…) → `tools/ui_manifest.py`: khai báo hộp cắt `(x0,y0,x1,y1)` theo ảnh gốc 1024×572; file có tiền tố `ui_ job_ building_ prop_ bld_ icons_ furn_ room_ tube_ veh_ npc_mall_ banner_ bus_stop taxi_stand market_` được bộ nhập nhân vật bỏ qua.
+   - **Ảnh đơn đợt V2 lần 2 trở đi** → `tools/v2_manifest.py`: **tự tách blob** (không cần hộp cắt), chỉ khai báo danh sách tên theo thứ tự đọc; số phần tách ra sai → build dừng và báo tên file. Asset chưa có tính năng để trong `client/assets/v2/` (+ `v2.json`), không nạp lúc vào game.
 4. `npm run assets` (hoặc `cd tools && python build_assets.py`) → xem ảnh preview, kiểm tra trong game, cập nhật `docs/ASSET_STATUS.md`.
 5. Nhắc người dùng các lỗi ảnh (watermark ✦ Gemini, thiếu frame) — **không tự sửa art**.
 6. Cập nhật `tools/asset_todo.py` (bỏ asset đã nhận, thêm ảnh cần làm lại kèm prompt) → `python tools/asset_todo.py`.
@@ -84,14 +85,16 @@ Người dùng bỏ ảnh vào **`asset_new_by_Khoit/`** (chữ K hoa trên đĩ
 > Nguyên tắc người dùng chốt (2026-10-07): **làm phần nào có art; phần chưa có art thì tạm ẩn; nhân vật giữ art & UI cũ, chưa sửa** (chưa làm G1 chỉ-Sinh-viên-nam, chưa đổi animation).
 > Đã chốt: G6–G9, G32 (bỏ xe máy — CHƯA gỡ khỏi code), G53, G54. Hướng chính: một SV làm nhiều nghề, nấu ăn, ngủ, trang trí phòng, Chợ Sạp Hàng Hóa, chỉ xe buýt + taxi.
 
-**Phiên gần nhất (2026-10-07):** nhập 17 ảnh V2 (UI kit, điện thoại, quán cơm tấm, tiệm trà sữa, mini-game J1–J3) → code: 3 nhu cầu (thêm No bụng), nhiệm vụ ngày, hệ thống nghề + 3 mini-game, túi đồ lưới + thanh nhanh + ô thông tin, búp bê giấy, điện thoại có app, dời nhà trọ/net cỏ sang trái để chừa chỗ tiệm trà sữa. Thêm test nghề/nhiệm vụ. Chưa commit — hỏi người dùng.
+**Phiên gần nhất (2026-10-07, lần 2):** người dùng tải 68 ảnh lên GitHub (`977ec5b`) → `tools/v2_manifest.py` cắt hết. Vào game: vựa ve chai, 7 nhà ống (lấp khe, đặt lùi sau công trình), xe buýt mới, 4 trạm buýt + 2 điểm taxi (trang trí), chân dung 6 NPC trong hộp thoại. Cắt sẵn chờ code: nội thất, phòng, TTTM, gacha, chợ, nấu ăn, nghề J5/J6/J8, UI trường/ATM/bưu điện (`client/assets/v2/`), 60 icon vật phẩm. Còn 51 ảnh V2 trong ASSET_TODO. **Việc kế tiếp:** hỏi người dùng muốn code tính năng nào trước (đã đủ art cho nấu ăn, trang trí phòng, TTTM, gacha, chợ).
+
+**Phiên trước nữa (2026-10-07):** nhập 17 ảnh V2 (UI kit, điện thoại, quán cơm tấm, tiệm trà sữa, mini-game J1–J3) → code: 3 nhu cầu (thêm No bụng), nhiệm vụ ngày, hệ thống nghề + 3 mini-game, túi đồ lưới + thanh nhanh + ô thông tin, búp bê giấy, điện thoại có app, dời nhà trọ/net cỏ sang trái để chừa chỗ tiệm trà sữa. Thêm test nghề/nhiệm vụ. Chưa commit — hỏi người dùng.
 
 **Phiên trước (2026-10-06):** viết bộ tài liệu thiết kế V2 (GAMEPLAY / ANIMATION / INVENTORY), danh sách 132 ảnh kèm prompt + trang `docs/asset_todo.html` có nút Copy, và hướng dẫn Gem Gemini `docs/GEMINI_GEM.md`. **Chưa code gì cho V2.** Việc kế tiếp: chờ người dùng trả lời các mã G/A/I còn mở → cập nhật tài liệu → code theo GAMEPLAY_V2 mục 11 (đợt 1 trước).
 
 **Đã xong trước đó:** dựng lại game với art mới (sv_male, sv_female, 8 công trình, 10 NPC làm việc, 8 xe, sạp 3 cấp, 56 icon, ~27 props, ảnh nền đăng nhập); README quảng cáo; PostgreSQL; docs.
 
 **Đang chờ người dùng:**
-- Asset còn thiếu (danh sách đầy đủ `docs/ASSET_STATUS.md`): `sv_female/walk_down`; bộ `vp_male`, `vp_female`, `tt_male`, `tt_female`; Cảnh sát, Ăn trộm, Giang hồ, Bưu tá, người đi đường; ngân hàng, TechCorp, đấu giá, showroom, thời trang, vựa ve chai, nhà ống; tạo lại xe buýt (dính watermark), cô cà phê (2 frame), cô Ba (4 frame).
+- Asset còn thiếu (danh sách đầy đủ `docs/ASSET_STATUS.md`): `sv_female/walk_down`; bộ `vp_male`, `vp_female`, `tt_male`, `tt_female`; Cảnh sát, Ăn trộm, Giang hồ, Bưu tá, người đi đường; ngân hàng, TechCorp, đấu giá, showroom, thời trang, nhà ống số 5; cô cà phê (2 frame), cô Ba (4 frame); vẽ lại 2 chân dung (cơm tấm, trà sữa) và nhân viên quầy Nội thất.
 - Xác nhận Render đã deploy bản mới nhất (lần kiểm tra gần nhất bản online vẫn chạy code cũ, thiếu art mới).
 
 **Việc có thể làm tiếp (hỏi người dùng trước):** gameplay trong `docs/ROADMAP.md` — ở ghép nhà trọ, cờ tướng/caro, đua xe đêm 23:00, nghiệp đoàn, xe ôm công nghệ; ghi giao dịch trực tiếp vào Postgres.

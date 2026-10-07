@@ -16,7 +16,8 @@
 | 2026-10-06 | `1b91b67` | Thiết kế lại gameplay V2 (chờ duyệt) + trang copy prompt asset |
 | 2026-10-07 | `cbd4d26` | Gameplay V2 đợt 1 theo art mới: UI kit, điện thoại, nghề + mini-game, túi đồ lưới |
 | 2026-10-07 | `e7ce286` | Hộp thoại NPC tự đóng khi đi xa · nhật ký phát triển |
-| 2026-10-07 | *(commit này)* | README mới có ảnh chụp game, dẫn link sang nhật ký |
+| 2026-10-07 | `83c182b` | README mới có ảnh chụp game, dẫn link sang nhật ký |
+| 2026-10-07 | `977ec5b` · *(commit này)* | Nhập 68 ảnh V2 lần 2: nhà ống, vựa ve chai, xe buýt & trạm, chân dung NPC, 60 icon, cắt sẵn nội thất / phòng / UI |
 
 ---
 
@@ -100,10 +101,27 @@
 - Làm lại README cho đẹp: nút "Chơi ngay", huy hiệu, icon pixel của chính game làm tiêu đề mục, ảnh chụp thật (phố, quán cơm tấm, 3 mini-game, túi đồ, trang bị, điện thoại), bảng phím tắt, mục **Nhật ký phát triển** dẫn sang file này.
 - Ảnh chụp lưu ở `docs/screenshots/` (chụp bằng Playwright 1280×720, ẩn khung chat/thông báo).
 
+## 2026-10-07 · Nhập 68 ảnh V2 lần 2
+
+Người dùng tải 68 ảnh lên thẳng GitHub (`977ec5b`, thư mục `asset_new_by_Khoit/`).
+
+- **Pipeline mới `tools/v2_manifest.py`** (gọi từ `npm run assets`): tự tách blob theo nền magenta, xếp trên→dưới, trái→phải rồi gán tên; gộp blob chồng nhau theo trục x (máy hút khói + bếp, quầng đèn + đèn); bỏ người mẫu tham chiếu. Sai số phần tách được → dừng build và báo tên file.
+- **Vào game ngay:** vựa ve chai thay ảnh tạm; 7 nhà ống thay ảnh tạm, đặt lùi sau công trình nên khe hẹp nào cũng thấy nhà (phố dày hơn hẳn); xe buýt mới không watermark; 4 trạm buýt + 2 điểm đón taxi (trang trí); chân dung NPC trong hộp thoại (6 NPC).
+- **Cắt sẵn chờ tính năng** (`client/assets/v2/`, không nạp lúc vào game): 60 nội thất, 4 nền phòng, 3 tòa nhà, gacha, sạp chợ, nhân viên TTTM, đồ nghề J5/J6/J8, toàn bộ UI trường / ATM / bưu điện / nấu ăn / gacha / TTTM / chợ. 60 icon vật phẩm vào `assets/icons/` (chưa có vật phẩm tương ứng).
+- `asset_todo.py`: bỏ ảnh đã nhận, thêm ảnh xin vẽ lại → còn **51 ảnh V2** (trước 132).
+
+**Quyết định:** chỉ gắn những art thay thẳng ảnh tạm / trang trí; tính năng mới (nấu ăn, nội thất, TTTM, gacha, chợ, buýt) chưa code — chờ người dùng chọn thứ tự.
+
+**Lỗi art ghi nhận:** chân dung chủ quán cơm tấm & trà sữa vẽ sai người; nhân viên quầy Nội thất áo cam (cần nâu); ✦ trên 4 ảnh phòng; chữ & người mẫu trong vài sheet (pipeline tự bỏ). Chi tiết: ASSET_STATUS.
+
+**Kiểm thử:** 7 test logic pass (`node --test server/tests/*.js`; `npm test` lỗi tham số thư mục trên Node 24 — có từ trước); chạy thử trong trình duyệt: phố có nhà ống, vựa ve chai, trạm buýt, hộp thoại có chân dung.
+
 ---
 
 ## Việc còn mở
 
-- **Chờ art** (prompt trong `docs/asset_todo.html`): animation V2 của `sv_male`, Cảnh sát / Ăn trộm / người đi đường, xe buýt / trạm / taxi, NPC chủ quán cơm tấm & trà sữa, mini-game J4–J8, phòng trọ & nội thất 3 phân khúc, nấu ăn, TT Mua Sắm, Gacha, Chợ Sạp Hàng Hóa, nhà ống.
+- **Chờ art** (51 ảnh, prompt trong `docs/asset_todo.html`): animation V2 của `sv_male`, Cảnh sát / Ăn trộm / người đi đường, NPC chủ quán cơm tấm & trà sữa, J3 ly/topping, J4 cà phê, 2 chân dung vẽ lại, 4 nội thất, 4 nhân viên TTTM, nhà ống số 5.
+- **Code chờ làm (đã có art):** nấu ăn (G44–G48), trang trí phòng (G19–G22), TTTM (G25–G28), trang bị & gacha (G60–G64), Chợ Sạp Hàng Hóa (G24, G55–G57), tuyến buýt (G29–G30), nghề J5 / J6 / J8, giao diện trường / ATM / bưu điện.
 - **Code chưa làm dù đã chốt:** gỡ xe máy (G32), hóa đơn tuần trọ + học phí (G8), chặn nhặt/mua khi túi đầy (I1).
+- `npm test` cần sửa script thành `node --test server/tests/*.js` cho Node 24.
 - **Chờ duyệt:** các mã G / A / I còn mở trong tài liệu V2 (G1 chỉ Sinh viên nam, G2 ẩn giải trí…).

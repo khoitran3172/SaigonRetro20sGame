@@ -38,6 +38,46 @@ Cập nhật sau lần nhập `asset_new_by_khoit/` (30 file). Quy trình build:
 
 **Lỗi nhỏ đợt này (không chặn):** ✦ watermark Gemini dính trên ảnh *nền kín* `job_waiter_floor.png` (góc phải dưới) và `job_milktea_items.png` (góc phải dưới) — ảnh nền magenta thì pipeline tự xóa được. `job_milktea_items.png` gửi nhầm nội dung (quầy thay vì 12 icon ly & topping).
 
+### Đợt V2 lần 2 — nhận 2026-10-07 (68 file, commit `977ec5b`, cắt bằng `tools/v2_manifest.py`)
+
+Tự tách blob theo nền magenta (chữ, số thứ tự, người mẫu tham chiếu, ✦ trên nền magenta đều bị bỏ). Kiểm tra lại bằng mắt: `tools/out/_rev_*.png` (tạo khi chạy kiểm tra, không commit).
+
+**Đang dùng trong game**
+
+| Asset | Dùng ở đâu | File nguồn |
+|---|---|---|
+| Vựa ve chai | Thay ảnh tạm ở Khu 4 (x=6250), biển hiệu in chữ "VỰA VE CHAI CHÚ TƯ" | `bld_vechai.png` |
+| 7 nhà ống | Thay ảnh tạm lấp khe giữa các công trình (đặt lùi sau, mép khuất sau nhà bên cạnh) | `tube_1..4, 6..8.png` |
+| Xe buýt mới | Giao thông (thay xe buýt cũ dính watermark) | `veh_bus.png` |
+| Trạm xe buýt ×4, điểm đón taxi ×2 | Vỉa hè trên, mỗi khu 1 trạm — **chỉ trang trí**, chưa có hệ thống buýt/taxi (G29–G31) | `bus_stop.png`, `taxi_stand.png` |
+| 6 chân dung | Ảnh NPC trong hộp thoại: bánh mì, cà phê, tạp hóa, sửa xe, ve chai, bưu tá (`assets/ui/portrait_*.png`) | `ui_portraits.png` |
+| 60 icon vật phẩm | `assets/icons/`: 12 món nấu `mon_*`, 12 nguyên liệu `nl_*`, 12 đồ điện tử, 28 trang bị `gear_<loại>_<1..4 = Thường/Tốt/Hiếm/Giới hạn>`, 4 vật phẩm gacha `gacha_*` — đã cắt, **chưa có vật phẩm trong game** | `icons_*.png` |
+
+**Đã cắt sẵn, chờ code tính năng** — `client/assets/v2/` (danh sách + kích thước: `v2/v2.json`, không nạp lúc vào game)
+
+| Nhóm | Asset | Tính năng chờ |
+|---|---|---|
+| `v2/furn/` | 20 loại nội thất × 3 phân khúc (`bed_1..3`, `fridge_1..3`…) | Trang trí phòng (G22) |
+| `v2/rooms/` | Phòng trọ, căn hộ, sảnh TTTM, trong chợ (1024×572) | Nhà ở, TTTM, Chợ (G19–G28) |
+| `v2/bld/` | Tòa chung cư, TTTM, Chợ Sạp Hàng Hóa | Đặt lên bản đồ khi làm tính năng |
+| `v2/props/` | Máy gacha, 3 cỡ sạp chợ, xe buýt cửa mở | Gacha, Chợ, tuyến buýt |
+| `v2/anim/` | Nhân viên quầy Gia dụng (4 frame) | TTTM |
+| `v2/jobs/` | Bản đồ thành phố, tờ rơi, thẻ địa chỉ/thùng/đồng hồ shipper, vở & bảng gia sư | Nghề J5, J6, J8 |
+| `v2/ui/` | Banner trường, bảng đen + 4 thẻ đáp án, ATM, bưu điện + phong bì, hợp đồng + hóa đơn, sơ đồ tuyến buýt, 2 mặt bếp nấu, sách công thức + sao + hẹn giờ, 6 frame mở gacha, 4 nền lộ diện, 5 banner quầy TTTM, 4 phần tử giao diện chợ | Trường, ATM, Bưu điện, Nhà trọ, Nấu ăn, Gacha, TTTM, Chợ |
+
+**Lỗi đợt này**
+
+| File | Lỗi | Xử lý |
+|---|---|---|
+| `ui_portraits.png` | Ô 4 (chủ quán cơm tấm) vẽ thành **đàn ông**; ô 5 (chủ tiệm trà sữa) vẽ thành **cậu bé** | Chưa gắn 2 ô này; xin vẽ lại `ui_portraits_2.png` (prompt trong ASSET_TODO) |
+| `npc_mall_noithat.png` | Áo **cam** giống hệt quầy Gia dụng (cần áo nâu) | Chưa dùng; xin vẽ lại |
+| `room_*.png` (4 ảnh) | ✦ watermark Gemini trên nền kín (góc phải dưới) | Không chặn — như `job_waiter_floor`; che bằng giao diện khi dùng |
+| `furn_bookshelf.png`, `furn_sofa.png`, `icons_gear_*` | Có chữ (BUDGET/COMMON…) và người mẫu tham chiếu | Pipeline tự bỏ — lần sau nhắc Gem không vẽ |
+| `icons_electronics.png` | Lưới lệch: 4 điện thoại (mẫu 4 trùng mẫu cao cấp), hàng laptop có ô trống | Đủ 12 icon, bỏ mẫu trùng |
+| `ui_recipe.png` | Sao rỗng viền tím bị tách nền mất | Không chặn — khi code dùng sao đầy tô xám làm sao rỗng |
+| `tube_8.png` | Màu kem (đúng ra là màu của số 5) | Dùng bình thường; xin `tube_5` màu xanh cốm |
+| `ui_cooking_stove_v2.png` | File thêm ngoài danh sách | Cắt cả 2 bản, chọn khi code nấu ăn |
+
 ## ❌ Còn thiếu — đang dùng art cũ hoặc ảnh tạm vẽ bằng code
 
 ### Ưu tiên cao
@@ -47,8 +87,9 @@ Cập nhật sau lần nhập `asset_new_by_khoit/` (30 file). Quy trình build:
 | `vp_male`, `vp_female`, `tt_male`, `tt_female` — mỗi bộ 6 dải (mục 2) | `vp_male` + `baba_female` + `aodai_female` từ concept cũ (thiếu frame, chưa có tư thế lái xe nên dùng ảnh người đi Cub chung) |
 | `police`, `thief`, `gangster` — 4 dải + `thief_run_left` (mục 3) | Nhân vật cũ tô lại màu |
 | `postman` (mục 3) | Bưu tá ảnh tĩnh từ concept cũ |
-| `bld_bank`, `bld_office`, `bld_auction`, `bld_showroom`, `bld_fashion`, `bld_vechai` (mục 6) | Ảnh tạm vẽ bằng code |
-| 8 nhà ống `tube_*` (mục 6) | Ảnh tạm vẽ bằng code, lấp khoảng trống giữa các công trình |
+| `bld_bank`, `bld_office`, `bld_auction`, `bld_showroom`, `bld_fashion` (mục 6) | Ảnh tạm vẽ bằng code |
+| `tube_5` (nhà ống thứ 8) | 7 nhà ống khác đã có art |
+| `npc_boss_comtam`, `npc_boss_trasua`, `npc_mall_dientu/thoitrang/sieuthi`, `furn_plant/curtain/painting/clock`, `job_coffee_*` | Xem ASSET_TODO |
 
 ### Ưu tiên thường
 | Asset | Hiện đang dùng |
@@ -63,7 +104,6 @@ Cập nhật sau lần nhập `asset_new_by_khoit/` (30 file). Quy trình build:
 
 | File | Lỗi |
 |---|---|
-| `VEHICLE.png` — xe buýt | Dấu ✦ watermark Gemini nằm trên thân xe (thấy rõ trong game) |
 | `VEHICLE.png` — xe tay ga | Có thêm một mảnh gương/đầu xe thừa bên cạnh (đã tự bỏ, không ảnh hưởng) |
 | `NPC.jpg` — cô chủ cà phê | Chỉ 2 frame (cần 6) → động tác giật |
 | `NPC.jpg` — cô Ba tạp hóa | 4 frame (cần 6) |

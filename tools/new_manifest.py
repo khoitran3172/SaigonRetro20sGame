@@ -28,7 +28,7 @@ BUILDING_SCALE = 1.25
 # ---- Xe: nhin ngang, dau xe quay PHAI. (blob, chieu rong trong game)
 VEHICLES = {
     "veh_cub": ("0.0", 126), "veh_ga": ("0.1", 136), "veh_pkl": ("1.0", 160), "veh_dap": ("2.0", 112),
-    "veh_grab": ("2.1", 136), "veh_taxi": ("3.0", 200), "veh_taxi2": ("2.2", 196), "veh_bus": ("3.1", 440),
+    "veh_grab": ("2.1", 136), "veh_taxi": ("3.0", 200), "veh_taxi2": ("2.2", 196)
 }
 
 # ---- Props: (danh sach blob ghep chung, "w"/"h", kich thuoc trong game)

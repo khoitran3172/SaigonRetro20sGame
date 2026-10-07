@@ -9,25 +9,19 @@
 > **Cách dùng:** mỗi khối là **một ảnh** → copy nguyên khối dán vào Gemini. Đính kèm ảnh tham chiếu phong cách (`NPC.png`, hoặc ảnh đầu tiên của chính nhân vật đó). Lưu đúng tên file ở tiêu đề khối, bỏ vào `asset_new_by_Khoit/`. Nếu ra sai số frame → tạo lại, đừng cắt ghép.
 
 
-**Tổng bản V2: 116 ảnh.**
+**Tổng bản V2: 51 ảnh.**
 
 | Nhóm | Số ảnh |
 |---|---|
 | 1. [Đợt 1] Sinh viên nam — animation V2 (8 frame đi, 4 frame đứng) | 9 |
 | 2. [Đợt 1] Cảnh sát & Ăn trộm | 9 |
 | 3. [Đợt 1] Người đi đường | 16 |
-| 4. [Đợt 1] Giao thông — xe buýt, trạm, taxi | 4 |
 | 7. [Đợt 2] Nơi làm việc mới | 4 |
-| 8. [Đợt 2] Mini-game các nghề | 7 |
-| 9. [Đợt 2] Trường học & giao diện tòa nhà | 7 |
-| 10. [Đợt 3] Nền phòng & tòa nhà ở | 3 |
-| 11. [Đợt 3] Nội thất 3 phân khúc (Bình dân · Tầm trung · Cao cấp) | 24 |
-| 12. [Đợt 3] Nấu ăn — nguyên liệu, món, giao diện bếp | 4 |
-| 13. [Đợt 3] Icon đồ điện tử (3 phân khúc) | 1 |
-| 14. [Đợt 4] Trung Tâm Mua Sắm | 8 |
-| 15. [Đợt 4] Trang bị theo độ hiếm & Gacha | 7 |
-| 16. [Đợt 4] Chợ Sạp Hàng Hóa | 4 |
-| 17. [Đợt 4] Công trình lấp phố | 9 |
+| 8. [Đợt 2] Mini-game các nghề | 3 |
+| 9. [Đợt 2] Chân dung NPC — vẽ lại 2 ô | 1 |
+| 11. [Đợt 3] Nội thất còn thiếu (Bình dân · Tầm trung · Cao cấp) | 4 |
+| 14. [Đợt 4] Trung Tâm Mua Sắm — nhân viên quầy còn thiếu | 4 |
+| 17. [Đợt 4] Công trình lấp phố — nhà ống còn thiếu | 1 |
 
 
 ## 1. [Đợt 1] Sinh viên nam — animation V2 (8 frame đi, 4 frame đứng)
@@ -283,39 +277,6 @@ STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro l
 ```
 
 
-## 4. [Đợt 1] Giao thông — xe buýt, trạm, taxi
-
-*G29–G32. Không còn xe máy. Xe buýt cũ dính watermark ✦ nên vẽ lại; thêm bản cửa mở khi dừng trạm. Taxi đã có art.*
-
-#### Xe buýt (cửa đóng) — `veh_bus.png`
-```
-Single game asset: a green Saigon city bus, side profile with the front pointing to the RIGHT, slight 3/4 top-down tilt, doors closed, no passengers visible, wheels on an invisible flat baseline, length about 5 times an adult's height.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Xe buýt (cửa mở) — `veh_bus_open.png`
-```
-Single game asset: the SAME green Saigon city bus as the attached image, side profile with the front pointing to the RIGHT, both side doors folded OPEN showing the lit interior steps, stopped.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Trạm xe buýt — `bus_stop.png`
-```
-Single game asset: a Saigon bus stop shelter with a curved metal roof, a bench, a glass side panel and a tall route pole with an EMPTY blank route board, 3/4 top-down front view, about 1.5 times an adult's height.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Điểm đón taxi — `taxi_stand.png`
-```
-Single game asset: a small taxi waiting point: a pole with an EMPTY blank sign box on top and a painted yellow curb section, 3/4 top-down front view.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-
 ## 7. [Đợt 2] Nơi làm việc mới
 
 *Đã nhận mặt tiền quán cơm tấm + tiệm trà sữa. Còn thiếu NPC chủ quán (tạm để quán không người).*
@@ -351,7 +312,7 @@ STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro l
 
 ## 8. [Đợt 2] Mini-game các nghề
 
-*G34. Đã nhận J1 IT, J2 Phục vụ, quầy J3 (file job_milktea_items.png gửi nhầm là ảnh quầy — đang dùng làm quầy). Ảnh J3 bên dưới là tùy chọn (icon cho phiếu order). J4 cần ảnh quầy NHÌN TỪ TRÊN XUỐNG — ảnh prop_coffee_prep_table nhìn nghiêng nên đang dùng làm đồ trang trí ở quán cà phê.*
+*G34. Đã nhận J1 IT, J2 Phục vụ, quầy J3 (file job_milktea_items.png gửi nhầm là ảnh quầy — đang dùng làm quầy), J5 tờ rơi, J6 bản đồ + đồ shipper, J8 vở & bảng. Ảnh J3 bên dưới là tùy chọn (icon cho phiếu order). J4 cần ảnh quầy NHÌN TỪ TRÊN XUỐNG — ảnh prop_coffee_prep_table nhìn nghiêng nên đang dùng làm đồ trang trí ở quán cà phê.*
 
 #### J3 Trà sữa — ly & topping (tùy chọn) — `job_milktea_items.png`
 ```
@@ -374,258 +335,22 @@ A row of 6 game sprites of identical size with wide gaps showing a Vietnamese ph
 STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
 ```
 
-#### J5 Tờ rơi — `job_flyer.png`
-```
-Two separate game item icons with a wide gap: (1) a single colorful advertising flyer without readable text, (2) a thick stack of the same flyers held by a rubber band.
 
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
+## 9. [Đợt 2] Chân dung NPC — vẽ lại 2 ô
 
-#### J6 Shipper — bản đồ thành phố — `job_city_map.png`
-```
-A stylized top-down city map panel of a small Saigon district split into 4 zones from left to right: a university village with a football field, a food street with stalls, a business district with glass towers, an outskirts scrap yard. A main road runs horizontally through all zones. No text, no labels.
+*Đã nhận ui_portraits.png (8 ô) nhưng ô 4 (chủ quán cơm tấm) vẽ thành đàn ông, ô 5 (chủ tiệm trà sữa) vẽ thành cậu bé đội nón lưỡi trai. 6 ô còn lại đang dùng trong hội thoại. Đính kèm ui_portraits.png làm tham chiếu.*
 
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
+#### Chân dung chủ quán cơm tấm & chủ tiệm trà sữa — `ui_portraits_2.png`
 ```
-
-#### J6 Shipper — thẻ địa chỉ & thùng hàng — `job_shipper_items.png`
-```
-Three separate elements with wide gaps: (1) an empty paper delivery address card with a barcode area, (2) a sealed delivery box with fragile tape, (3) a stopwatch timer icon.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### J8 Gia sư — vở & bảng — `job_tutor.png`
-```
-Two separate elements with a wide gap: (1) an open Vietnamese school notebook with empty ruled pages, (2) a small empty whiteboard on a stand with a marker tray.
+Character portrait set in the SAME style as the attached portrait grid: 2 columns x 1 row of bust portraits (head and shoulders), each centered in its own equal square cream card with a simple warm background circle, same scale, facing slightly left: (1) a Vietnamese WOMAN around 50, restaurant owner, kind face, a headscarf and a white apron over a brown blouse; (2) a trendy Vietnamese YOUNG WOMAN around 24, bubble tea shop owner, long hair, a pastel pink cap and a light shop apron. Both clearly female.
 
 STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
 ```
 
 
-## 9. [Đợt 2] Trường học & giao diện tòa nhà
+## 11. [Đợt 3] Nội thất còn thiếu (Bình dân · Tầm trung · Cao cấp)
 
-*G33, G38–G41. Banner tỉ lệ 3:1 đặt ở đầu panel.*
-
-#### Banner Trường học — `banner_school.png`
-```
-A wide 3:1 illustrated header banner: the front gate of a Vietnamese university with a red flag and students walking in, morning light. Pixel art, no text.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Bảng đen câu hỏi — `ui_chalkboard.png`
-```
-An empty classroom chalkboard with a wooden frame and a chalk tray, plus 4 separate empty answer cards of identical size in red, blue, green and yellow.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Khung màn hình ATM — `ui_atm.png`
-```
-An ATM machine front panel seen straight on: an empty blue screen area at the top, a 12-key metal number pad below, a card slot and a cash slot. No text on the keys.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Banner Bưu điện & phong bì — `ui_post.png`
-```
-Two separate elements: (1) a wide 3:1 illustrated header banner of the yellow French colonial Saigon post office interior with wooden counters, (2) an empty open paper envelope with a red and blue airmail border.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Hợp đồng thuê & hóa đơn tuần — `ui_contract_bill.png`
-```
-Two separate elements with a wide gap: (1) an empty aged paper rental contract with a red stamp area and a signature line, (2) an empty narrow paper bill receipt with a torn bottom edge and a small light bulb symbol at the top.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Sơ đồ tuyến xe buýt — `ui_bus_map.png`
-```
-A stylized bus route map panel: a single green route line connecting 4 round stop markers from left to right, each stop with a small picture next to it: a university gate, a street food stall, glass office towers, a scrap yard. No text.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Chân dung NPC hội thoại — `ui_portraits.png`
-```
-Character portrait set: a grid of 4 columns x 2 rows of bust portraits (head and shoulders), each centered in its own equal square cell with a simple warm background circle, same scale, facing slightly left: (1) old banh mi grandmother with conical hat, (2) coffee lady with a bun, (3) grocery lady with curly hair, (4) com tam restaurant owner with headscarf, (5) young bubble tea shop owner with pastel cap, (6) mechanic, (7) scrap collector, (8) postman in blue uniform.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-
-## 10. [Đợt 3] Nền phòng & tòa nhà ở
-
-*G19–G21. Phòng trống có lưới sàn rõ để đặt đồ.*
-
-#### Phòng trọ 15m² gác lửng — `room_tro.png`
-```
-Interior of a small cheap Vietnamese student rental room (phong tro) about 4 by 3 meters: peeling pale green walls, one small window with iron bars on the back wall, a wooden door on the right wall, a wooden mezzanine loft edge visible along the top of the back wall, beige ceramic tile floor in a clear 8 x 6 grid.
-
-STYLE: detailed 16-bit pixel art game background, Saigon Vietnam, retro late-1990s mood, warm muted palette, dark brown pixel outlines, soft light from a window. 3/4 top-down view (camera about 30 degrees above) looking into the room: back wall fully visible at the top, floor occupying the lower two thirds, side walls slightly visible. The floor shows a clear even grid of square tiles or planks so furniture can be placed on it. EMPTY room: no furniture, no people, no text, no watermark, no sparkle logo. Fill the whole image (no magenta). Output 16:9 landscape.
-```
-
-#### Căn hộ chung cư — `room_apartment.png`
-```
-Interior of a modern Saigon apartment living space: light cream walls, a large sliding glass door to a balcony on the back wall showing city towers outside, a door on the right wall, warm wooden plank floor in a clear 12 x 8 grid.
-
-STYLE: detailed 16-bit pixel art game background, Saigon Vietnam, retro late-1990s mood, warm muted palette, dark brown pixel outlines, soft light from a window. 3/4 top-down view (camera about 30 degrees above) looking into the room: back wall fully visible at the top, floor occupying the lower two thirds, side walls slightly visible. The floor shows a clear even grid of square tiles or planks so furniture can be placed on it. EMPTY room: no furniture, no people, no text, no watermark, no sparkle logo. Fill the whole image (no magenta). Output 16:9 landscape.
-```
-
-#### Tòa chung cư — `bld_apartment.png`
-```
-Game asset: front elevation facade of a mid-rise Saigon apartment building (chung cu), Vietnamese urban architecture, seen straight from the front with a slight top-down tilt, standing on a flat ground line along the bottom edge (no sidewalk, no street in front). The main entrance door is at the bottom center, door height about 1.3 times an adult's height. Above the entrance there is a large EMPTY blank signboard with NO text on it. Width to height ratio 1:1.6. 8 storeys with balconies and potted plants, air conditioner units, a guarded lobby with glass doors at the bottom.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-
-## 11. [Đợt 3] Nội thất 3 phân khúc (Bình dân · Tầm trung · Cao cấp)
-
-*G22, G51. Mỗi ảnh = 1 loại đồ × 3 mẫu. Hình đặt trong phòng thu nhỏ làm luôn icon. Đồ treo tường vẽ nhìn thẳng.*
-
-#### Giường — `furn_bed.png`
-```
-Game asset set: 3 product variants of the same kind of home item — bed — arranged in one row with wide empty gaps, all drawn at the same scale (an adult would be about 1.6 times the height of a door), each seen in 3/4 top-down front view standing on its own invisible floor. From left to right: (1) BUDGET model: a thin foam mattress on the floor with one flat pillow; (2) MID-RANGE model: a simple single wooden bed with a cotton blanket; (3) PREMIUM model: a large double bed with a padded headboard, thick spring mattress and fluffy duvet. The three must look clearly different in quality and price.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Tủ quần áo — `furn_wardrobe.png`
-```
-Game asset set: 3 product variants of the same kind of home item — wardrobe — arranged in one row with wide empty gaps, all drawn at the same scale (an adult would be about 1.6 times the height of a door), each seen in 3/4 top-down front view standing on its own invisible floor. From left to right: (1) BUDGET model: a fabric zip-up portable wardrobe on a metal frame; (2) MID-RANGE model: a two-door wooden wardrobe; (3) PREMIUM model: a tall three-door glossy white wardrobe with a full-length mirror. The three must look clearly different in quality and price.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Rương / kho — `furn_chest.png`
-```
-Game asset set: 3 product variants of the same kind of home item — storage chest — arranged in one row with wide empty gaps, all drawn at the same scale (an adult would be about 1.6 times the height of a door), each seen in 3/4 top-down front view standing on its own invisible floor. From left to right: (1) BUDGET model: a stack of two plastic storage boxes; (2) MID-RANGE model: a wooden chest with metal latches; (3) PREMIUM model: an antique carved teak chest with brass corners. The three must look clearly different in quality and price.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Tủ lạnh — `furn_fridge.png`
-```
-Game asset set: 3 product variants of the same kind of home item — refrigerator — arranged in one row with wide empty gaps, all drawn at the same scale (an adult would be about 1.6 times the height of a door), each seen in 3/4 top-down front view standing on its own invisible floor. From left to right: (1) BUDGET model: a small old mini fridge with a rusty door; (2) MID-RANGE model: a two-door 180-liter white fridge; (3) PREMIUM model: a large stainless steel side-by-side fridge with a water dispenser. The three must look clearly different in quality and price.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Bếp nấu — `furn_stove.png`
-```
-Game asset set: 3 product variants of the same kind of home item — cooking stove — arranged in one row with wide empty gaps, all drawn at the same scale (an adult would be about 1.6 times the height of a door), each seen in 3/4 top-down front view standing on its own invisible floor. From left to right: (1) BUDGET model: a single-burner portable gas stove on the floor; (2) MID-RANGE model: a double gas stove on a tiled counter; (3) PREMIUM model: a sleek black induction cooktop built into a modern kitchen counter with a range hood. The three must look clearly different in quality and price.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Nồi cơm điện — `furn_ricecooker.png`
-```
-Game asset set: 3 product variants of the same kind of home item — rice cooker on a small counter — arranged in one row with wide empty gaps, all drawn at the same scale (an adult would be about 1.6 times the height of a door), each seen in 3/4 top-down front view standing on its own invisible floor. From left to right: (1) BUDGET model: a dented old aluminium rice cooker; (2) MID-RANGE model: a standard white electric rice cooker; (3) PREMIUM model: a premium digital rice cooker with a display panel. The three must look clearly different in quality and price.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Lò vi sóng — `furn_microwave.png`
-```
-Game asset set: 3 product variants of the same kind of home item — microwave oven — arranged in one row with wide empty gaps, all drawn at the same scale (an adult would be about 1.6 times the height of a door), each seen in 3/4 top-down front view standing on its own invisible floor. From left to right: (1) BUDGET model: a yellowed old microwave with a dial; (2) MID-RANGE model: a white microwave with buttons; (3) PREMIUM model: a black convection microwave oven with a digital display. The three must look clearly different in quality and price.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Bồn rửa — `furn_sink.png`
-```
-Game asset set: 3 product variants of the same kind of home item — kitchen sink — arranged in one row with wide empty gaps, all drawn at the same scale (an adult would be about 1.6 times the height of a door), each seen in 3/4 top-down front view standing on its own invisible floor. From left to right: (1) BUDGET model: a plastic basin on a wooden stand; (2) MID-RANGE model: a stainless steel sink counter; (3) PREMIUM model: a double sink in a marble counter with a pull-out faucet. The three must look clearly different in quality and price.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Bàn ăn — `furn_dining.png`
-```
-Game asset set: 3 product variants of the same kind of home item — dining table set — arranged in one row with wide empty gaps, all drawn at the same scale (an adult would be about 1.6 times the height of a door), each seen in 3/4 top-down front view standing on its own invisible floor. From left to right: (1) BUDGET model: a low folding table with two plastic stools; (2) MID-RANGE model: a wooden table with two wooden chairs; (3) PREMIUM model: a glass-top dining table with four upholstered chairs. The three must look clearly different in quality and price.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Bàn học / làm việc — `furn_desk.png`
-```
-Game asset set: 3 product variants of the same kind of home item — study desk with chair — arranged in one row with wide empty gaps, all drawn at the same scale (an adult would be about 1.6 times the height of a door), each seen in 3/4 top-down front view standing on its own invisible floor. From left to right: (1) BUDGET model: a small folding desk with a plastic stool; (2) MID-RANGE model: a wooden study desk with an office chair and a desk lamp; (3) PREMIUM model: a large L-shaped desk with an ergonomic mesh chair. The three must look clearly different in quality and price.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Máy tính để bàn (cho nghề IT) — `furn_pc.png`
-```
-Game asset set: 3 product variants of the same kind of home item — desktop computer setup on a desk — arranged in one row with wide empty gaps, all drawn at the same scale (an adult would be about 1.6 times the height of a door), each seen in 3/4 top-down front view standing on its own invisible floor. From left to right: (1) BUDGET model: an old beige PC with a bulky CRT monitor; (2) MID-RANGE model: an office PC with a flat monitor; (3) PREMIUM model: a gaming PC with RGB lights and two wide monitors. The three must look clearly different in quality and price.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Kệ sách — `furn_bookshelf.png`
-```
-Game asset set: 3 product variants of the same kind of home item — bookshelf — arranged in one row with wide empty gaps, all drawn at the same scale (an adult would be about 1.6 times the height of a door), each seen in 3/4 top-down front view standing on its own invisible floor. From left to right: (1) BUDGET model: a small plastic shelf with a few books; (2) MID-RANGE model: a five-tier wooden bookshelf full of books; (3) PREMIUM model: a tall modern bookcase with decor items and LED strip lights. The three must look clearly different in quality and price.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Sofa — `furn_sofa.png`
-```
-Game asset set: 3 product variants of the same kind of home item — sofa — arranged in one row with wide empty gaps, all drawn at the same scale (an adult would be about 1.6 times the height of a door), each seen in 3/4 top-down front view standing on its own invisible floor. From left to right: (1) BUDGET model: a worn two-seat bamboo bench with thin cushions; (2) MID-RANGE model: a fabric two-seat sofa; (3) PREMIUM model: a large leather L-shaped sofa with pillows. The three must look clearly different in quality and price.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Bàn trà — `furn_coffeetable.png`
-```
-Game asset set: 3 product variants of the same kind of home item — coffee table — arranged in one row with wide empty gaps, all drawn at the same scale (an adult would be about 1.6 times the height of a door), each seen in 3/4 top-down front view standing on its own invisible floor. From left to right: (1) BUDGET model: a small plastic stool used as a table; (2) MID-RANGE model: a low wooden coffee table; (3) PREMIUM model: a marble coffee table with gold legs. The three must look clearly different in quality and price.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### TV & kệ TV — `furn_tv.png`
-```
-Game asset set: 3 product variants of the same kind of home item — television on a TV stand — arranged in one row with wide empty gaps, all drawn at the same scale (an adult would be about 1.6 times the height of a door), each seen in 3/4 top-down front view standing on its own invisible floor. From left to right: (1) BUDGET model: an old small CRT TV on a wooden stool; (2) MID-RANGE model: a 32-inch flat TV on a wooden cabinet; (3) PREMIUM model: a 65-inch ultra thin TV on a long modern media console with a soundbar. The three must look clearly different in quality and price.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Quạt — `furn_fan.png`
-```
-Game asset set: 3 product variants of the same kind of home item — electric fan — arranged in one row with wide empty gaps, all drawn at the same scale (an adult would be about 1.6 times the height of a door), each seen in 3/4 top-down front view standing on its own invisible floor. From left to right: (1) BUDGET model: a small desk fan with a cracked blade cover; (2) MID-RANGE model: a standing electric fan; (3) PREMIUM model: a tall bladeless tower fan. The three must look clearly different in quality and price.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Máy lạnh (treo tường) — `furn_aircon.png`
-```
-Game asset set: 3 product variants of the same kind of home item — wall-mounted air conditioner — arranged in one row with wide empty gaps, all drawn at the same scale (an adult would be about 1.6 times the height of a door), each seen straight from the front as mounted on a wall. From left to right: (1) BUDGET model: an old yellowed boxy air conditioner; (2) MID-RANGE model: a white inverter air conditioner; (3) PREMIUM model: a premium slim air conditioner with a glossy black panel and a small display. The three must look clearly different in quality and price.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Máy giặt — `furn_washer.png`
-```
-Game asset set: 3 product variants of the same kind of home item — washing machine — arranged in one row with wide empty gaps, all drawn at the same scale (an adult would be about 1.6 times the height of a door), each seen in 3/4 top-down front view standing on its own invisible floor. From left to right: (1) BUDGET model: an old twin-tub washing machine; (2) MID-RANGE model: a white top-loading washing machine; (3) PREMIUM model: a front-loading washer with a large round glass door and a digital panel. The three must look clearly different in quality and price.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Đèn — `furn_lamp.png`
-```
-Game asset set: 3 product variants of the same kind of home item — lamp — arranged in one row with wide empty gaps, all drawn at the same scale (an adult would be about 1.6 times the height of a door), each seen in 3/4 top-down front view standing on its own invisible floor. From left to right: (1) BUDGET model: a bare light bulb clip lamp; (2) MID-RANGE model: a fabric floor lamp; (3) PREMIUM model: a designer arc floor lamp with a warm glow. The three must look clearly different in quality and price.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Thảm — `furn_rug.png`
-```
-Game asset set: 3 product variants of the same kind of home item — floor rug, seen from above at an angle — arranged in one row with wide empty gaps, all drawn at the same scale (an adult would be about 1.6 times the height of a door), each seen in 3/4 top-down front view standing on its own invisible floor. From left to right: (1) BUDGET model: a small woven straw mat; (2) MID-RANGE model: a rectangular patterned fabric rug; (3) PREMIUM model: a large fluffy Persian-style rug. The three must look clearly different in quality and price.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
+*G22, G51. Đã nhận 20/24 loại (giường, tủ, rương, tủ lạnh, bếp, nồi cơm, lò vi sóng, bồn rửa, bàn ăn, bàn học, máy tính, kệ sách, sofa, bàn trà, TV, quạt, máy lạnh, máy giặt, đèn, thảm). Còn 4 loại dưới đây. Lưu ý: KHÔNG vẽ người mẫu tham chiếu và KHÔNG ghi chữ BUDGET/PREMIUM dưới đồ.*
 
 #### Cây cảnh — `furn_plant.png`
 ```
@@ -656,86 +381,13 @@ STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro l
 ```
 
 
-## 12. [Đợt 3] Nấu ăn — nguyên liệu, món, giao diện bếp
+## 14. [Đợt 4] Trung Tâm Mua Sắm — nhân viên quầy còn thiếu
 
-*G44–G48. Icon nguyên liệu và món ăn; mặt bếp nhìn từ trên cho mini-game nấu.*
+*G25–G28. Đã nhận tòa nhà, sảnh, banner 5 quầy, nhân viên quầy Gia dụng. Ảnh npc_mall_noithat.png nhận được mặc áo CAM giống hệt quầy Gia dụng → vẽ lại áo NÂU. Đính kèm npc_mall_giadung.png làm tham chiếu dáng.*
 
-#### Nguyên liệu — `icons_ingredients.png`
+#### Nhân viên quầy Nội thất (vẽ lại) — `npc_mall_noithat.png`
 ```
-Game item icon set: a grid of 4 columns x 3 rows, each icon centered in its own equal square cell with generous spacing, all icons the same scale and lighting, front 3/4 view, bold pixel outlines. Icons in this order (left to right, top to bottom): (1) a small bag of rice; (2) a tray of eggs; (3) a pack of instant noodles; (4) a bunch of water spinach (rau muong); (5) a piece of raw pork belly; (6) a whole raw fish; (7) a block of tofu; (8) red tomatoes; (9) spring onions and garlic; (10) a bottle of fish sauce; (11) a bottle of cooking oil; (12) a pack of rice noodles.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Món nấu — `icons_dishes.png`
-```
-Game item icon set: a grid of 4 columns x 3 rows, each icon centered in its own equal square cell with generous spacing, all icons the same scale and lighting, front 3/4 view, bold pixel outlines. Icons in this order (left to right, top to bottom): (1) a bowl of steamed white rice; (2) a fried egg on a plate; (3) stir-fried water spinach with garlic; (4) a bowl of sour fish soup (canh chua); (5) braised pork with eggs (thit kho trung); (6) caramelized fish in a clay pot (ca kho to); (7) stir-fried noodles; (8) fried rice; (9) tofu in tomato sauce; (10) a bowl of rice porridge; (11) instant noodles with an egg; (12) stir-fried rice vermicelli.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Mặt bếp nấu (mini-game) — `ui_cooking_stove.png`
-```
-A top-down 16:9 view of a home cooking area for a mini-game: a two-burner stove with a pot and a frying pan on it, a cutting board with a knife on the left, small bowls for ingredients along the bottom, a flame-level dial. No people, no text.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Sách công thức & đánh giá sao — `ui_recipe.png`
-```
-Three separate elements with wide gaps: (1) an open recipe book with two empty cream pages and a ribbon bookmark, (2) a row of three gold stars (one empty, one half, one full), (3) a small cooking timer.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-
-## 13. [Đợt 3] Icon đồ điện tử (3 phân khúc)
-
-*Điện thoại & laptop quyết định nghề Shipper / IT (G43).*
-
-#### Điện tử — `icons_electronics.png`
-```
-Game item icon set: a grid of 4 columns x 3 rows, each icon centered in its own equal square cell with generous spacing, all icons the same scale and lighting, front 3/4 view, bold pixel outlines. Icons in this order (left to right, top to bottom): (1) a cheap old button phone; (2) a mid-range smartphone; (3) a premium smartphone with three cameras; (4) an old thick laptop; (5) a slim office laptop; (6) a high-end gaming laptop with RGB keyboard; (7) earbuds; (8) over-ear headphones; (9) a bluetooth speaker; (10) a power bank; (11) a wireless mouse; (12) a recipe book.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-
-## 14. [Đợt 4] Trung Tâm Mua Sắm
-
-*G25–G28.*
-
-#### Tòa Trung Tâm Mua Sắm — `bld_mall.png`
-```
-Game asset: front elevation facade of a modern Saigon shopping mall, Vietnamese urban architecture, seen straight from the front with a slight top-down tilt, standing on a flat ground line along the bottom edge (no sidewalk, no street in front). The main entrance door is at the bottom center, door height about 1.3 times an adult's height. Above the entrance there is a large EMPTY blank signboard with NO text on it. Width to height ratio 1.8:1. 3 storeys, big glass display windows showing furniture, TVs and clothes, colorful banners without text, automatic glass doors, a red carpet at the entrance.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Sảnh bên trong — `room_mall.png`
-```
-Interior of a Saigon shopping mall ground floor seen in 3/4 top-down view: polished light marble floor, an entrance at the bottom center, five shop counters along the walls each with an EMPTY blank sign above: a household goods counter, a furniture showroom corner, an electronics counter with TV screens, a clothing rack corner, and a small supermarket with shelves and a checkout. Bright ceiling lights.
-
-STYLE: detailed 16-bit pixel art game background, Saigon Vietnam, retro late-1990s mood, warm muted palette, dark brown pixel outlines, soft light from a window. 3/4 top-down view (camera about 30 degrees above) looking into the room: back wall fully visible at the top, floor occupying the lower two thirds, side walls slightly visible. No people, no text, no watermark, no sparkle logo. Fill the whole image (no magenta). Output 16:9 landscape.
-```
-
-#### Banner 5 quầy — `ui_mall_banners.png`
-```
-Five wide 3:1 illustrated header banners stacked vertically with gaps: (1) household goods shelves, (2) a furniture showroom with a sofa and bed, (3) an electronics counter with TVs and laptops, (4) a clothing rack boutique, (5) supermarket shelves with groceries. No text.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Nhân viên quầy Gia dụng — `npc_mall_giadung.png`
-```
-Sprite sheet: one single horizontal row of EXACTLY 4 animation frames, evenly spaced, the same STANDING character facing the viewer, feet on the same baseline. Loop: friendly breathing idle, frame 3 waving one hand. Character: Vietnamese shop assistant around 25 wearing a mall uniform polo shirt in orange with a name badge, dark trousers. Draw only the person, NOT sitting.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Nhân viên quầy Nội thất — `npc_mall_noithat.png`
-```
-Sprite sheet: one single horizontal row of EXACTLY 4 animation frames, evenly spaced, the same STANDING character facing the viewer, feet on the same baseline. Loop: friendly breathing idle, frame 3 waving one hand. Character: Vietnamese shop assistant around 25 wearing a mall uniform polo shirt in brown with a name badge, dark trousers. Draw only the person, NOT sitting.
+Sprite sheet: one single horizontal row of EXACTLY 4 animation frames, evenly spaced, the same STANDING character facing the viewer, feet on the same baseline. Loop: friendly breathing idle, frame 3 waving one hand. Character: Vietnamese shop assistant around 25 wearing a mall uniform polo shirt in chocolate BROWN (not orange) with a name badge, dark trousers, short neat hair, a different face from the attached reference. Draw only the person, NOT sitting.
 
 STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
 ```
@@ -749,7 +401,7 @@ STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro l
 
 #### Nhân viên quầy Thời trang — `npc_mall_thoitrang.png`
 ```
-Sprite sheet: one single horizontal row of EXACTLY 4 animation frames, evenly spaced, the same STANDING character facing the viewer, feet on the same baseline. Loop: friendly breathing idle, frame 3 waving one hand. Character: Vietnamese shop assistant around 25 wearing a mall uniform polo shirt in pink with a name badge, dark trousers. Draw only the person, NOT sitting.
+Sprite sheet: one single horizontal row of EXACTLY 4 animation frames, evenly spaced, the same STANDING character facing the viewer, feet on the same baseline. Loop: friendly breathing idle, frame 3 waving one hand. Character: Vietnamese shop assistant around 25 wearing a mall uniform polo shirt in pink with a name badge, dark trousers, a young woman with a ponytail. Draw only the person, NOT sitting.
 
 STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
 ```
@@ -762,156 +414,13 @@ STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro l
 ```
 
 
-## 15. [Đợt 4] Trang bị theo độ hiếm & Gacha
+## 17. [Đợt 4] Công trình lấp phố — nhà ống còn thiếu
 
-*G60–G64: trang bị mua ở quầy Thời trang (Thường/Tốt) hoặc quay gacha hên xui ra Hiếm/Giới hạn. Mỗi ô trang bị có 4 mẫu theo độ hiếm.*
+*Đã nhận vựa ve chai + nhà ống 1–4, 6–8 (đang dùng trong game). Còn thiếu nhà ống số 5.*
 
-#### Áo & Quần (4 cấp hiếm) — `icons_gear_shirt_pants.png`
+#### Nhà ống 5 (xanh cốm — tube_8 nhận được đã là màu kem) — `tube_5.png`
 ```
-Game item icon set: a grid of 4 columns x 2 rows, each icon centered in its own equal square cell with generous spacing, same scale and lighting, front 3/4 view, bold pixel outlines. Row 1 shows 4 rarity versions of the same item type in a row: (1) COMMON: plain and simple, dull colors; (2) GOOD: nicer material and color, small green accent; (3) RARE: stylish design with blue accents and a subtle shine; (4) LIMITED: luxurious, gold details and a soft golden glow — item type: a shirt / t-shirt. Row 2 shows the same 4 rarity versions — item type: trousers / jeans.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Giày & Nón (4 cấp hiếm) — `icons_gear_shoes_hat.png`
-```
-Game item icon set: a grid of 4 columns x 2 rows, each icon centered in its own equal square cell with generous spacing, same scale and lighting, front 3/4 view, bold pixel outlines. Row 1 shows 4 rarity versions of the same item type in a row: (1) COMMON: plain and simple, dull colors; (2) GOOD: nicer material and color, small green accent; (3) RARE: stylish design with blue accents and a subtle shine; (4) LIMITED: luxurious, gold details and a soft golden glow — item type: shoes / sneakers. Row 2 shows the same 4 rarity versions — item type: a cap / hat.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Kính & Đồng hồ (4 cấp hiếm) — `icons_gear_glasses_watch.png`
-```
-Game item icon set: a grid of 4 columns x 2 rows, each icon centered in its own equal square cell with generous spacing, same scale and lighting, front 3/4 view, bold pixel outlines. Row 1 shows 4 rarity versions of the same item type in a row: (1) COMMON: plain and simple, dull colors; (2) GOOD: nicer material and color, small green accent; (3) RARE: stylish design with blue accents and a subtle shine; (4) LIMITED: luxurious, gold details and a soft golden glow — item type: sunglasses / glasses. Row 2 shows the same 4 rarity versions — item type: a wristwatch.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Balo (4 cấp hiếm) & vật phẩm gacha — `icons_gear_bag_gacha.png`
-```
-Game item icon set: a grid of 4 columns x 2 rows, each icon centered in its own equal square cell with generous spacing, same scale and lighting, front 3/4 view, bold pixel outlines. Row 1 shows 4 rarity versions of the same item type in a row: (1) COMMON: plain and simple, dull colors; (2) GOOD: nicer material and color, small green accent; (3) RARE: stylish design with blue accents and a subtle shine; (4) LIMITED: luxurious, gold details and a soft golden glow — item type: a backpack. Row 2: (1) a closed plastic gacha capsule half red half white, (2) a gacha token coin, (3) a pile of glittering fragments (from recycling duplicates), (4) a golden lucky ticket.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Máy gacha — `prop_gacha.png`
-```
-Single game asset: a cute capsule toy gacha machine as tall as an adult, glass dome full of colorful capsules, a big turning crank, a coin slot and a capsule exit flap, decorated with lights, 3/4 top-down front view.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Hoạt ảnh mở gacha — `ui_gacha_open.png`
-```
-Sprite sheet: one single horizontal row of EXACTLY 6 frames of a gacha capsule opening, evenly spaced, same size: (1) closed capsule, (2) capsule shaking left, (3) capsule shaking right, (4) capsule cracking open with light leaking out, (5) capsule halves flying apart with a bright burst, (6) empty glowing light burst.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Nền lộ diện theo độ hiếm — `ui_gacha_reveal.png`
-```
-Four square reveal background cards in a row with wide gaps, same size, radiating light rays and sparkles: (1) grey for common, (2) green for good, (3) blue for rare, (4) gold with extra sparkles for limited. Empty center for an item icon.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-
-## 16. [Đợt 4] Chợ Sạp Hàng Hóa
-
-*G24, G55–G57: người chơi thuê sạp, bày bán, đặt giá; xem & mua hàng của người khác.*
-
-#### Tòa Chợ Sạp Hàng Hóa — `bld_market.png`
-```
-Game asset: front elevation facade of a covered Saigon community market hall, Vietnamese urban architecture, seen straight from the front with a slight top-down tilt, standing on a flat ground line along the bottom edge (no sidewalk, no street in front). The main entrance door is at the bottom center, door height about 1.3 times an adult's height. Above the entrance there is a large EMPTY blank signboard with NO text on it. Width to height ratio 2:1. a tall corrugated roof on steel columns, an arched entrance, rows of colorful stalls visible inside, hanging lanterns.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Bên trong chợ — `room_market.png`
-```
-Interior of a covered Vietnamese market hall seen in 3/4 top-down view: concrete floor, three long rows of EMPTY wooden stall tables with numbered-style blank plaques (no text), wide walking aisles between them, hanging bulbs from the roof beams, an entrance at the bottom center.
-
-STYLE: detailed 16-bit pixel art game background, Saigon Vietnam, retro late-1990s mood, warm muted palette, dark brown pixel outlines, soft light from a window. 3/4 top-down view (camera about 30 degrees above) looking into the room: back wall fully visible at the top, floor occupying the lower two thirds, side walls slightly visible. No people, no goods on the tables, no text, no watermark, no sparkle logo. Fill the whole image (no magenta). Output 16:9 landscape.
-```
-
-#### Sạp của người chơi (3 cỡ) — `market_stalls.png`
-```
-Game asset set: 3 market stall tables in one row with wide gaps, same scale, 3/4 top-down front view, EMPTY of goods, each with a blank wooden name plaque: (1) a small single folding table with a cloth, (2) a medium wooden stall with a striped awning, (3) a large glass display stall with shelves and lights.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Giao diện chợ — `ui_market.png`
-```
-Four separate UI elements with wide gaps: (1) an empty product listing card with an image area on top and two blank lines below, (2) an empty paper price tag with a string, (3) a red rubber stamp mark shaped like a circle with a check, (4) an empty search bar with a magnifying glass icon.
-
-STYLE: 16-bit pixel art game user-interface element, retro Saigon 1990s theme (aged cream paper, warm teak wood, brass trims, faded teal and rust red accents), perfectly flat front view with NO perspective, crisp dark brown pixel outlines, clean straight edges suitable for slicing in a game engine. Plain solid flat magenta background #FF00FF around every element. No text, no letters, no numbers, no watermark, no sparkle logo, no characters. Elements must not overlap or touch. Output 16:9 landscape.
-```
-
-
-## 17. [Đợt 4] Công trình lấp phố
-
-*Thay ảnh tạm vẽ bằng code. Nhà ống số 1 dùng làm Nhà học sinh cho nghề Gia sư (J8).*
-
-#### Vựa ve chai — `bld_vechai.png`
-```
-Game asset: front elevation facade of a scrap metal and recycling yard shed, Vietnamese urban architecture, seen straight from the front with a slight top-down tilt, standing on a flat ground line along the bottom edge (no sidewalk, no street in front). The main entrance door is at the bottom center, door height about 1.3 times an adult's height. Above the entrance there is a large EMPTY blank signboard with NO text on it. Width to height ratio 2.5:1. corrugated rusty tin walls, piles of cans, bottles, cardboard and old fans.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Nhà ống 1 (mustard yellow) — `tube_1.png`
-```
-Game asset: front elevation of a narrow Vietnamese tube house (nha ong), 3 to 4 storeys, mustard yellow walls, small balconies with potted plants and laundry, an air conditioner unit, ground floor shop with a half-open rolling metal shutter and an EMPTY blank signboard, standing on a flat ground line, width to height ratio 1:3.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Nhà ống 2 (salmon pink) — `tube_2.png`
-```
-Game asset: front elevation of a narrow Vietnamese tube house (nha ong), 3 to 4 storeys, salmon pink walls, small balconies with potted plants and laundry, an air conditioner unit, ground floor shop with a half-open rolling metal shutter and an EMPTY blank signboard, standing on a flat ground line, width to height ratio 1:3.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Nhà ống 3 (mint green) — `tube_3.png`
-```
-Game asset: front elevation of a narrow Vietnamese tube house (nha ong), 3 to 4 storeys, mint green walls, small balconies with potted plants and laundry, an air conditioner unit, ground floor shop with a half-open rolling metal shutter and an EMPTY blank signboard, standing on a flat ground line, width to height ratio 1:3.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Nhà ống 4 (sky blue) — `tube_4.png`
-```
-Game asset: front elevation of a narrow Vietnamese tube house (nha ong), 3 to 4 storeys, sky blue walls, small balconies with potted plants and laundry, an air conditioner unit, ground floor shop with a half-open rolling metal shutter and an EMPTY blank signboard, standing on a flat ground line, width to height ratio 1:3.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Nhà ống 5 (cream white) — `tube_5.png`
-```
-Game asset: front elevation of a narrow Vietnamese tube house (nha ong), 3 to 4 storeys, cream white walls, small balconies with potted plants and laundry, an air conditioner unit, ground floor shop with a half-open rolling metal shutter and an EMPTY blank signboard, standing on a flat ground line, width to height ratio 1:3.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Nhà ống 6 (lavender) — `tube_6.png`
-```
-Game asset: front elevation of a narrow Vietnamese tube house (nha ong), 3 to 4 storeys, lavender walls, small balconies with potted plants and laundry, an air conditioner unit, ground floor shop with a half-open rolling metal shutter and an EMPTY blank signboard, standing on a flat ground line, width to height ratio 1:3.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Nhà ống 7 (terracotta orange) — `tube_7.png`
-```
-Game asset: front elevation of a narrow Vietnamese tube house (nha ong), 3 to 4 storeys, terracotta orange walls, small balconies with potted plants and laundry, an air conditioner unit, ground floor shop with a half-open rolling metal shutter and an EMPTY blank signboard, standing on a flat ground line, width to height ratio 1:3.
-
-STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
-```
-
-#### Nhà ống 8 (pale lime) — `tube_8.png`
-```
-Game asset: front elevation of a narrow Vietnamese tube house (nha ong), 3 to 4 storeys, pale lime walls, small balconies with potted plants and laundry, an air conditioner unit, ground floor shop with a half-open rolling metal shutter and an EMPTY blank signboard, standing on a flat ground line, width to height ratio 1:3.
+Game asset: front elevation of a narrow Vietnamese tube house (nha ong), 3 to 4 storeys, pale lime green walls, small balconies with potted plants and laundry, an air conditioner unit, ground floor shop with a half-open rolling metal shutter and an EMPTY blank signboard, standing on a flat ground line, width to height ratio 1:3.
 
 STYLE: detailed 16-bit pixel art game asset, Saigon Vietnam street life, retro late-1990s mood, warm muted palette (ochre, faded teal, rust red, olive green, cream), dark brown pixel outlines, soft light from top-left, 3/4 top-down front-facing view (camera about 30 degrees above). Plain solid flat magenta background #FF00FF filling the whole image. No text, no letters, no numbers, no labels, no watermark, no sparkle logo, no signature, no drop shadow, no floor, no ground. Objects must not overlap or touch. Output 16:9 landscape.
 ```
