@@ -185,6 +185,8 @@ Người dùng tải 68 ảnh lên thẳng GitHub (`977ec5b`, thư mục `asset_
 
 **Quy trình:** thêm 5 agent theo model trong `.claude/agents/` (scout/chores Haiku, coder/asset-importer Sonnet, planner Opus) + mục 2b trong `CLAUDE.md`.
 
+**Sửa thêm (cùng ngày, commit 35144c1):** người chơi iOS không gõ được tên. Nguyên nhân gốc: `in-name.onkeydown = (e) => e.key === 'Enter' && play()` trả `false` với mọi phím khác Enter → trình duyệt hủy phím (chặn nhập chữ, bàn phím ảo iOS bị hủy keydown). Đã đổi sang `addEventListener('keydown')` không trả giá trị; quét cùng kiểu ở `gm.js`. Bài học: không gán handler `onXxx` trả về biểu thức `a && b()`.
+
 ---
 
 ## Việc còn mở
