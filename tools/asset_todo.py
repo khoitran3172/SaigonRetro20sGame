@@ -259,6 +259,49 @@ seg("17. [Đợt 4] Công trình lấp phố — nhà ống còn thiếu",
       "height ratio 1:3.", STYLE)])
 
 # ---------------------------------------------------------------- hoan lai (sau V2)
+# ---------------------------------------------------------------- THI TRAN LIEN MACH (dem 2026-10-08, docs/NIGHT_PLAN.md muc D)
+_TOWN = [
+    ('Mặt đất: vỉa hè / đường / bó vỉa / lề cỏ (lát nối)', 'tile_street.png',
+     'Game texture set: EXACTLY 4 square ground tiles in one horizontal row, each tile the same size, separated by wide flat magenta #FF00FF gaps. Each tile is seen straight from above (flat top-down, no perspective) and MUST tile seamlessly on all four edges (left matches right, top matches bottom) with no visible border, no vignette, no lighting gradient. From left to right: (1) Saigon sidewalk paving: small worn square cement tiles in cream-grey with faint terracotta accents and a few hairline cracks; (2) asphalt road: dark charcoal-blue asphalt with subtle grain and one faint patch, no lane markings; (3) granite curb stone: grey granite kerb blocks seen from above, joints every quarter tile; (4) roadside grass verge: short tropical grass with tiny weeds and a little bare soil. Muted palette matching the attached references.',
+     STYLE),
+    ('Dải lề dưới theo 4 khu (lát nối)', 'verge_zones.png',
+     "Game asset set: EXACTLY 4 long horizontal strips stacked vertically with wide flat magenta #FF00FF gaps between them, each strip about 6 times wider than tall, each MUST tile seamlessly left-to-right (left edge continues the right edge). Each strip is a roadside verge seen in 3/4 top-down view, running along the bottom of a street, low (no taller than an adult's knee except plants). From top to bottom: (1) UNIVERSITY: neat green hedge in a red-brick planter with a low cream painted iron railing; (2) FOOD STREET: worn terracotta brick planter with potted herbs, small plastic pots and a low blue-painted railing; (3) FINANCIAL DISTRICT: polished grey granite planter box with trimmed boxwood and a brushed metal edge; (4) SUBURB: rusty corrugated metal fence low section with tall weeds and packed dirt. No people, no vehicles.",
+     STYLE),
+    ('Skyline xa (lát nối)', 'skyline_far.png',
+     'Game background asset: ONE long horizontal strip of a distant Saigon city skyline silhouette, about 5 times wider than tall, that MUST tile seamlessly left-to-right. Hazy, low-contrast, desaturated blue-grey and dusty lavender tones as if seen through warm afternoon haze; mix of 1990s tube houses, a few mid-rise blocks, water towers, TV antennas, tangled power lines, one old church spire and a couple of cranes. Flat front view, no strong outlines (lighter outline than foreground assets), no lit windows, no sky drawn — only the silhouette shapes, sitting on a flat bottom edge.',
+     STYLE),
+    ('Ngân hàng — vẽ lại theo tông retro', 'bld_bank.png',
+     "Game asset: front elevation facade of a 1990s Saigon bank branch, 3 storeys, French-colonial-meets-1990s style: ochre and cream plastered walls, tall arched windows with dark green shutters, a marble-step entrance with brass double doors at the bottom center (door height about 1.3 times an adult's height), an iron-grille security gate folded open, a small ATM niche to the right of the door, potted palms, air-conditioner units on the side, and a large EMPTY blank signboard plate above the entrance. Width to height ratio 1.3:1. Seen straight from the front with a slight top-down tilt, standing on a flat ground line along the bottom edge (no sidewalk, no street in front).",
+     STYLE),
+    ('Văn phòng TechCorp — vẽ lại theo tông retro', 'bld_office.png',
+     "Game asset: front elevation facade of a late-1990s Saigon office building, 4 storeys, concrete and teal-tinted glass ribbon windows with horizontal sun-shade fins, a small glass lobby entrance at the bottom center (door height about 1.3 times an adult's height), a security booth beside the door, a row of concrete planters with small shrubs, rooftop water tank and antenna, faded paint and a few air-conditioner units, and a large EMPTY blank signboard plate across the top of the ground floor. Width to height ratio 1.3:1, NOT a skyscraper. Seen straight from the front with a slight top-down tilt, standing on a flat ground line along the bottom edge (no sidewalk, no street in front).",
+     STYLE),
+    ('Bộ đồ phố cùng tỉ lệ (cột, đèn, cây me, cây bàng, thùng rác, ghế)', 'street_set.png',
+     'Game asset set: EXACTLY 6 street furniture objects in one horizontal row with wide even gaps, all drawn at the SAME scale (an adult would be 1 unit tall): (1) a concrete electric pole with a crossbar, insulators and a few tangled cables ending short, 3.2 units tall; (2) a single-arm 1990s street lamp with a curved green-painted pole, 2.8 units tall; (3) a tamarind tree (cay me) with a feathery round canopy in a square iron tree grate, 2.6 units tall and 1.6 wide; (4) an Indian almond tree (cay bang) with layered flat canopy in the same tree grate, 2.6 units tall and 1.6 wide; (5) a green municipal wheeled trash bin, 0.6 units; (6) a stone park bench, 0.5 units tall. Each object standing upright in 3/4 top-down front view, bases on the same baseline.',
+     STYLE),
+    ('Sân vựa ve chai (gom phế liệu thành 1 khối)', 'yard_vechai.png',
+     'Game asset: ONE single compact scrap yard ground patch seen in 3/4 top-down view, about 3 times wider than tall, to sit beside a Vietnamese scrap dealer shop: a packed-dirt yard with neat piles of flattened cardboard tied with string, a stack of old tires, a heap of aluminium cans in a woven sack, a rusty bicycle frame, an old weighing scale and a low corrugated sheet fence along the back edge. Everything grouped into one connected object with soft irregular edges, no people, no vehicles with engines.',
+     STYLE),
+    ('Nhà ống mẫu mới (tube_9)', 'tube_9.png',
+     "Game asset: front elevation of a narrow Vietnamese tube house (nha ong), 3 storeys, faded salmon pink walls with a turquoise iron balcony grille and a bougainvillea vine, ground floor with a half-open rolling metal shutter and an EMPTY blank signboard, standing on a flat ground line, width to height ratio 1:3, same scale as the attached tube house references (the ground floor door is about 1.3 times an adult's height).",
+     STYLE),
+    ('Nhà ống mẫu mới (tube_10)', 'tube_10.png',
+     "Game asset: front elevation of a narrow Vietnamese tube house (nha ong), 3 storeys, dusty sky-blue walls with wooden shutters, a small altar window and a rooftop water tank, ground floor with a half-open rolling metal shutter and an EMPTY blank signboard, standing on a flat ground line, width to height ratio 1:3, same scale as the attached tube house references (the ground floor door is about 1.3 times an adult's height).",
+     STYLE),
+    ('Icon thanh nút HUD (thay emoji)', 'ui_dock_icons.png',
+     'Game UI icon set: a grid of 4 columns x 2 rows, each icon centered in its own equal square cell with generous spacing, same scale and lighting, perfectly flat front view, bold pixel outlines, readable at 32x32 pixels. Icons in order: (1) woven market basket with produce; (2) speech bubble; (3) smiling face badge; (4) open guide book; (5) hamburger menu of three wooden bars; (6) brass wrench; (7) folded paper map; (8) small bell with a dot for notifications.',
+     STYLE_UI),
+    ('Cổng / mốc nhận diện 4 khu', 'zone_gate_set.png',
+     'Game asset set: EXACTLY 4 roadside zone landmark objects in one horizontal row with wide even gaps, same scale (an adult is 1 unit tall), each about 2.5 units tall, 3/4 top-down front view, each with an EMPTY blank plate where a name would go: (1) UNIVERSITY: a cream concrete pillar gate post with a small blank bronze plaque and a flowering frangipani; (2) FOOD STREET: a red-and-yellow festive lantern post with a blank wooden hanging board; (3) FINANCIAL DISTRICT: a polished granite monolith marker with a blank brass plate; (4) SUBURB: a leaning wooden post with a blank rusty tin sign and a tied bundle of scrap.',
+     STYLE),
+]
+seg("0. Thị trấn liền mạch — ƯU TIÊN vẽ trước (P0: tile_street, verge_zones, skyline_far, bld_bank, bld_office; P1: còn lại)",
+    "Từng ảnh đẹp nhưng gộp lại rối. Bộ ảnh này làm nền, lề, đồ phố và 2 công trình lạc tông cho cùng một hệ tỉ lệ / bảng màu. "
+    "Ảnh tile (tile_street, verge_zones, skyline_far) là ngoại lệ: nhiều tile trong 1 ảnh, mỗi tile lát nối được. "
+    "Thứ tự đề xuất: tile_street → verge_zones → skyline_far → bld_bank / bld_office → street_set → yard_vechai → tube_9/10 → ui_dock_icons → zone_gate_set.",
+    _TOWN)
+SEGMENTS.insert(0, SEGMENTS.pop())
+
 DEFER_CHARS = {
     "sv_female": "Vietnamese female university student around 20, long straight black hair in a low ponytail, white "
                  "short-sleeve blouse, light denim skirt to the knee, small beige backpack, white sandals",
@@ -276,8 +319,6 @@ for k, d in DEFER_CHARS.items():
     for a in ["idle_down", "walk_down", "walk_up", "walk_left", "idle_up", "idle_left"]:
         DEFER.append((f"{k} · {a}", f"{k}_{a}.png", strip(k, d, a), STYLE))
 for key, what, ratio, detail in [
-    ("bld_bank", "a modern bank branch building", "1.1:1", "5 storeys of blue glass, marble ground floor, gold accents"),
-    ("bld_office", "a corporate office tower", "1.2:1", "tall dark glass tower, top cropped, modern glass lobby"),
     ("bld_auction", "a grand auction house", "1:1", "neoclassical columns, red carpet steps, brass lamps"),
 ]:
     DEFER.append((key, f"{key}.png", BUILDING.format(what=what, ratio=ratio, detail=detail), STYLE))

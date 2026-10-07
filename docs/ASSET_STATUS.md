@@ -154,3 +154,16 @@ bold pixel outlines, same style as the other item icons.
 ## Ghi chú khi gửi ảnh mới
 - Sheet gộp nhiều dải (như `sv_female.jpg`): ghi kèm mỗi hàng là hành động gì, tôi khai báo vào `SHEETS` trong `tools/import_new_art.py`.
 - Sheet đồ vật: thứ tự trong ảnh được map bằng mã blob `hàng.cột` (xem `tools/out/new/_contact_*.png` sau khi chạy `python tools/contact_new.py`), cấu hình ở `tools/new_manifest.py`.
+
+## Cần vẽ thêm — Thị trấn liền mạch (2026-10-08)
+
+Kết quả rà soát toàn bộ giao diện thị trấn (xem [NIGHT_PLAN.md](NIGHT_PLAN.md)): từng ảnh đẹp nhưng gộp lại rối vì khác tỉ lệ / tông / nhịp. Đã chỉnh bằng code những gì không cần art; phần còn lại cần vẽ, **mỗi ảnh kèm prompt đầy đủ ở nhóm 0 của [ASSET_TODO.md](ASSET_TODO.md) / `asset_todo.html`**:
+
+| Ưu tiên | File | Vì sao |
+|---|---|---|
+| P0 | `tile_street.png` | Thay tile vỉa hè / đường / bó vỉa / lề cỏ vẽ bằng code (nền chiếm ~60% màn hình) |
+| P0 | `verge_zones.png` | Dải lề dưới phố, mỗi khu một chủ đề |
+| P0 | `skyline_far.png` | Thay khối chữ nhật skyline vẽ bằng code |
+| P0 | `bld_bank.png`, `bld_office.png` (vẽ lại tông retro) | Hai công trình kính xanh vẽ bằng code lạc tông nhất Khu 2 |
+| P1 | `street_set.png`, `yard_vechai.png`, `tube_9.png`, `tube_10.png`, `ui_dock_icons.png` | Đồ phố cùng tỉ lệ, sân vựa ve chai, nhà ống lấp khe, icon thay emoji HUD |
+| P2 | `zone_gate_set.png` | Mốc nhận diện ranh khu |
