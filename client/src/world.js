@@ -1,5 +1,5 @@
 // Scene the gioi: ban do 4 khu, nhan vat, NPC, sap hang, giao thong, ngay/dem, thoi tiet.
-import { BUILDINGS, CHAT, FLYER, PLOTS, POIS, WORLD, ZONES, walkerPos } from '/shared/config.js';
+import { BUILDINGS, CHAT, FLYER, POIS, WORLD, ZONES, walkerPos } from '/shared/config.js';
 import { genBuilding, genGround, genMisc, genTubeHouse } from './textures.js';
 
 const FONT = '"Be Vietnam Pro", system-ui, sans-serif';
@@ -7,12 +7,11 @@ const CLASS_COLOR = { sv: '#a8f0a0', vp: '#9fd8ff', tt: '#ffc77a' };
 const NPC_STYLE = {
   police: { skin: 'vp_male', tint: 0xc4d488, color: '#bff0ff', label: '🚓 Cảnh sát' },
   thief: { skin: 'sv_male', tint: 0x6c6c92, color: '#ff9a85' },
-  gang: { image: 'npc_thanhnien', tint: 0xd9c0b0, color: '#ff7a6a', label: '😠 Giang hồ' },
   scrap: { image: 'scrap_pickup', color: '#ffe680', label: '' },
 };
 const POI_ICON = {
-  school: '🏫', tro: '🏠', net: '🖥️', veso: '🎫', buudien: '📮', cafe: '☕', banhmi: '🥖', bangdia: '📼', bida: '🎱',
-  barber: '💈', cho: '🧺', mechanic: '🔧', atm: '🏧', bank: '🏦', office: '🏢', auction: '🔨', showroom: '🛵',
+  school: '🏫', tro: '🏠', net: '🖥️', veso: '🎫', buudien: '📮', cafe: '☕', banhmi: '🥖', bangdia: '📼', market: '🧺',
+  barber: '💈', cho: '🛒', mechanic: '🔧', atm: '🏧', bank: '🏦', office: '🏢', auction: '🔨', showroom: '🛵',
   fashion: '👗', junk: '♻️', comtam: '🍛', trasua: '🧋', tutor: '📚', mall: '🛍️',
 };
 // Vi tri nguoi ngoi tren xe (theo ty le anh xe): dx > 0 = tien ve dau xe, dy = nang len
@@ -21,7 +20,6 @@ export const RIDE_FIT = { scale: 0.75, dx: -0.05, dy: 0.32 };
 const VEHICLE_SPRITE = { xe_cub: 'veh_cub', xe_ga: 'veh_ga', xe_pkl: 'veh_pkl', xe_dap: 'veh_dap' };
 // Giao thong trang tri: [anh, trong so]. Chi con taxi + xe buyt (G32: bo xe may)
 const TRAFFIC = [['veh_taxi', 2], ['veh_taxi2', 2], ['veh_bus', 1]];
-const stallSprite = (s) => (s.u ? 'stall_lv3' : s.lg ? 'stall_lv2' : 'stall_lv1');
 const SEND_HZ = 15;
 const INTERACT_RANGE = 120;
 const DIALOG_CLOSE_RANGE = 200; // xa hon tam tuong tac cua server (170) mot chut
@@ -32,7 +30,6 @@ export class WorldScene extends Phaser.Scene {
     Object.assign(this, data);
     this.avatars = new Map();
     this.npcObjs = new Map();
-    this.stallObjs = new Map();
     this.lamps = [];
     this.traffic = [];
     this.moveTarget = null;
@@ -165,15 +162,6 @@ export class WorldScene extends Phaser.Scene {
     r.strokeCircle(510, 1025, 50);
     this.prop('goal_mini', 190, 1062);
     this.prop('goal_mini', 830, 1062, { flip: true });
-    // o quy hoach bay sap
-    PLOTS.forEach((pl, i) => {
-      r.lineStyle(3, 0xffd34d, 0.9);
-      r.strokeRect(pl.x - 58, pl.y - 52, 116, 64);
-      r.fillStyle(0xffd34d, 0.12);
-      r.fillRect(pl.x - 58, pl.y - 52, 116, 64);
-      this.add.text(pl.x, pl.y + 14, `Ô ${i + 1}`, { fontFamily: FONT, fontSize: '11px', color: '#ffe680', fontStyle: '800' })
-        .setOrigin(0.5, 0).setDepth(-880);
-    });
     // nhan khu vuc
     for (const z of ZONES) {
       this.add.text((z.x0 + z.x1) / 2, 1180, z.name.toUpperCase(), {
@@ -304,7 +292,7 @@ export class WorldScene extends Phaser.Scene {
     this.prop('stool_green', 3360, 1100);
     this.prop('stool_pink_v2', 3240, 1104);
     this.prop('bench', 3800, 1120);
-    this.prop('tires_v2', 4065, 575);
+    this.prop('tires_v2', 4255, 575);
     // Khu 2
     this.prop('plant_pots', 4250, 472);
     this.prop('plant_pots', 4760, 472);
@@ -527,7 +515,6 @@ export class WorldScene extends Phaser.Scene {
       const a = this.avatars.get(m.id);
       if (a) this.bubble(a, m.text, m.dist, m.emote);
     });
-    net.on('fx', (m) => this.floatText(m.x, m.y - 70, m.text, '#7dff8a'));
   }
 
   onSnap(m) {
@@ -571,18 +558,6 @@ export class WorldScene extends Phaser.Scene {
       }
     }
 
-    const seenS = new Set();
-    for (const s of m.st) {
-      seenS.add(s.o);
-      let o = this.stallObjs.get(s.o);
-      if (o && o.key !== stallSprite(s)) {
-        this.destroyStall(o);
-        o = null;
-      }
-      if (!o) o = this.spawnStall(s);
-      o.label.setText(`🧺 ${s.o}${s.lg ? '' : ' ⚠️'} · ${s.c} món`);
-    }
-    for (const [k, o] of this.stallObjs) if (!seenS.has(k)) this.destroyStall(o);
   }
 
   // ================================================================ thuc the
@@ -637,26 +612,6 @@ export class WorldScene extends Phaser.Scene {
     return o;
   }
 
-  spawnStall(s) {
-    const key = stallSprite(s);
-    const img = this.add.image(s.x, s.y + 4, key).setOrigin(0.5, 1).setDepth(s.y);
-    const label = this.add.text(s.x, s.y - img.displayHeight - 4, '', {
-      fontFamily: FONT, fontSize: '11px', fontStyle: '800', color: s.lg ? '#ffe680' : '#ff9a85',
-      backgroundColor: 'rgba(30,22,16,0.75)', padding: { x: 5, y: 2 },
-    }).setOrigin(0.5, 1).setDepth(4000);
-    img.setInteractive({ useHandCursor: true }).on('pointerdown', () =>
-      this.goInteract(s.x, s.y + 30, () => this.net.send({ t: 'poi', id: `stall:${s.o}` }), 150));
-    const o = { img, label, key, x: s.x, y: s.y };
-    this.stallObjs.set(s.o, o);
-    return o;
-  }
-
-  destroyStall(o) {
-    o.img.destroy();
-    o.label.destroy();
-    for (const [k, v] of this.stallObjs) if (v === o) this.stallObjs.delete(k);
-  }
-
   bubble(a, text, dist = 0, emote = false) {
     const k = 1 - Math.min(1, dist / CHAT.nearRadius);
     const b = this.add.text(a.x, a.y, text, {
@@ -705,9 +660,7 @@ export class WorldScene extends Phaser.Scene {
     const d = this.ui.dialog;
     const box = document.getElementById('dialog');
     if (!d || box.classList.contains('hidden') || d.remote || !this.me) return;
-    let at = null;
-    if (typeof d.poi === 'string' && d.poi.startsWith('stall:')) at = this.stallObjs.get(d.poi.slice(6));
-    else at = POIS.find((p) => p.id === d.poi);
+    const at = POIS.find((p) => p.id === d.poi);
     if (!at) return;
     if (Phaser.Math.Distance.Between(at.x, at.y, this.me.x, this.me.y) > DIALOG_CLOSE_RANGE) {
       box.classList.add('hidden');
@@ -740,9 +693,6 @@ export class WorldScene extends Phaser.Scene {
       if (o.st.skin) {
         const key = this.animKey(o.st.skin, o.dir, o.moving);
         this.playAnim(o, key, o.dir);
-      } else if (o.k === 'gang') {
-        o.sprite.setFlipX(o.dir === 'left');
-        if (o.moving) o.sprite.y -= Math.abs(Math.sin(time / 90)) * 3;
       }
     }
     const view = this.cameras.main.worldView;

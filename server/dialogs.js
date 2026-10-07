@@ -60,7 +60,7 @@ const cafeShop = shop(['tra_da', 'ca_phe', 'nuoc_mia'], 1.3);
 const comtamShop = shop(['com_suon', 'com_bi_cha', 'canh_chua', 'trung_op_la', 'tra_da'], 1);
 const trasuaShop = shop(['tra_sua'], 1);
 const banhmiShop = shop(['banhmi'], 1.2);
-const choShop = shop(['phoi_banh', 'thit_nguoi', 'rau_thom', 'tra_kho', 'da_vien', 'cay_mia', 'du_che'], 1);
+const choShop = shop(['phoi_banh', 'thit_nguoi', 'rau_thom', 'tra_kho', 'da_vien', 'cay_mia'], 1);
 // Nguyen lieu nau an o nha (G44) + sach cong thuc
 const kitchenShop = shop([...Object.keys(ITEMS).filter((id) => id.startsWith('nl_')), 'sach_cong_thuc'], 1);
 const showroomShop = shop(['xe_dap', 'xe_cub', 'xe_ga', 'xe_pkl', 'non_bh'], 1, (price) => (price >= 100000 ? 'bank' : 'cash'));
@@ -419,26 +419,6 @@ export const DIALOGS = {
     },
   },
 
-  bida: {
-    open: () => ({
-      title: '🎱 CLB Bida',
-      text: 'Đánh một ván giải trí. Thắng NPC được 20.000đ.',
-      options: [opt('Đánh một ván (10.000đ)', 'play')],
-    }),
-    acts: {
-      play(g, s) {
-        cooldown(g, s, 'bida', 15);
-        g.econ.pay(s.p, 10000, 'cash', 'bida');
-        addStat(s.p, 'stress', -20);
-        if (Math.random() < 0.35) {
-          g.econ.grant(s.p, 20000, 'cash', 'bida_win');
-          return '🎱 Bạn thắng ván bida! +20.000đ';
-        }
-        return 'Thua sát nút! Nhưng xả stress rồi.';
-      },
-    },
-  },
-
   barber: {
     open: () => ({
       title: '💈 Ông Thợ Cắt Tóc',
@@ -463,8 +443,8 @@ export const DIALOGS = {
     open: (g, s) => ({
       title: '🧺 Tạp Hóa Cô Ba (Nguyên liệu)',
       text: `🍳 Đồ nấu ăn ở nhà (cần thuê phòng trọ có bếp):\n${s.p.cls === 'tt'
-        ? '🧺 Nguyên liệu bánh mì / trà đá / nước mía để chế biến tại sạp (mở sạp → nút Chế biến).'
-        : '🧺 Nguyên liệu chế biến bán sạp — ai cũng mua được.'}`,
+        ? '🧺 Nguyên liệu bánh mì / trà đá / nước mía — chế biến ở sạp trong Chợ Sạp Hàng Hóa (tab Sạp của tôi).'
+        : '🧺 Nguyên liệu chế biến để bày bán ở Chợ — ai cũng mua được.'}`,
       options: [...kitchenShop.options(g, s), ...choShop.options(g, s), ...(s.p.cls === 'tt' ? [promoteOption(g, s)] : [])],
     }),
     acts: {
@@ -682,6 +662,11 @@ export const DIALOGS = {
         g.pushDialog(s, { ...g.auction.dialog(s), poi: 'auction', remote: true });
         return false;
       },
+      marketview(g, s) {
+        g.closeDialog(s);
+        g.market.handle(s, { a: 'view' });
+        return false;
+      },
       promote,
     },
   },
@@ -731,11 +716,15 @@ const PHONE_APPS = {
     text: [...g.sessions.values()].map((o) => `• ${o.p.name} (${CLASSES[o.p.cls].name}) — ${zoneAt(o.x).name}`).join('\n'),
     options: [],
   }),
-  market: (g) => ({
-    title: '🛒 Chợ online',
-    text: [...g.stalls.values()].map((st) => `• Sạp ${st.owner} (${zoneAt(st.x).name}): ${st.listings.map((l) => `${ITEMS[l.stack.id].icon}${ITEMS[l.stack.id].name} ×${l.stack.qty} ${vnd(l.price)}`).join(', ') || 'trống'}`).join('\n') || 'Chưa có sạp nào mở.',
-    options: [opt('🔨 Đấu giá từ xa (20:00)', 'auction')],
-  }),
+  market: (g) => {
+    const stalls = Object.values(g.market.stalls);
+    const n = stalls.reduce((sum, st) => sum + st.listings.length, 0);
+    return {
+      title: '🛒 Chợ',
+      text: `Chợ Sạp Hàng Hóa (Khu 1): ${stalls.length} sạp đang thuê, ${n} món đang bày bán.\nXem từ xa được, muốn mua thì tới chợ.`,
+      options: [opt('🧺 Xem hàng ở Chợ', 'marketview'), opt('🔨 Đấu giá từ xa (20:00)', 'auction')],
+    };
+  },
 };
 
 export { addStat, RECIPES, SLOTS };

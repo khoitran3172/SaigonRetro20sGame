@@ -6,6 +6,7 @@ import { CookView } from './cook.js';
 import { HomeView, furnDesc } from './home.js';
 import { JobGame } from './jobs.js';
 import { MallView } from './mall.js';
+import { MarketView } from './market.js';
 
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => {
@@ -20,7 +21,7 @@ const ZONE_COLORS = { daihoc: '#5f9e54', phoam: '#d98a3a', cbd: '#4f8fc9', ngoai
 const CLASS_DESC = {
   sv: 'Điểm danh, cày net, phụ quán, nhặt ve chai. Tiền ít nhưng tự do.',
   vp: 'Chấm công, làm KPI, lương đều về tài khoản. Khách hàng sộp.',
-  tt: 'Nhập hàng, chế biến, bày sạp. Động cơ của cả khu chợ.',
+  tt: 'Nhập hàng, chế biến, bày bán ở Chợ Sạp Hàng Hóa. Động cơ của cả khu chợ.',
 };
 const DEFAULT_SKIN = { sv: 'sv_male', vp: 'vp_male', tt: 'baba_female' };
 // Chan dung hoi thoai theo POI (assets/ui/portrait_*.png). Com tam / tra sua: art ve sai nguoi — cho ve lai
@@ -44,6 +45,7 @@ export class UI {
     this.home = new HomeView(net, this);
     this.cook = new CookView(net, this);
     this.mall = new MallView(net, this);
+    this.market = new MarketView(net, this);
 
     net.on('error', (m) => { $('login-err').textContent = m.msg; });
     net.on('self', (m) => this.setSelf(m.self));
@@ -59,7 +61,7 @@ export class UI {
 
   // Mini-game man rieng hoac dang trong phong -> khoa di chuyen / phim tat
   get locked() {
-    return this.jobs.active || this.home.active || this.mall.active;
+    return this.jobs.active || this.home.active || this.mall.active || this.market.active;
   }
 
   // Icon art (assets/icons/<id>.png; noi that dung chinh anh mon do); chua co art thi dung emoji
@@ -247,8 +249,9 @@ export class UI {
       this.net.send({ t: 'act', poi: 'phone', act: 'app', args: { app: 'quests' } });
     }
     else if (a === 'stall') {
-      if (this.self.stall) this.net.send({ t: 'poi', id: `stall:${this.self.name}` });
-      else this.net.send({ t: 'stall_open' });
+      // Cho Sap Hang Hoa: xem tu xa bang dien thoai, toi cho thi thao tac duoc
+      if (!this.self.equip.phone) return this.toast('Tới Chợ Sạp Hàng Hóa (Khu 1) để thuê sạp, mua bán.');
+      this.net.send({ t: 'market', a: 'view' });
     }
   }
 
@@ -256,6 +259,7 @@ export class UI {
     this.self = s;
     if (this.home.active && this.home.edit) this.home.renderTray();
     if (this.mall.active) this.mall.refresh();
+    if (this.market.active) this.market.refresh();
     $('h-name').textContent = s.name;
     $('h-title').textContent = s.title ? `「${s.title}」` : '';
     $('h-class').textContent = `${s.clsName} · ${s.rankName}`;
@@ -283,7 +287,7 @@ export class UI {
     $('q-badge').textContent = left;
     $('q-badge').classList.toggle('hidden', !left);
     // Chi ve lai tui / trang bi khi do dac thay doi (tranh nut bi thay lien tuc khi dang bam)
-    const sig = JSON.stringify([s.inv, s.equip, s.stall, s.cash, s.calc, s.buffs.length]);
+    const sig = JSON.stringify([s.inv, s.equip, s.cash, s.calc, s.buffs.length]);
     if (sig === this.invSig) return;
     this.invSig = sig;
     this.renderHotbar();
@@ -532,9 +536,7 @@ export class UI {
     const box = $('inv-detail');
     box.textContent = '';
     if (!it) {
-      box.append(el('div', 'muted', s.stall
-        ? `🧺 Sạp đang mở${s.stall.legal ? '' : ' (lấn chiếm!)'}: ${s.stall.listings.length}/8 món. Chọn một món rồi bấm "Bày bán".`
-        : 'Bấm một ô để xem và thao tác. Bấm đúp để dùng / mặc. Rê chuột để xem thông tin.'));
+      box.append(el('div', 'muted', 'Bấm một ô để xem và thao tác. Bấm đúp để dùng / mặc. Rê chuột để xem thông tin. Bày bán ở Chợ Sạp Hàng Hóa.'));
       return;
     }
     const def = ITEMS[it.id];
@@ -554,21 +556,6 @@ export class UI {
       else btn('Trang bị', () => this.net.send({ t: 'equip', uid: it.uid }));
     }
     if (def.type === 'food' || def.type === 'data') btn('Thêm vào thanh nhanh', () => this.addHotbar(it.id));
-    if (s.stall && !on) {
-      const qty = el('input');
-      qty.type = 'number';
-      qty.value = it.qty;
-      qty.min = 1;
-      qty.max = it.qty;
-      qty.title = 'Số lượng';
-      const price = el('input');
-      price.type = 'number';
-      price.value = def.base || 100000;
-      price.title = 'Giá mỗi món';
-      if (it.qty > 1) row.append(qty);
-      row.append(price);
-      btn('Bày bán', () => this.net.send({ t: 'stall_list', uid: it.uid, qty: Number(qty.value), price: Number(price.value) }));
-    }
     if (!on) {
       btn('Vứt', () => {
         if (confirm(`Vứt bỏ ${def.name}?`)) this.net.send({ t: 'drop', uid: it.uid });
@@ -872,7 +859,7 @@ const INV_TABS = [
   { id: 'other', name: 'Khác', icon: 'other', match: (d) => !['food', 'ingredient', 'equip', 'furn'].includes(d.type) },
 ];
 const TYPE_NAME = {
-  furn: 'Nội thất', book: 'Sách', tool: 'Dụng cụ', food: 'Ăn uống', ingredient: 'Nguyên liệu', material: 'Vật liệu', collectible: 'Sưu tầm', data: 'Gói cước', stall: 'Đồ bày sạp', equip: 'Trang bị',
+  furn: 'Nội thất', book: 'Sách', tool: 'Dụng cụ', food: 'Ăn uống', ingredient: 'Nguyên liệu', material: 'Vật liệu', collectible: 'Sưu tầm', data: 'Gói cước', equip: 'Trang bị',
 };
 const STAT_NAME = { charisma: 'Thu hút', speed: 'Tốc độ %', staminaSave: 'Tiết kiệm NL %', vehicle: 'Xe ×' };
 const EFF_NAME = { hunger: 'No bụng', stamina: 'Năng lượng', stress: 'Tinh thần' };
@@ -899,7 +886,7 @@ const PHONE_APPS = [
   { id: 'settings', name: 'Cài đặt', icon: 'settings', client: 'phoneSettings' },
 ];
 const POI_EMOJI = {
-  school: '🏫', tro: '🏠', net: '🖥️', veso: '🎫', buudien: '📮', cafe: '☕', banhmi: '🥖', bangdia: '📼', bida: '🎱',
+  school: '🏫', tro: '🏠', net: '🖥️', veso: '🎫', buudien: '📮', cafe: '☕', banhmi: '🥖', bangdia: '📼', market: '🧺', mall: '🛍️', tutor: '📚',
   barber: '💈', cho: '🧺', mechanic: '🔧', atm: '🏧', bank: '🏦', office: '🏢', auction: '🔨', showroom: '🛵',
   fashion: '👗', junk: '♻️', comtam: '🍛', trasua: '🧋',
 };

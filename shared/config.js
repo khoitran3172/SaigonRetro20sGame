@@ -35,13 +35,9 @@ export const ECON = {
   atmFeeRate: 0.01, atmFeeMin: 1000,
   appTransferFeeRate: 0.02,
   stallTax: 0.05,
-  plotRent: 5000,
-  fineIllegalStall: 50000,
-  protectionFee: 20000,
   interestRate: 0.005, interestCap: 50000,
   rentPerDay: 30000,
   mailFee: 2000,
-  callPoliceFee: 2000,
   auctionTax: 0.05,
   lotteryPrice: 10000,
   ledCost: 10,           // kim cuong
@@ -89,7 +85,7 @@ export const SLOTS = {
   dacbiet: 'Đặc biệt', xe: 'Phương tiện', phone: 'Điện thoại',
 };
 
-// type: food | ingredient | material | collectible | equip | data | stall
+// type: food | ingredient | material | collectible | equip | data | furn | book | tool
 export const ITEMS = {
   banhmi: { name: 'Bánh mì thịt', icon: '🥖', type: 'food', base: 15000, eff: { hunger: 40, stamina: 25 } },
   tra_da: { name: 'Trà đá', icon: '🧋', type: 'food', base: 3000, eff: { stress: -10, stamina: 5, hunger: 3 } },
@@ -113,7 +109,7 @@ export const ITEMS = {
   bang_cassette: { name: 'Băng cassette cũ', icon: '📼', type: 'collectible', base: 8000 },
 
   the_4g: { name: 'Gói cước 4G (30 tin)', icon: '📶', type: 'data', base: 10000, data: 30 },
-  du_che: { name: 'Dù che sạp', icon: '⛱️', type: 'stall', base: 50000 },
+  du_che: { name: 'Dù che sạp (đồ cũ)', icon: '⛱️', type: 'collectible', base: 50000 }, // sap via he da bo — giu cho tui do cu
 
   ao_thun: { name: 'Áo thun in hình', icon: '👕', type: 'equip', slot: 'ao', base: 60000, st: { charisma: 2 } },
   ao_somi: { name: 'Áo sơ mi công sở', icon: '👔', type: 'equip', slot: 'ao', base: 150000, rar: 'good', st: { charisma: 5 } },
@@ -282,6 +278,20 @@ export const MALL = {
     items: [...Object.keys(NL), 'sach_cong_thuc'] },
 };
 
+// Cho Sap Hang Hoa (G24, G55–G57): thue sap theo tuan, bay hang tu dat gia, ban ca khi chu offline.
+// sizes: 3 co sap (anh v2/props/mstall_*) · spots: cho dat sap trong anh room_market (1024x572), x/y = chan sap
+// price: gia ban moi mon trong khoang [min, max] x gia goc (chong rua tien); do khong co gia goc dung free
+export const MARKET = {
+  sizes: [
+    { name: 'Bàn xếp', img: 'mstall_1', slots: 4, rent: 35000 },
+    { name: 'Quầy gỗ', img: 'mstall_2', slots: 8, rent: 100000 },
+    { name: 'Tủ kính', img: 'mstall_3', slots: 12, rent: 250000 },
+  ],
+  days: 7, tax: 0.05, price: [0.5, 3], free: [10000, 20000000], history: 10,
+  spots: [[160, 470], [265, 470], [745, 470], [855, 470], [960, 470], [60, 470],
+    [350, 255], [455, 245], [565, 245], [670, 255], [95, 360], [930, 360]],
+};
+
 // Ngu (G49, G50): moi gio game hoi stamina = rate x he so giuong x thoai mai x nong. Khong giuong -> noBed
 export const SLEEP = { rate: 12, noBed: 0.4, hotNoCool: 0.6, coolNeed: 2, stress: 3, hours: [1, 2, 4, 8] };
 // starter: do co san khi thue phong (id, x, y) — them mon moi thi nguoi da thue cung nhan khi vao phong
@@ -312,9 +322,9 @@ export const BUILDINGS = [
   { id: 'buudien', x: 2060, sprite: 'b_buudien', sign: { text: 'BƯU ĐIỆN', box: [0.36, 0.37, 0.6, 0.51] } },
   { id: 'cafe', x: 2570, sprite: 'b_cafe' },
   { id: 'bangdia', x: 2900, sprite: 'b_bangdia', sign: { text: 'BĂNG ĐĨA CŨ', box: [0.05, 0.01, 0.93, 0.22] } },
-  { id: 'bida', x: 3220, sprite: 'b_bida', sign: { text: 'CLB BIDA', box: [0.12, 0.02, 0.88, 0.27], neon: '#5fd0ff' } },
-  { id: 'taphoa', x: 3530, sprite: 'b_taphoa', sign: { text: 'TẠP HÓA CÔ BA', box: [0.06, 0.01, 0.92, 0.24] } },
-  { id: 'comtam', x: 3905, sprite: 'b_comtam', sign: { text: 'CƠM TẤM SÀI GÒN', box: [0.378, 0.12, 0.778, 0.317] } },
+  { id: 'market', x: 3290, sprite: 'b_market', v2: true, scale: 1.15, sign: { text: 'CHỢ SẠP HÀNG HÓA', box: [0.335, 0.27, 0.65, 0.415] } },
+  { id: 'taphoa', x: 3670, sprite: 'b_taphoa', sign: { text: 'TẠP HÓA CÔ BA', box: [0.06, 0.01, 0.92, 0.24] } },
+  { id: 'comtam', x: 4040, sprite: 'b_comtam', sign: { text: 'CƠM TẤM SÀI GÒN', box: [0.378, 0.12, 0.778, 0.317] } },
   { id: 'bank', x: 4480, gen: { w: 420, h: 380, wall: 0x9fc4d8, roof: 0x24495e, sign: 'VIETBANK', signBg: 0x0d2a4a, neon: 0xffd34d, windows: 'glass' } },
   { id: 'office', x: 5020, gen: { w: 480, h: 400, wall: 0xa9b8c9, roof: 0x2f3b4a, sign: 'TECHCORP TOWER', signBg: 0x202a36, neon: 0x5fd0ff, windows: 'glass' } },
   { id: 'auction', x: 5440, gen: { w: 300, h: 300, wall: 0xc9a86a, roof: 0x5a3d1a, sign: 'NHÀ ĐẤU GIÁ', signBg: 0x5a1a1a, neon: 0xff5fa8, windows: 'arch' } },
@@ -335,11 +345,11 @@ export const POIS = [
   { id: 'cafe', kind: 'cafe', name: 'Cà Phê Vỉa Hè', x: 2570, y: 480 },
   { id: 'banhmi', kind: 'banhmi', name: 'Bà Cụ Bánh Mì', x: 2735, y: 560, work: 'npc_banhmi', prop: 'cart_banhmi_v2', propDx: 60 },
   { id: 'bangdia', kind: 'bangdia', name: 'Tiệm Băng Đĩa Cũ', x: 2900, y: 470 },
-  { id: 'bida', kind: 'bida', name: 'CLB Bida', x: 3220, y: 470 },
-  { id: 'kiot', kind: 'cho', name: 'Tạp Hóa (Nguyên liệu)', x: 3530, y: 470 },
-  { id: 'barber', kind: 'barber', name: 'Ông Thợ Cắt Tóc', x: 3760, y: 560, work: 'npc_barber', workDx: 45, prop: 'barber_set_v2', propDx: -40 },
-  { id: 'comtam', kind: 'comtam', name: 'Quán Cơm Tấm', x: 3905, y: 470 },
-  { id: 'mechanic', kind: 'mechanic', name: 'Chú Sửa Xe', x: 4000, y: 565, work: 'npc_mechanic', prop: 'veh_cub', propDx: 85, propDy: 4 },
+  { id: 'market', kind: 'market', name: 'Chợ Sạp Hàng Hóa', x: 3290, y: 470 },
+  { id: 'kiot', kind: 'cho', name: 'Tạp Hóa (Nguyên liệu)', x: 3670, y: 470 },
+  { id: 'barber', kind: 'barber', name: 'Ông Thợ Cắt Tóc', x: 3820, y: 560, work: 'npc_barber', workDx: 45, prop: 'barber_set_v2', propDx: -40 },
+  { id: 'comtam', kind: 'comtam', name: 'Quán Cơm Tấm', x: 4040, y: 470 },
+  { id: 'mechanic', kind: 'mechanic', name: 'Chú Sửa Xe', x: 4190, y: 565, work: 'npc_mechanic', prop: 'veh_cub', propDx: 85, propDy: 4 },
   { id: 'atm1', kind: 'atm', name: 'Cây ATM', x: 4140, y: 870 },
   { id: 'atm2', kind: 'atm', name: 'Cây ATM VietBank', x: 4290, y: 470 },
   { id: 'bank', kind: 'bank', name: 'Quầy Giao Dịch VietBank', x: 4480, y: 470, work: 'npc_guard', workDx: 70 },
@@ -351,9 +361,6 @@ export const POIS = [
   { id: 'fashion', kind: 'fashion', name: 'Shop Thời Trang', x: 5200, y: 900 },
   { id: 'junkyard', kind: 'junk', name: 'Vựa Ve Chai', x: 6250, y: 470, work: 'npc_vechai', workDx: 90, workDy: 10 },
 ];
-
-// O quy hoach bay sap (hop phap, mat phi thue). Bay ngoai o -> co the bi phat.
-export const PLOTS = Array.from({ length: 10 }, (_, i) => ({ id: `plot${i}`, x: 1900 + i * 170, y: 860 }));
 
 // He thong nghe (GAMEPLAY_V2 G11, G43). Lam 1 ca = 1 mini-game, khong gioi han gio, ton nang luong + lam doi.
 // pay: luong co ban theo cap 1..5 (nhan theo do chinh xac). target: so diem de dat 100%.

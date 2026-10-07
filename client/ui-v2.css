@@ -298,6 +298,51 @@
 .room-sleep .zzz { font-size: 42px; letter-spacing: 6px; animation: zz 1.6s ease-in-out infinite alternate; }
 @keyframes zz { to { transform: translateY(-10px); opacity: 0.6; } }
 
+/* Cho Sap Hang Hoa (G24, G55–G57) */
+#market { position: fixed; inset: 0; z-index: 44; display: grid; place-items: center; background: rgba(12, 8, 5, 0.6); }
+#market-box { position: relative; width: min(1000px, 96vw); border: 24px solid transparent; border-image: url(assets/ui/panel.png) 48 fill / 24px stretch; color: var(--paper-ink); }
+#market-head { display: flex; align-items: center; gap: 10px; margin: -6px 0 6px; padding-right: 30px; font-size: 13px; flex-wrap: wrap; }
+#market-head b { color: var(--paper-accent); font-size: 16px; }
+#market-tabs { display: flex; gap: 4px; flex: 1; }
+#market-tabs .on { filter: hue-rotate(80deg); }
+#market-info { font-weight: 700; }
+#market-hint { margin-top: 6px; font-size: 12px; color: var(--paper-muted); }
+#market-stage { position: relative; user-select: none; }
+#market-stage.hall { width: 100%; aspect-ratio: 1024 / 572; overflow: hidden; image-rendering: pixelated; }
+#market-stage.hall > img.bg { position: absolute; inset: 0; width: 100%; height: 100%; }
+#market-stage.buy, #market-stage.mine { max-height: 64vh; overflow-y: auto; }
+.mk-stall { position: absolute; transform: translate(-50%, -100%); cursor: pointer; filter: drop-shadow(0 3px 2px rgba(0, 0, 0, 0.35)); }
+.mk-stall:hover { filter: drop-shadow(0 0 5px #ffd34d); }
+.mk-tag { position: absolute; transform: translate(-50%, 4px); white-space: nowrap; padding: 1px 6px; border-radius: 3px; font-size: 11px; font-weight: 800; background: rgba(30, 20, 12, 0.8); color: #fff3d6; cursor: pointer; }
+.mk-tag.me { background: rgba(122, 40, 20, 0.9); color: #ffe680; }
+.mk-pop { position: absolute; left: 8%; right: 8%; top: 8%; bottom: 8%; z-index: 2000; display: flex; flex-direction: column; padding: 8px; background: rgba(255, 250, 235, 0.97); border: 2px solid #6b4524; border-radius: 6px; }
+.mk-pophead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; color: var(--paper-accent); }
+.mk-pop .mk-grid { overflow-y: auto; }
+.mk-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+.mk-card { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 8px 14px; min-height: 150px; font-size: 12px; text-align: center;
+  background: url(assets/v2/ui/market_card.png) center / 100% 100% no-repeat; image-rendering: pixelated; }
+.mk-card .icon, .mk-card .emo { width: 40px; height: 40px; object-fit: contain; }
+.mk-price { display: flex; align-items: center; gap: 4px; font-size: 14px; font-weight: 800; color: #7a2e14; }
+.mk-price img { height: 22px; transform: rotate(-15deg); image-rendering: pixelated; }
+.mk-card .buy { display: flex; gap: 4px; margin-top: 2px; }
+.mk-card .buy input { width: 44px; }
+.mk-stamp { position: absolute; left: 50%; top: 30%; width: 60%; transform: translate(-50%, -50%) rotate(-12deg); animation: stamp 0.35s ease-out; pointer-events: none; }
+@keyframes stamp { from { transform: translate(-50%, -50%) rotate(-12deg) scale(2.2); opacity: 0; } }
+.mk-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.mk-search { width: 276px; height: 40px; padding: 0 10px 0 46px; display: flex; align-items: center; background: url(assets/v2/ui/market_search.png) center / 100% 100% no-repeat; }
+.mk-search input { width: 100%; border: 0; background: transparent; font: inherit; font-weight: 700; outline: none; }
+#market-stage.mine { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.mk-col h4 { margin: 6px 0 4px; color: var(--paper-accent); font-size: 13px; }
+.mk-sizes { display: flex; gap: 6px; }
+.mk-size { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px; background: rgba(255, 250, 235, 0.75); border: 2px solid var(--paper-line); border-radius: 4px; font-size: 12px; text-align: center; }
+.mk-size.on { border-color: #4f9e47; }
+.mk-size img { height: 54px; object-fit: contain; image-rendering: pixelated; }
+.mk-row { display: flex; align-items: center; gap: 5px; padding: 3px 0; border-bottom: 1px dashed var(--paper-line); font-size: 12px; }
+.mk-row .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mk-row input { width: 74px; }
+.mk-row input[title="Số lượng"] { width: 44px; }
+.mk-row .icon, .mk-row .emo { width: 28px; height: 28px; object-fit: contain; }
+
 /* Trung Tam Mua Sam (G25–G28) + Gacha (G60–G64) */
 #mall { position: fixed; inset: 0; z-index: 44; display: grid; place-items: center; background: rgba(12, 8, 5, 0.6); }
 #mall-box { position: relative; width: min(1000px, 96vw); border: 24px solid transparent; border-image: url(assets/ui/panel.png) 48 fill / 24px stretch; color: var(--paper-ink); }

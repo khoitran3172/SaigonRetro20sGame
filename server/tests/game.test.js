@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-import { ECON, PLOTS, walkerPos } from '../../shared/config.js';
+import { ECON, MARKET, walkerPos } from '../../shared/config.js';
 import { JsonDB } from '../db.js';
 import { needleAt as cookNeedle } from '../cook.js';
 import { Game } from '../game.js';
@@ -42,39 +42,56 @@ test('ATM: phi giao dich va khong cho rut qua so du', () => {
   assert.equal(a.p.bank, 150000);
 });
 
-test('Sap hang P2P: che bien, bay ban, mua; tien bao toan tru thue', () => {
-  const { g, join, msg } = setup();
+test('Cho Sap Hang Hoa: thue sap, che bien, bay ban trong khung gia, mua ca khi chu offline, het han tra hang', () => {
+  const { g, join, msg, toasts } = setup();
   const seller = join('Ba Bay', 'tt', 'baba_female');
   const buyer = join('Khach', 'vp', 'vp_male');
-  const plot = PLOTS[0];
-  Object.assign(seller, { x: plot.x, y: plot.y + 20 });
-  Object.assign(buyer, { x: plot.x, y: plot.y + 60 });
-  msg(seller, { t: 'stall_open' });
-  const st = g.stalls.get('Ba Bay');
-  assert.ok(st?.plot, 'mo sap tai o quy hoach');
-  msg(seller, { t: 'act', poi: 'stall:Ba Bay', act: 'cook', args: { id: 'banhmi' } });
+  Object.assign(seller, { x: 3290, y: 490 });
+  Object.assign(buyer, { x: 3290, y: 490 });
+  // phai thue sap truoc
+  msg(seller, { t: 'market', a: 'craft', id: 'banhmi' });
+  assert.match(toasts(seller).at(-1), /chưa thuê sạp/);
+  const bank = seller.p.bank;
+  msg(seller, { t: 'market', a: 'rent', size: 0 });
+  const st = g.market.stalls['Ba Bay'];
+  assert.ok(st && st.until === g.day + MARKET.days);
+  assert.equal(seller.p.bank, bank - MARKET.sizes[0].rent);
+  // che bien o sap (tieu thuong co san nguyen lieu)
+  msg(seller, { t: 'market', a: 'craft', id: 'banhmi' });
   assert.equal(g.econ.count(seller.p, 'banhmi'), 4);
   const stack = seller.p.inv.find((i) => i.id === 'banhmi');
-  msg(seller, { t: 'stall_list', uid: stack.uid, qty: 3, price: 20000 });
+  // gia ngoai khung (G57) -> tu choi
+  msg(seller, { t: 'market', a: 'list', uid: stack.uid, qty: 3, price: 1000000 });
+  assert.match(toasts(seller).at(-1), /phải từ/);
+  msg(seller, { t: 'market', a: 'list', uid: stack.uid, qty: 3, price: 20000 });
   assert.equal(st.listings[0].stack.qty, 3);
   assert.equal(g.econ.count(seller.p, 'banhmi'), 1);
 
-  const total = money(seller.p, buyer.p);
-  msg(buyer, { t: 'act', poi: 'stall:Ba Bay', act: 'buy', args: { lid: st.listings[0].lid }, inputs: { qty: 2 } });
+  // chu sap offline van ban duoc, tien (tru thue) vao ngan hang
+  g.disconnect(seller);
+  const p = seller.p;
+  const before = p.bank;
+  const cash = buyer.p.cash;
+  msg(buyer, { t: 'market', a: 'buy', owner: 'Ba Bay', lid: st.listings[0].lid, qty: 2 });
   assert.equal(g.econ.count(buyer.p, 'banhmi'), 2);
-  assert.equal(st.listings[0].stack.qty, 1);
-  const tax = Math.round(40000 * ECON.stallTax);
-  assert.equal(money(seller.p, buyer.p), total - tax);
-
-  // mua qua so luong -> bi tu choi, khong mat gi
-  const snapshot = money(seller.p, buyer.p);
-  msg(buyer, { t: 'act', poi: 'stall:Ba Bay', act: 'buy', args: { lid: st.listings[0].lid }, inputs: { qty: 5 } });
-  assert.equal(money(seller.p, buyer.p), snapshot);
-
-  // dong sap: hang con lai tra ve tui
-  msg(seller, { t: 'act', poi: 'stall:Ba Bay', act: 'close' });
-  assert.equal(g.stalls.size, 0);
-  assert.equal(g.econ.count(seller.p, 'banhmi'), 2);
+  assert.equal(buyer.p.cash, cash - 40000);
+  assert.equal(p.bank, before + 40000 - Math.round(40000 * MARKET.tax));
+  assert.ok(p.mail.some((m) => /mua Bánh mì/.test(m.text)), 'bao cho chu sap khi offline');
+  // mua qua so luong -> khong mat gi
+  const snap = buyer.p.cash;
+  msg(buyer, { t: 'market', a: 'buy', owner: 'Ba Bay', lid: st.listings[0].lid, qty: 5 });
+  assert.equal(buyer.p.cash, snap);
+  // gia trung binh gan day
+  assert.deepEqual(g.market.data.prices.banhmi, [20000]);
+  // het han thue: hang con lai ve tui
+  g.day += MARKET.days + 1;
+  g.market.onNewDay();
+  assert.ok(!g.market.stalls['Ba Bay']);
+  assert.equal(g.econ.count(p, 'banhmi'), 2);
+  // ngoai cho khong thao tac duoc
+  Object.assign(buyer, { x: 600, y: 490 });
+  msg(buyer, { t: 'market', a: 'rent', size: 0 });
+  assert.match(toasts(buyer).at(-1), /Chợ Sạp Hàng Hóa/);
 });
 
 test('Chong dich chuyen tuc thoi', () => {
@@ -121,22 +138,6 @@ test('Dau gia: ky quy va hoan tien khi bi tra gia cao hon', () => {
   g.auction.tick();
   assert.ok(b.p.inv.some((i) => i.id === 'meo_quy'));
   assert.equal(g.auction.lot, null);
-});
-
-test('Canh sat phat sap lan chiem', () => {
-  const { g, join, msg } = setup();
-  const a = join('Lan Chiem', 'tt', 'baba_female');
-  Object.assign(a, { x: 1500, y: 1000 });
-  msg(a, { t: 'stall_open' });
-  const st = g.stalls.get('Lan Chiem');
-  assert.equal(st.plot, null);
-  const before = money(a.p);
-  const cop = g.npcs.of('police')[0];
-  cop.onDuty = true;
-  Object.assign(cop, { x: st.x + 50, y: st.y, tx: st.x + 50, ty: st.y });
-  g.npcs.update(0.1);
-  assert.equal(g.stalls.size, 0);
-  assert.equal(money(a.p), before - ECON.fineIllegalStall);
 });
 
 test('Nghe: mini-game do server cham, khong khai diem duoc; nhiem vu ngay tra thuong', async () => {

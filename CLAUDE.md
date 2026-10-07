@@ -48,17 +48,17 @@ npm run assets     # build lại asset (cần Python 3 + pillow numpy scipy)
 | Đường dẫn | Vai trò |
 |---|---|
 | `shared/config.js` | **Nguồn sự thật**: bản đồ (rộng 6800), 4 khu, ITEMS, BUILDINGS (kèm ô biển hiệu `sign.box`), POIS (NPC `work`, `prop`), kinh tế |
-| `server/game.js` | Phiên chơi, di chuyển (server chặn tốc độ), chat, sạp P2P, AOI, thời gian, lương, xổ số |
+| `server/game.js` | Phiên chơi, di chuyển (server chặn tốc độ), chat, AOI, thời gian, lương, xổ số |
 | `server/economy.js` | Giao dịch nguyên tử + sổ cái |
 | `server/dialogs.js` | Hội thoại mọi POI (server dựng UI, client chỉ hiển thị) |
-| `server/npcs.js` / `auction.js` | NPC động / đấu giá |
+| `server/npcs.js` / `auction.js` | NPC động (Cảnh sát, Ăn trộm, ve chai) / đấu giá |
 | `server/jobs.js` | Nghề + mini-game: server sinh đề, client chơi, server chấm (`scoreJob`), cấp nghề. Gia sư / thi chứng chỉ / tờ rơi / shipper chấm từng bước trên server (`live`) |
-| `server/home.js` / `cook.js` / `mall.js` | Phòng trọ (nội thất, ngủ, TV, tiền điện) / Nấu ăn (canh lửa, 1–3 sao) / TTTM 5 quầy + Gacha |
+| `server/home.js` / `cook.js` / `mall.js` / `market.js` | Phòng trọ (nội thất, ngủ, TV, tiền điện) / Nấu ăn (canh lửa, 1–3 sao) / TTTM 5 quầy + Gacha / Chợ Sạp Hàng Hóa (sạp thuê tuần, bán khi offline) |
 | `server/db.js` / `pgdb.js` | Lưu JSON / PostgreSQL |
 | `client/src/world.js` | Scene Phaser: map, nhân vật, xe, NPC, giao thông, ngày/đêm |
 | `client/src/ui.js` | HUD, chat, hội thoại, túi đồ lưới, búp bê giấy, điện thoại, thanh nhanh (icon từ `assets/icons/`, khung từ `assets/ui/`) |
 | `client/src/jobs.js` | Màn mini-game J1 IT / J2 Phục vụ / J3 Trà sữa / J8 Gia sư + thi chứng chỉ; HUD nghề trên phố (tờ rơi, shipper) |
-| `client/src/home.js` / `cook.js` / `mall.js` | Màn phòng (kéo thả nội thất) / bếp / TTTM. Ảnh lấy thẳng từ `client/assets/v2/` |
+| `client/src/home.js` / `cook.js` / `mall.js` / `market.js` | Màn phòng (kéo thả nội thất) / bếp / TTTM / Chợ. Ảnh lấy thẳng từ `client/assets/v2/` |
 | `client/ui-v2.css` | Giao diện UI kit V2 (khung giấy-gỗ `border-image` 9 phần, nút, ô độ hiếm) |
 
 ## 6. Quy trình asset (việc lặp lại nhiều nhất)
@@ -87,7 +87,9 @@ Người dùng bỏ ảnh vào **`asset_new_by_Khoit/`** (chữ K hoa trên đĩ
 > Nguyên tắc người dùng chốt (2026-10-07): **làm phần nào có art; phần chưa có art thì tạm ẩn; nhân vật giữ art & UI cũ, chưa sửa** (chưa làm G1 chỉ-Sinh-viên-nam, chưa đổi animation).
 > Đã chốt: G6–G9, G32 (bỏ xe máy — CHƯA gỡ khỏi code), G53, G54. Hướng chính: một SV làm nhiều nghề, nấu ăn, ngủ, trang trí phòng, Chợ Sạp Hàng Hóa, chỉ xe buýt + taxi.
 
-**Phiên gần nhất (2026-10-07, lần 3):** người dùng chốt thứ tự *nghề → nhà → nấu ăn → TTTM*, G1/G2 chưa đụng, gỡ sạp vỉa hè khi Chợ xong, Gacha theo G64; TTTM chỉ 2 ảnh nhân viên → dùng chung 5 quầy; đồ thiếu art để "chưa mở bán". Đã code: J5 tờ rơi, J6 shipper, J8 gia sư + thi chứng chỉ ở Giảng đường; phòng trọ (sắp xếp nội thất, ngủ, TV, tiền điện); nấu ăn 12 món; TTTM (Khu 2 x=5800) 5 quầy + Gacha. 12 test pass. Đã dọn bản đồ: bỏ trạm buýt/taxi, người lái xe máy, bàn + cô bán cà phê, bàn trà đá, chủ quán net, cô Ba tạp hóa. **Việc kế tiếp:** Chợ Sạp Hàng Hóa (G24, G55–G57) rồi gỡ sạp vỉa hè (G53); tuyến buýt; chung cư; hóa đơn tuần (G8).
+**Phiên gần nhất (2026-10-07, lần 4):** Chợ Sạp Hàng Hóa (G24, G55–G57) thay CLB Bida (người dùng chọn); Tạp Hóa / Cơm Tấm dời sang phải. Đã gỡ sạp vỉa hè, ô quy hoạch, Cảnh sát phạt, Giang hồ (G53). `server/market.js`, `client/src/market.js`, dữ liệu `db.data.world.market` (pgdb chỉ lưu players + world). 11 test pass. **Việc kế tiếp:** tuyến buýt (G29–G31), chung cư (G20), hóa đơn tuần (G8), ATM / bưu điện UI.
+
+**Phiên trước (2026-10-07, lần 3):** người dùng chốt thứ tự *nghề → nhà → nấu ăn → TTTM*, G1/G2 chưa đụng, gỡ sạp vỉa hè khi Chợ xong, Gacha theo G64; TTTM chỉ 2 ảnh nhân viên → dùng chung 5 quầy; đồ thiếu art để "chưa mở bán". Đã code: J5 tờ rơi, J6 shipper, J8 gia sư + thi chứng chỉ ở Giảng đường; phòng trọ (sắp xếp nội thất, ngủ, TV, tiền điện); nấu ăn 12 món; TTTM (Khu 2 x=5800) 5 quầy + Gacha. 12 test pass. Đã dọn bản đồ: bỏ trạm buýt/taxi, người lái xe máy, bàn + cô bán cà phê, bàn trà đá, chủ quán net, cô Ba tạp hóa. **Việc kế tiếp:** Chợ Sạp Hàng Hóa (G24, G55–G57) rồi gỡ sạp vỉa hè (G53); tuyến buýt; chung cư; hóa đơn tuần (G8).
 
 **Phiên trước (2026-10-07, lần 2):** người dùng tải 68 ảnh lên GitHub (`977ec5b`) → `tools/v2_manifest.py` cắt hết. Vào game: vựa ve chai, 7 nhà ống (lấp khe, đặt lùi sau công trình), xe buýt mới, 4 trạm buýt + 2 điểm taxi (trang trí), chân dung 6 NPC trong hộp thoại. Cắt sẵn chờ code: nội thất, phòng, TTTM, gacha, chợ, nấu ăn, nghề J5/J6/J8, UI trường/ATM/bưu điện (`client/assets/v2/`), 60 icon vật phẩm. Còn 51 ảnh V2 trong ASSET_TODO. 
 

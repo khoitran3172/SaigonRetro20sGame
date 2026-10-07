@@ -19,7 +19,7 @@
   <div id="login">
     <div class="login-card">
       <h1>HÀNG RONG <span>Phố Thị Online</span></h1>
-      <p class="sub">Mô phỏng đời sống đô thị Việt Nam · Bày sạp, đi làm, đi học, tán gẫu cùng cả thành phố</p>
+      <p class="sub">Mô phỏng đời sống đô thị Việt Nam · Đi làm, nấu ăn, trang trí phòng, mua bán ở chợ cùng cả thành phố</p>
       <div id="resume" class="hidden">
         <button id="btn-resume" class="primary"></button>
         <button id="btn-new" class="link">Tạo nhân vật mới</button>
@@ -87,7 +87,7 @@
       <button data-act="equip" title="Trang bị (C)"><img src="assets/ui/tab_equip.png" alt=""><span>Trang bị</span></button>
       <button data-act="phone" title="Điện thoại (P)"><img src="assets/icons/ui_phone.png" alt=""><span>Điện thoại</span></button>
       <button data-act="quests" title="Nhiệm vụ hôm nay (Q)"><img src="assets/ui/hud_quest.png" alt=""><span>Nhiệm vụ</span><b id="q-badge" class="badge hidden"></b></button>
-      <button data-act="stall" title="Mở/xem sạp (B)">🧺<span>Sạp</span></button>
+      <button data-act="stall" title="Xem Chợ Sạp Hàng Hóa (B)">🧺<span>Chợ</span></button>
       <button data-act="emote" title="Biểu cảm">😀<span>Biểu cảm</span></button>
       <button data-act="help" title="Hướng dẫn (H)">❓<span>Hướng dẫn</span></button>
     </div>
@@ -155,6 +155,20 @@
       </div>
     </div>
 
+    <!-- Cho Sap Hang Hoa: trong cho / mua / sap cua toi -->
+    <div id="market" class="hidden">
+      <div id="market-box">
+        <div id="market-head">
+          <b id="market-title"></b>
+          <span id="market-tabs"><button class="btn small" data-tab="hall">🏛️ Trong chợ</button><button class="btn small" data-tab="buy">🛒 Mua</button><button class="btn small" data-tab="mine">🧺 Sạp của tôi</button></span>
+          <span id="market-info"></span>
+          <button class="x" id="market-x" aria-label="Ra về"></button>
+        </div>
+        <div id="market-stage"></div>
+        <div id="market-hint"></div>
+      </div>
+    </div>
+
     <!-- Trung Tam Mua Sam: sanh 5 quay + Gacha -->
     <div id="mall" class="hidden">
       <div id="mall-box">
@@ -199,14 +213,14 @@
         <p><b>Di chuyển:</b> WASD / phím mũi tên, hoặc click xuống đất. <b>E</b>: tương tác điểm gần nhất. Click NPC / cửa hàng / sạp để đi tới và mở.</p>
         <p><b>Sinh viên:</b> điểm danh ở Giảng đường (07–11h), phụ bán bánh mì, cày net, nhặt ve chai. Đủ điểm danh → Thực tập sinh → nộp CV vào TechCorp.</p>
         <p><b>Nhân viên VP:</b> chấm công TechCorp 07:30–09:00, làm việc tăng KPI, lương về tài khoản 17:00. Gửi tiết kiệm lấy lãi.</p>
-        <p><b>Tiểu thương:</b> nhập nguyên liệu ở Tạp hóa, mở sạp (B) ở ô quy hoạch (khung vàng), chế biến bánh mì / trà đá / nước mía rồi bày bán. Khách NPC và người chơi sẽ ghé mua.</p>
-        <p><b>Rủi ro:</b> giữ nhiều tiền mặt dễ bị Ăn trộm (click tên trộm để đuổi). Giang hồ đòi bảo kê sạp — trả tiền, gọi Cảnh sát hoặc kêu gọi người chơi khác. Bày sạp ngoài ô quy hoạch có thể bị Cảnh sát phạt.</p>
+        <p><b>Chợ Sạp Hàng Hóa</b> (Khu 1): thuê sạp theo tuần, bày đồ từ túi và tự đặt giá — sạp vẫn bán khi bạn offline, tiền vào tài khoản. Tiểu thương chế biến bánh mì / trà đá / nước mía ngay tại sạp. Phím B: xem chợ từ xa.</p>
+        <p><b>Rủi ro:</b> giữ nhiều tiền mặt dễ bị Ăn trộm (click tên trộm để đuổi). Gửi tiền vào ATM cho an toàn.</p>
         <p><b>Nhu cầu:</b> 🍚 No bụng giảm dần — ăn ở Quán Cơm Tấm, bánh mì, tạp hóa. ⚡ Năng lượng tốn khi đi bộ, đi làm. 😊 Tinh thần giảm khi làm việc — trà sữa, cà phê, nghỉ ngơi giúp vui hơn.</p>
         <p><b>Việc làm:</b> làm bất kỳ lúc nào — Phục vụ ở Quán Cơm Tấm, Pha trà sữa ở Tiệm Trà Sữa, IT ở phòng trọ (cần thuê phòng). Mỗi ca là một mini-game, làm càng chuẩn lương càng cao, lên cấp nghề tăng lương.</p>
         <p><b>Nhiệm vụ (Q):</b> mỗi ngày 3 nhiệm vụ, xong cả 3 nhận thêm 💎.</p>
         <p><b>Điện thoại (P):</b> app Việc Làm, Ngân hàng, Bản đồ (bấm địa điểm để đi tới), Chợ online, Nhiệm vụ, Bạn bè. Chat Thế giới tốn cước 4G.</p>
         <p><b>Túi đồ (I):</b> bấm ô để chọn, bấm đúp để dùng/mặc. Phím 1–5 dùng nhanh món trên thanh dưới màn hình.</p>
-        <p><b>Thời tiết:</b> mưa làm xe chậm 50% & sạp không dù che bị ế; nắng gắt hao thể lực, nước mía bán chạy.</p>
+        <p><b>Thời tiết:</b> mưa làm xe chậm 50%; nắng gắt hao thể lực, ngủ không quạt khó hồi sức, nước mía mát lạnh hơn.</p>
       </div>
     </div>
   </div>

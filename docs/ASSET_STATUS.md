@@ -69,7 +69,11 @@ Tự tách blob theo nền magenta (chữ, số thứ tự, người mẫu tham 
 | `v2/ui/mall_*` (5 banner) | Đầu trang mỗi quầy TTTM |
 | `v2/props/gacha_machine`, `v2/ui/gacha_open_1..6`, `reveal_*` | Máy Gacha + hoạt ảnh mở viên nang |
 
-Chưa dùng: `room_apartment`, `room_market`, `b_apartment`, `b_market`, `mstall_*`, `veh_bus_open`, `banner_school`, `atm`, `bus_map`, `contract`, `bill`, `post_*`, `market_*`, `recipe_book`, `star_half`, `cooking_stove` (bản 1).
+| `v2/bld/b_market`, `v2/rooms/room_market`, `v2/props/mstall_1..3`, `v2/ui/market_card/tag/stamp/search` | Chợ Sạp Hàng Hóa (thay CLB Bida, Khu 1 x=3290, phóng 1,15) — lần 4 |
+
+Chưa dùng: `room_apartment`, `b_apartment`, `veh_bus_open`, `banner_school`, `atm`, `bus_map`, `contract`, `bill`, `post_*`, `recipe_book`, `star_half`, `cooking_stove` (bản 1).
+
+Thôi dùng (2026-10-07): `b_bida` (CLB Bida thay bằng Chợ), `stall_lv1..3` + ô quy hoạch (sạp vỉa hè đã bỏ — G53), `npc_thanhnien` làm Giang hồ.
 
 **Đã cắt sẵn (bảng gốc lúc nhập — phần đã vào game xem mục "lần 3" ở trên)** — `client/assets/v2/` (danh sách + kích thước: `v2/v2.json`, không nạp lúc vào game)
 

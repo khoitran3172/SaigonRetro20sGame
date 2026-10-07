@@ -1,23 +1,22 @@
 import crypto from 'node:crypto';
 import {
-  CHAT, CLASSES, ECON, FORMAT, ITEMS, JOBS, PLOTS, POIS, QUEST_BONUS, QUESTS, RECIPES, SKINS, SLOTS, SPEED, TIME, WORLD, zoneAt,
+  CHAT, CLASSES, ECON, FORMAT, ITEMS, JOBS, POIS, QUEST_BONUS, QUESTS, SKINS, SLOTS, SPEED, TIME, WORLD, zoneAt,
 } from '../shared/config.js';
 import { Auction } from './auction.js';
 import { DIALOGS, addStat } from './dialogs.js';
-import { EconError, Economy, newUid } from './economy.js';
+import { EconError, Economy } from './economy.js';
 import { Cook } from './cook.js';
 import { Home } from './home.js';
 import { Mall } from './mall.js';
+import { Market } from './market.js';
 import { Jobs, jobInfo } from './jobs.js';
 import { NpcSystem } from './npcs.js';
 
 const AOI_CELL = 640;
 const POI_RANGE = 170;
-const STALL_RANGE = 180;
 const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const cleanText = (t, max) => String(t ?? '').replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, max);
-const isRoad = (y) => y > WORLD.road[0] && y < WORLD.road[1];
 
 const STARTER = {
   sv: { items: ['ao_thun', 'quan_jean', 'dep_lao', 'dien_thoai'], stack: {} },
@@ -36,7 +35,6 @@ export class Game {
     w.news ??= [];
     this.newsLog = w.news;
     this.sessions = new Map();
-    this.stalls = new Map();
     this.seq = 1;
     this.tickN = 0;
     this.tokenIndex = new Map(Object.values(db.data.players).map((p) => [p.token, p]));
@@ -46,6 +44,7 @@ export class Game {
     this.home = new Home(this);
     this.cook = new Cook(this);
     this.mall = new Mall(this);
+    this.market = new Market(this);
   }
 
   get minute() { return this.db.data.world.minute; }
@@ -111,8 +110,6 @@ export class Game {
 
   disconnect(s) {
     if (!s.p) return;
-    const st = this.stalls.get(s.p.name);
-    if (st) this.closeStall(st, null);
     s.p.x = s.x;
     s.p.y = s.y;
     this.sessions.delete(s.id);
@@ -146,8 +143,6 @@ export class Game {
         case 'equip': return this.equip(s, m.uid);
         case 'unequip': return this.unequip(s, m.slot);
         case 'drop': return this.drop(s, m.uid);
-        case 'stall_open': return this.openStall(s);
-        case 'stall_list': return this.listOnStall(s, m);
         case 'emote': return this.chatNear(s, cleanText(m.e, 8), true);
         case 'job_start': return this.jobs.start(s, String(m.job || ''));
         case 'job_end': return this.jobs.end(s, m);
@@ -156,6 +151,7 @@ export class Game {
         case 'home': return this.home.handle(s, m);
         case 'cook': return this.cook.handle(s, m);
         case 'mall': return this.mall.handle(s, m);
+        case 'market': return this.market.handle(s, m);
         default: return undefined;
       }
     } catch (e) {
@@ -316,7 +312,6 @@ export class Game {
 
   selfState(s) {
     const p = s.p;
-    const st = this.stalls.get(p.name);
     const c = CLASSES[p.cls];
     return {
       name: p.name, cls: p.cls, clsName: c.name, rank: p.rank, rankName: c.ranks[p.rank], skin: p.skin,
@@ -328,7 +323,6 @@ export class Game {
       daily: p.daily, mail: p.mail.length,
       jobs: Object.fromEntries(Object.keys(JOBS).map((id) => [id, jobInfo(p, id)])),
       certs: p.certs || {}, cookbook: !!p.cookbook,
-      stall: st ? { x: st.x, y: st.y, legal: !!st.plot, listings: st.listings.map((l) => ({ lid: l.lid, id: l.stack.id, qty: l.stack.qty, price: l.price, lvl: l.stack.lvl })) } : null,
     };
   }
 
@@ -410,7 +404,6 @@ export class Game {
 
   openPoi(s, id) {
     s.lastInput = Date.now();
-    if (id.startsWith('stall:')) return this.openStallDialog(s, id.slice(6));
     if (id.startsWith('scrap:')) return this.npcs.pickScrap(s, id.slice(6));
     if (id.startsWith('thief:')) return this.npcs.chase(s, id.slice(6));
     if (id === 'phone') {
@@ -422,6 +415,7 @@ export class Game {
     if (!poi) return;
     if (dist(poi, s) > POI_RANGE) throw new EconError(`Hãy lại gần ${poi.name} hơn`);
     if (poi.kind === 'mall') return this.mall.handle(s, { a: 'enter' });
+    if (poi.kind === 'market') return this.market.handle(s, { a: 'enter' });
     const dlg = DIALOGS[poi.kind].open(this, s, poi);
     this.pushDialog(s, { poi: id, ...dlg });
   }
@@ -432,8 +426,6 @@ export class Game {
     const args = m.args && typeof m.args === 'object' ? m.args : {};
     const inputs = m.inputs && typeof m.inputs === 'object' ? m.inputs : {};
     s.lastInput = Date.now();
-    if (poiId === 'gang') return this.npcs.gangAction(s, act);
-    if (poiId.startsWith('stall:')) return this.stallAct(s, poiId.slice(6), act, args, inputs);
 
     let kind;
     if (poiId === 'phone') {
@@ -529,7 +521,6 @@ export class Game {
     const p = s.p;
     const st = this.econ.findStack(p, uid);
     if (!st || ITEMS[st.id].type !== 'equip') return;
-    if (this.stalls.get(p.name)?.listings.some((l) => l.stack.uid === uid)) return;
     p.equip[ITEMS[st.id].slot] = uid;
     s.stats = this.computeStats(p);
     this.db.markDirty();
@@ -544,7 +535,7 @@ export class Game {
 
   // Gom & xep tui theo loai (INVENTORY_V2 I3). Server sap xep -> client chi hien thi.
   sortInv(s) {
-    const order = { food: 0, ingredient: 1, equip: 2, material: 3, collectible: 4, data: 5, stall: 6 };
+    const order = { food: 0, ingredient: 1, equip: 2, furn: 3, tool: 4, book: 5, material: 6, collectible: 7, data: 8 };
     const key = (it) => [order[ITEMS[it.id].type] ?? 9, ITEMS[it.id].slot || '', ITEMS[it.id].name];
     s.p.inv.sort((a, b) => {
       const ka = key(a);
@@ -590,194 +581,6 @@ export class Game {
     return `Thất bại... ${name} giảm còn +${it.lvl} (đồ không bị vỡ).`;
   }
 
-  // ================================================================ sap hang (P2P)
-  openStall(s) {
-    const p = s.p;
-    if (this.stalls.has(p.name)) throw new EconError('Bạn đã có sạp đang mở');
-    if (isRoad(s.y)) throw new EconError('Không thể bày sạp giữa lòng đường!');
-    const taken = new Set([...this.stalls.values()].map((st) => st.plot));
-    const plot = PLOTS.find((pl) => dist(pl, s) < 70 && !taken.has(pl.id));
-    const pos = plot ? { x: plot.x, y: plot.y } : { x: Math.round(s.x), y: Math.round(s.y) };
-    for (const st of this.stalls.values()) {
-      if (dist(st, pos) < 90) throw new EconError('Quá sát sạp khác');
-    }
-    for (const poi of POIS) {
-      if (dist(poi, pos) < 90) throw new EconError('Không bày sạp chắn lối vào cửa hàng');
-    }
-    if (plot) this.econ.pay(p, ECON.plotRent, 'cash', 'plot_rent');
-    const st = {
-      owner: p.name, ...pos, plot: plot?.id || null, listings: [], seq: 1, finedDay: null,
-      umbrella: this.econ.count(p, 'du_che') > 0, sales: 0, revenue: 0,
-    };
-    this.stalls.set(p.name, st);
-    this.toast(s, plot
-      ? `Đã thuê ô quy hoạch (${this.vnd(ECON.plotRent)}). Hợp pháp, không sợ Cảnh sát!`
-      : '⚠️ Bạn bày sạp ngoài ô quy hoạch (lấn chiếm lòng lề đường). Cẩn thận Cảnh sát phạt!', plot ? 'good' : 'warn');
-    if (st.umbrella) this.toast(s, '⛱️ Đã bung dù che sạp — mưa cũng không sợ ế.');
-  }
-
-  closeStall(st, reason) {
-    const owner = this.sessionByName(st.owner);
-    const p = owner?.p || this.db.data.players[st.owner.toLowerCase()];
-    for (const l of st.listings) this.econ.putStack(p, l.stack);
-    this.stalls.delete(st.owner);
-    this.db.markDirty();
-    if (owner) {
-      owner.dirty = true;
-      if (reason) this.toast(owner, reason, 'bad');
-      this.toast(owner, `Dọn sạp. Hôm nay bán ${st.sales} món, thu ${this.vnd(st.revenue)}.`);
-    }
-  }
-
-  fineStall(st) {
-    const owner = this.sessionByName(st.owner);
-    const p = owner?.p || this.db.data.players[st.owner.toLowerCase()];
-    st.finedDay = this.day;
-    const fromCash = Math.min(p.cash, ECON.fineIllegalStall);
-    const fromBank = Math.min(p.bank, ECON.fineIllegalStall - fromCash);
-    p.cash -= fromCash;
-    p.bank -= fromBank;
-    this.econ.log('sink', p, { wallet: 'mixed', amount: fromCash + fromBank, reason: 'police_fine' });
-    this.closeStall(st, `🚓 Cảnh sát phạt ${this.vnd(fromCash + fromBank)} vì lấn chiếm lòng lề đường và dẹp sạp!`);
-    this.news(`Cảnh sát vừa xử phạt một sạp lấn chiếm vỉa hè tại ${zoneAt(st.x).name}.`);
-  }
-
-  listOnStall(s, m) {
-    const st = this.stalls.get(s.p.name);
-    if (!st) throw new EconError('Hãy mở sạp trước');
-    if (dist(st, s) > 260) throw new EconError('Bạn đang ở quá xa sạp');
-    if (st.listings.length >= 8) throw new EconError('Sạp tối đa 8 món');
-    const price = Math.floor(Number(m.price));
-    if (!(price >= 1000 && price <= 50_000_000)) throw new EconError('Giá từ 1.000đ đến 50.000.000đ');
-    const stack = this.econ.takeStack(s.p, String(m.uid), m.qty);
-    st.listings.push({ lid: st.seq++, stack, price });
-    if (stack.id === 'du_che') st.umbrella = true;
-    s.stats = this.computeStats(s.p);
-    this.db.markDirty();
-    this.toast(s, `Đã bày ${ITEMS[stack.id].name} ×${stack.qty} giá ${this.vnd(price)}/món`, 'good');
-  }
-
-  openStallDialog(s, owner) {
-    const st = this.stalls.get(owner);
-    if (!st) throw new EconError('Sạp đã dọn');
-    if (dist(st, s) > STALL_RANGE) throw new EconError('Lại gần sạp hơn');
-    const mine = owner === s.p.name;
-    const options = [];
-    for (const l of st.listings) {
-      const d = ITEMS[l.stack.id];
-      const label = `${d.icon} ${d.name}${l.stack.lvl ? ` +${l.stack.lvl}` : ''} ×${l.stack.qty} — ${this.vnd(l.price)}/món`;
-      if (mine) options.push({ label: `Thu về: ${label}`, act: 'unlist', args: { lid: l.lid } });
-      else options.push({ label, act: 'buy', args: { lid: l.lid }, inputs: [{ name: 'qty', type: 'number', value: 1, min: 1, max: l.stack.qty, w: 60 }] });
-    }
-    if (mine) {
-      if (s.p.cls === 'tt') {
-        for (const [id, r] of Object.entries(RECIPES)) {
-          const need = Object.entries(r.in).map(([k, n]) => `${ITEMS[k].icon}${n}`).join(' ');
-          options.push({ label: `🍳 ${r.name} (${need})`, act: 'cook', args: { id } });
-        }
-      }
-      options.push({ label: '🧹 Dọn sạp', act: 'close' });
-    }
-    this.pushDialog(s, {
-      poi: `stall:${owner}`,
-      title: `🧺 Sạp của ${owner}${st.plot ? '' : ' ⚠️ (lấn chiếm)'}`,
-      text: mine
-        ? `Mở Túi đồ → "Bày bán" để đưa hàng lên sạp. Khách NPC sẽ ghé mua đồ ăn/uống nếu giá hợp lý (≤160% giá gốc).\nĐã bán: ${st.sales} món · Doanh thu: ${this.vnd(st.revenue)} · Thuế sạp ${ECON.stallTax * 100}%`
-        : (st.listings.length ? 'Trả bằng tiền mặt.' : 'Sạp chưa bày hàng.'),
-      options,
-    });
-  }
-
-  stallAct(s, owner, act, args, inputs) {
-    const st = this.stalls.get(owner);
-    if (!st) throw new EconError('Sạp đã dọn');
-    if (dist(st, s) > STALL_RANGE) throw new EconError('Lại gần sạp hơn');
-    const mine = owner === s.p.name;
-    const p = s.p;
-    if (act === 'buy' && !mine) {
-      const l = st.listings.find((x) => x.lid === Number(args.lid));
-      if (!l) throw new EconError('Món này vừa hết');
-      const qty = Math.floor(Number(inputs.qty) || 1);
-      if (!(qty >= 1 && qty <= l.stack.qty)) throw new EconError('Số lượng không hợp lệ');
-      const seller = this.sessionByName(owner)?.p || this.db.data.players[owner.toLowerCase()];
-      const { net } = this.econ.transfer(p, 'cash', seller, 'cash', l.price * qty, `stall:${l.stack.id}`, ECON.stallTax);
-      if (qty === l.stack.qty) {
-        st.listings.splice(st.listings.indexOf(l), 1);
-        this.econ.putStack(p, l.stack);
-      } else {
-        l.stack.qty -= qty;
-        this.econ.putStack(p, { ...l.stack, uid: newUid(), qty });
-      }
-      st.sales += qty;
-      st.revenue += net;
-      if (seller.cls === 'tt') seller.stats.reputation += 0.5 * qty;
-      this.toast(s, `Đã mua ${ITEMS[l.stack.id].name} ×${qty}`, 'good');
-      const os = this.sessionByName(owner);
-      if (os) {
-        os.dirty = true;
-        this.toast(os, `💰 ${p.name} mua ${ITEMS[l.stack.id].name} ×${qty} (+${this.vnd(net)})`, 'good');
-      }
-      this.fx(st, `+${this.vnd(net)}`);
-    } else if (act === 'unlist' && mine) {
-      const l = st.listings.find((x) => x.lid === Number(args.lid));
-      if (!l) return;
-      st.listings.splice(st.listings.indexOf(l), 1);
-      this.econ.putStack(p, l.stack);
-    } else if (act === 'cook' && mine) {
-      const r = RECIPES[args.id];
-      if (!r) return;
-      if (p.cls !== 'tt') throw new EconError('Chỉ Tiểu thương mới chế biến được');
-      if (p.stats.stamina < r.stamina) throw new EconError('Bạn quá mệt để nấu');
-      this.econ.removeItems(p, r.in);
-      for (const [id, n] of Object.entries(r.out)) this.econ.addItem(p, id, n);
-      p.stats.stamina -= r.stamina;
-      this.toast(s, `Đã chế biến: ${r.name}`, 'good');
-    } else if (act === 'close' && mine) {
-      this.closeStall(st, null);
-      this.closeDialog(s);
-      return;
-    }
-    this.db.markDirty();
-    this.openStallDialog(s, owner);
-  }
-
-  fx(at, text) {
-    for (const o of this.sessions.values()) if (dist(o, at) < 1400) this.send(o, { t: 'fx', x: at.x, y: at.y, text });
-  }
-
-  // Khach NPC ghe sap: nguon tien vao nen kinh te (ban dich vu cho NPC)
-  npcCustomers() {
-    const h = Math.floor(this.minute / 60);
-    for (const st of this.stalls.values()) {
-      if (!st.listings.length) continue;
-      const z = zoneAt(st.x);
-      const zf = { daihoc: 1.2, phoam: 1.5, cbd: 1.0, ngoaio: 0.5 }[z.id];
-      const nightMarket = z.id === 'phoam' && h >= 18 && h < 23 ? 1.6 : 1;
-      const late = h >= 1 && h < 6 ? 0.2 : 1;
-      const rain = this.weather === 'rain' && !st.umbrella ? 0.2 : 1;
-      const owner = this.sessionByName(st.owner);
-      if (!owner) continue;
-      const rep = Math.min(200, owner.p.stats.reputation);
-      const chance = 0.06 * zf * nightMarket * late * rain * (1 + rep / 100) * (st.plot ? 1 : 1.2);
-      if (Math.random() >= chance) continue;
-      const foods = st.listings.filter((l) => ITEMS[l.stack.id].type === 'food' && l.price <= ITEMS[l.stack.id].base * 1.6);
-      if (!foods.length) continue;
-      const weighted = foods.flatMap((l) => (this.weather === 'hot' && ITEMS[l.stack.id].hot ? [l, l, l] : [l]));
-      const l = weighted[Math.floor(Math.random() * weighted.length)];
-      const tax = Math.round(l.price * ECON.stallTax);
-      const net = l.price - tax;
-      owner.p.cash += net;
-      if (--l.stack.qty <= 0) st.listings.splice(st.listings.indexOf(l), 1);
-      if (owner.p.cls === 'tt') owner.p.stats.reputation += 0.5;
-      st.sales++;
-      st.revenue += net;
-      this.econ.log('source', owner.p, { wallet: 'cash', amount: net, tax, reason: 'npc_customer', item: l.stack.id });
-      owner.dirty = true;
-      this.toast(owner, `🧍 Khách vãng lai mua 1 ${ITEMS[l.stack.id].name} (+${this.vnd(net)})`, 'good');
-      this.fx(st, `+${this.vnd(net)}`);
-    }
-  }
-
   // ================================================================ thoi gian
   onMinute() {
     this.minute++;
@@ -812,7 +615,6 @@ export class Game {
       s.dirty = true;
     }
     this.npcs.onMinute();
-    this.npcCustomers();
     this.broadcast({ t: 'time', ...this.worldState() });
   }
 
@@ -825,7 +627,7 @@ export class Game {
         const msg = {
           sunny: '🌤️ Trời quang mây tạnh, thời tiết dễ chịu.',
           hot: '🔥 Nắng gắt 38°C! Thể lực hao nhanh, nước mía trà đá đắt hàng.',
-          rain: '🌧️ Mưa to, đường ngập! Xe máy chậm 50%, sạp không có dù che sẽ ế khách.',
+          rain: '🌧️ Mưa to, đường ngập! Xe chậm 50%, nhớ mang dù.',
         }[next];
         this.news(msg, true);
         for (const s of this.sessions.values()) s.stats = this.computeStats(s.p);
@@ -891,6 +693,7 @@ export class Game {
         if (it && !it.id.startsWith('xe')) it.dur = Math.max(0, it.dur - 3);
       }
     }
+    this.market.onNewDay();
     this.news(`📅 Ngày ${this.day} bắt đầu. Ngân hàng đã trả lãi tiền gửi.`);
   }
 
@@ -905,7 +708,7 @@ export class Game {
     const cells = new Map();
     const put = (x, kind, obj) => {
       const k = Math.floor(x / AOI_CELL);
-      if (!cells.has(k)) cells.set(k, { p: [], n: [], st: [] });
+      if (!cells.has(k)) cells.set(k, { p: [], n: [] });
       cells.get(k)[kind].push(obj);
     };
     for (const s of this.sessions.values()) {
@@ -915,19 +718,15 @@ export class Game {
       });
     }
     for (const n of this.npcs.list.values()) if (this.npcs.visible(n)) put(n.x, 'n', this.npcs.snapshot(n));
-    for (const st of this.stalls.values()) {
-      put(st.x, 'st', { o: st.owner, x: st.x, y: st.y, c: st.listings.length, lg: st.plot ? 1 : 0, u: st.umbrella ? 1 : 0 });
-    }
     const sendSelf = this.tickN % 5 === 0;
     for (const s of this.sessions.values()) {
       const k = Math.floor(s.x / AOI_CELL);
-      const snap = { t: 'snap', p: [], n: [], st: [] };
+      const snap = { t: 'snap', p: [], n: [] };
       for (let c = k - 2; c <= k + 2; c++) {
         const cell = cells.get(c);
         if (!cell) continue;
         snap.p.push(...cell.p);
         snap.n.push(...cell.n);
-        snap.st.push(...cell.st);
       }
       this.send(s, snap);
       if (sendSelf && s.dirty) {

@@ -18,6 +18,7 @@
 | 2026-10-07 | `e7ce286` | Hộp thoại NPC tự đóng khi đi xa · nhật ký phát triển |
 | 2026-10-07 | `83c182b` | README mới có ảnh chụp game, dẫn link sang nhật ký |
 | 2026-10-07 | `977ec5b` · `29706c6` | Nhập 68 ảnh V2 lần 2: nhà ống, vựa ve chai, xe buýt & trạm, chân dung NPC, 60 icon, cắt sẵn nội thất / phòng / UI |
+| 2026-10-07 | _(chưa commit)_ | Chợ Sạp Hàng Hóa thay CLB Bida; gỡ sạp vỉa hè, ô quy hoạch, giang hồ (G53) |
 | 2026-10-07 | `4f83e1f` | Code theo art lần 2: nghề tờ rơi / shipper / gia sư + thi chứng chỉ, phòng trọ & nội thất, ngủ, nấu ăn, TTTM + Gacha |
 
 ---
@@ -140,12 +141,22 @@ Người dùng tải 68 ảnh lên thẳng GitHub (`977ec5b`, thư mục `asset_
 
 **Dọn bản đồ (người dùng yêu cầu, trước khi làm Chợ):** gỡ trạm buýt / điểm taxi, người lái xe máy trong giao thông (còn taxi + xe buýt), bàn bán + cô bán cà phê vỉa hè, bàn trà đá vỉa hè, anh chủ quán net ngồi, cô Ba tạp hóa ngồi bán. Chỗ tương tác (hộp thoại) của các quán vẫn giữ.
 
+## 2026-10-07 · Chợ Sạp Hàng Hóa (G24, G55–G57) + gỡ sạp vỉa hè (G53)
+
+**Người dùng chốt:** đặt Chợ thay CLB Bida (Khu 1). Tạp Hóa dời sang x=3670, Cơm Tấm x=4040, thợ cắt tóc x=3820, chú sửa xe x=4190 để đủ chỗ (tòa chợ phóng 1,15).
+
+**Chợ (`server/market.js`, `client/src/market.js`):** thuê sạp 7 ngày trả bằng thẻ — Bàn xếp 4 ô 35.000đ · Quầy gỗ 8 ô 100.000đ · Tủ kính 12 ô 250.000đ (gia hạn / đổi cỡ). Bày đồ từ túi (đồ rời khỏi túi, server giữ), giá mỗi món trong khoảng 50%–300% giá gốc (đồ không có giá gốc: 10.000đ–20 triệu). **Sạp bán cả khi chủ offline**: tiền (trừ thuế 5%) vào ngân hàng chủ sạp, có thư báo. Hết hạn thuê → hàng chưa bán về túi. Dữ liệu lưu ở `db.data.world.market` (PostgreSQL chỉ ghi players + world nên phải nằm trong world). Màn chợ 3 tab: *Trong chợ* (12 chỗ đặt sạp trên ảnh `room_market`, bấm sạp xem hàng) · *Mua* (tìm, lọc loại, sắp xếp giá, giá trung bình 10 lần bán gần nhất) · *Sạp của tôi* (thuê, sửa giá, thu về, bày thêm, **chế biến** bánh mì / trà đá / nước mía chuyển từ sạp vỉa hè sang). Phím B / app Chợ trên điện thoại: xem chợ từ xa (chỉ xem).
+
+**Gỡ (G53):** bày sạp vỉa hè, ô quy hoạch (khung vàng Ô 1–10), Cảnh sát phạt lấn chiếm, Giang hồ đòi bảo kê (cả NPC), khách NPC mua ở sạp, hộp thoại CLB Bida. Cảnh sát vẫn tuần tra (dọa Ăn trộm). Vật phẩm "Dù che sạp" giữ lại làm đồ sưu tầm để túi đồ cũ không lỗi.
+
+**Kiểm thử:** 11 test pass (bỏ 2 test sạp cũ, thêm test chợ: thuê, chế biến, khung giá, mua khi chủ offline, giá trung bình, hết hạn trả hàng). Chạy thử trong trình duyệt: tòa chợ trên phố, thuê sạp, bày hàng, 3 tab.
+
 ---
 
 ## Việc còn mở
 
 - **Chờ art** (51 ảnh, prompt trong `docs/asset_todo.html`): animation V2 của `sv_male`, Cảnh sát / Ăn trộm / người đi đường, NPC chủ quán cơm tấm & trà sữa, J3 ly/topping, J4 cà phê, 2 chân dung vẽ lại, 4 nội thất, 4 nhân viên TTTM, nhà ống số 5.
-- **Code chờ làm (đã có art):** Chợ Sạp Hàng Hóa (G24, G55–G57; xong thì gỡ sạp vỉa hè G53), tuyến buýt (G29–G30), chung cư (G20), giao diện ATM / bưu điện / hợp đồng + hóa đơn tuần.
+- **Code chờ làm (đã có art):** tuyến buýt (G29–G30, có `veh_bus_open`, `bus_map`; trạm buýt đã gỡ khỏi bản đồ chờ làm lại), chung cư (G20), giao diện ATM / bưu điện / hợp đồng + hóa đơn tuần.
 - **Code chưa làm dù đã chốt:** gỡ xe máy (G32), hóa đơn tuần trọ + học phí (G8), chặn nhặt/mua khi túi đầy (I1).
 - `npm test` cần sửa script thành `node --test server/tests/*.js` cho Node 24.
 - **Chờ duyệt:** các mã G / A / I còn mở trong tài liệu V2 (G1 chỉ Sinh viên nam, G2 ẩn giải trí…).
