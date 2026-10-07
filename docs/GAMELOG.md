@@ -18,7 +18,7 @@
 | 2026-10-07 | `e7ce286` | Hộp thoại NPC tự đóng khi đi xa · nhật ký phát triển |
 | 2026-10-07 | `83c182b` | README mới có ảnh chụp game, dẫn link sang nhật ký |
 | 2026-10-07 | `977ec5b` · `29706c6` | Nhập 68 ảnh V2 lần 2: nhà ống, vựa ve chai, xe buýt & trạm, chân dung NPC, 60 icon, cắt sẵn nội thất / phòng / UI |
-| 2026-10-07 | _(chưa commit)_ | Code theo art lần 2: nghề tờ rơi / shipper / gia sư + thi chứng chỉ, phòng trọ & nội thất, ngủ, nấu ăn, TTTM + Gacha |
+| 2026-10-07 | `4f83e1f` | Code theo art lần 2: nghề tờ rơi / shipper / gia sư + thi chứng chỉ, phòng trọ & nội thất, ngủ, nấu ăn, TTTM + Gacha |
 
 ---
 
@@ -118,7 +118,7 @@ Người dùng tải 68 ảnh lên thẳng GitHub (`977ec5b`, thư mục `asset_
 **Kiểm thử:** 7 test logic pass (`node --test server/tests/*.js`; `npm test` lỗi tham số thư mục trên Node 24 — có từ trước); chạy thử trong trình duyệt: phố có nhà ống, vựa ve chai, trạm buýt, hộp thoại có chân dung.
 
 
-## 2026-10-07 · Code theo art lần 2 — nghề, nhà, nấu ăn, TTTM
+## 2026-10-07 · `4f83e1f` — Code theo art lần 2: nghề, nhà, nấu ăn, TTTM
 
 **Người dùng chốt:** thứ tự *mini-game các nghề → nhà → nấu ăn → TTTM*; G1/G2 giữ nguyên chưa đụng; gỡ bày sạp vỉa hè khi Chợ xong (G53); Gacha theo thiết kế G64. TTTM chỉ có 2 ảnh nhân viên → dùng chung cho cả 5 quầy; đồ thiếu art để "chưa mở bán".
 
