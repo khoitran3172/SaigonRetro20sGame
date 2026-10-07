@@ -77,6 +77,10 @@ client/desktop.css · touch.css   Bố cục PC (`body:not(.touch)`) / cảm ứ
 - Các `@media` px cũ viết cho điện thoại (trong `style.css`, `ui-v2.css`) đã giới hạn bằng `body.touch`.
 - **Cạm bẫy:** handler `onXxx = (e) => a && b()` trả `false` sẽ hủy phím/hành vi mặc định (từng chặn gõ chữ trên iOS) — dùng `addEventListener` hoặc khối `{ if (...) ... }`. Phần tử con `position:absolute` (ô thanh nhanh) cần cha `position:relative` khi đưa vào dock.
 
+## Công cụ xem bố cục (dev)
+
+Mở game với `?layout=1` (ví dụ `http://localhost:3000/?layout=1`) để thấy: lưới 100px (đậm mỗi 500px, có số tọa độ), ranh 4 khu, thước người 86px / cửa 110px (góc dưới trái), khung từng công trình kèm kích thước hiển thị và **"khe N"** tới công trình kế (tô đỏ nếu hở > 30px hoặc chồng nhau), điểm POI (xám nếu `hidden`) kèm vòng 120/160. Phím: `[` `]` cuộn 500px, `-` `=` zoom, `0` về theo nhân vật, `L` bật/tắt. Code: `client/src/layoutview.js`; không có tham số thì không chạy gì. Dùng khi đặt công trình mới hoặc cân tỉ lệ (xem `docs/NIGHT_PLAN.md` C7).
+
 ## Điều khiển
 
 WASD / mũi tên hoặc click đất để đi · click NPC / cửa hàng / sạp để tương tác · **E** tương tác gần nhất · **Enter** chat · **I** túi đồ · **C** trang bị · **P** điện thoại · **B** mở sạp · **H** hướng dẫn.

@@ -1,6 +1,7 @@
 // Scene the gioi: ban do 4 khu, nhan vat, NPC, sap hang, giao thong, ngay/dem, thoi tiet.
 import { BUILDINGS, CHAT, FLYER, POIS, WORLD, ZONES, walkerPos } from '/shared/config.js';
 import { TouchControls } from './touch.js';
+import { initLayoutView } from './layoutview.js';
 import { genBuilding, genGround, genMisc, genTubeHouse } from './textures.js';
 
 const FONT = '"Be Vietnam Pro", system-ui, sans-serif';
@@ -96,6 +97,7 @@ export class WorldScene extends Phaser.Scene {
     this.fitZoom();
     this.scale.on('resize', () => this.fitZoom());
     this.applyWorld(w.world, true);
+    initLayoutView(this);
     const nextTraffic = () => this.time.delayedCall(Phaser.Math.Between(TRAFFIC_DELAY[0], TRAFFIC_DELAY[1]), () => { this.spawnTraffic(); nextTraffic(); });
     nextTraffic();
   }
