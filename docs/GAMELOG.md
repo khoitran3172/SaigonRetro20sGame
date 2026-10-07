@@ -187,6 +187,23 @@ Người dùng tải 68 ảnh lên thẳng GitHub (`977ec5b`, thư mục `asset_
 
 **Sửa thêm (cùng ngày, commit 35144c1):** người chơi iOS không gõ được tên. Nguyên nhân gốc: `in-name.onkeydown = (e) => e.key === 'Enter' && play()` trả `false` với mọi phím khác Enter → trình duyệt hủy phím (chặn nhập chữ, bàn phím ảo iOS bị hủy keydown). Đã đổi sang `addEventListener('keydown')` không trả giá trị; quét cùng kiểu ở `gm.js`. Bài học: không gán handler `onXxx` trả về biểu thức `a && b()`.
 
+## 2026-10-08 (đêm) · Dọn thị trấn liền mạch + túi đầy + review responsive · commit af449e7, ba3e80e, 5f8ebcb, b6efb2e
+
+Làm theo yêu cầu "thị trấn đẹp liền mạch, không rườm rà": Opus (planner) xem game thật cả 4 khu rồi viết **[NIGHT_PLAN.md](NIGHT_PLAN.md)** (brief viết lại, phê bình thị giác, việc chỉnh không cần art, art cần vẽ kèm prompt, kế hoạch mở rộng, câu hỏi).
+
+**Đã làm (code, không vẽ art mới):**
+- **C1** nhãn POI ẩn mặc định, hiện khi đứng trong 220px hoặc rê chuột, tối đa 3 nhãn; bỏ chữ tên khu y≈1180; công trình có biển hiệu chữ chỉ hiện nhãn khi rê chuột. **C2** ẩn Showroom, Shop Thời Trang, ATM1 (giữ `atm2`); tắt neon Net cỏ; đơn shipper lọc POI `hidden` (+test). **C3** bỏ sân bóng, gánh hàng, cụm cờ tướng/ghế/em bé/xe mía, xe máy đậu, phế liệu trên vỉa hè (chỉ còn trong sân x ≥ 6100; ve chai sinh từ 6100). **C10** tin thời tiết vào tab Tin tức + toast (không LED), bỏ câu chữ cơ chế đã bỏ; bỏ nhãn "Cảnh sát", trộm "Kẻ khả nghi".
+- **C6** giao thông thưa: sinh 6–12s, tối đa 3 xe, cùng làn cách ≥300px, buýt 1/6. **C5** một nhịp đồ phố 420px (cột/đèn xen kẽ, cây so le, thùng rác mỗi 3 module, tránh ±70px cửa POI), vạch qua đường mỗi khu 1 vạch (1060, 2315, 4880, 6600). **C8** `CITY_END` 6060 lấp khe TechCorp ↔ Chung cư ↔ TTTM bằng nhà ống có sẵn; skyline 1 lớp dịu, scrollFactor 0.6.
+- **I1** chặn nhặt/mua khi túi đầy (`economy.assertRoom`, trước khi trừ tiền/nguyên liệu; thư, chợ, đấu giá, trả đồ phòng vẫn luôn thành công) + test.
+- **Review responsive (Opus) → sửa 11 lỗi**: menu cảm ứng tràn, thanh nhanh ngoài màn hình khi ngang, toast dưới panel, `overflow` cắt nút đóng khung lớn, nút hướng kẹt khi đổi app, `dblclick` Android dùng đồ 2 lần, v.v. Tooltip cảm ứng (bấm để hiện).
+- `npm test` chạy được Node 20 và 24; tài liệu `DEVELOPMENT.md` có mục Responsive.
+
+**Art cần vẽ (ngày mai):** nhóm 0 trong [ASSET_TODO.md](ASSET_TODO.md) / `asset_todo.html` — P0: `tile_street`, `verge_zones`, `skyline_far`, `bld_bank`, `bld_office` (vẽ lại tông retro); P1: `street_set`, `yard_vechai`, `tube_9`, `tube_10`, `ui_dock_icons`; P2: `zone_gate_set`. Tóm tắt ở [ASSET_STATUS.md](ASSET_STATUS.md).
+
+**Chưa làm vì cần người dùng quyết (mục F của NIGHT_PLAN):** C4 thu gọn bản đồ dọc (nửa dưới y>880 còn là bãi cỏ/gạch trống), C9 mặt đất liền (phụ thuộc C4), C7 cân scale công trình theo cửa 110px (cần mắt người), C11 gom nút HUD vào ☰ + thẻ nhân vật tối giản + bỏ nút Chợ, I2 giới hạn chồng, G32 gỡ xe máy khỏi dữ liệu (xe đã mua xử lý sao), tuyến buýt, hóa đơn tuần.
+
+**Kiểm thử:** 17 test (16 pass, 1 skip PostgreSQL). Duyệt bằng trình duyệt: 4 khu ở zoom xa sau mỗi đợt — nhãn gọn, không còn props lạc, khe giữa công trình đã lấp. Chưa xem cảnh đêm, chưa đứng yên 60s kiểm xe chồng nhau, chưa thử iPhone thật.
+
 ---
 
 ## Việc còn mở
