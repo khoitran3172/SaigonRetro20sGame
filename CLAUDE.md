@@ -40,7 +40,7 @@ Quy tắc: tìm kiếm → `scout` trước khi tự grep nhiều file; việc m
 ```bash
 npm install
 npm start          # http://localhost:3000 ; không có DATABASE_URL -> lưu data/db.json
-npm test           # 7 test logic server (Node 24: chạy `node --test server/tests/*.js`); thêm TEST_DATABASE_URL=postgres://... để chạy test PostgreSQL (test XÓA bảng!)
+npm test           # test logic server (liệt kê file tường minh nên chạy được cả Node 20 và 24); thêm TEST_DATABASE_URL=postgres://... để chạy test PostgreSQL (test XÓA bảng!)
 npm run assets     # build lại asset (cần Python 3 + pillow numpy scipy)
 ```
 

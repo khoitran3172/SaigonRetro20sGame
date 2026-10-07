@@ -11,7 +11,7 @@
     "start": "node server/index.js",
     "dev": "node --watch server/index.js",
     "assets": "python tools/extract_sprites.py && python tools/build_assets.py",
-    "test": "node --test server/tests/"
+    "test": "node --test server/tests/game.test.js server/tests/pgdb.test.js"
   },
   "dependencies": {
     "express": "^4.21.2",
