@@ -171,6 +171,20 @@ Người dùng tải 68 ảnh lên thẳng GitHub (`977ec5b`, thư mục `asset_
 
 **Sửa:** server chuẩn hóa tên NFC, bỏ ký tự ẩn (`\p{Cc}\p{Cf}`), gộp khoảng trắng, cho phép dấu (`\p{M}`); client kiểm tra trước cùng quy tắc, báo lỗi ngay dưới ô tên (chỉ rõ ký tự không hợp lệ) và cuộn tới; `maxlength` ô tên 32 (gõ tổ hợp tạm dài hơn), kiểm tra 16 ký tự sau chuẩn hóa. Thêm test.
 
+## 2026-10-08 · Responsive mobile iOS + PC · commit 64c5838
+
+**Cảm ứng (iOS / Android):** nút hướng ▲◀▶▼ (góc dưới trái, bấm 2 nút đi chéo); chạm NPC / cửa hàng chỉ đi tới, đứng gần thì hiện nút vàng **Nói chuyện** → bấm mới mở hộp thoại (`nearestInteract` / `tapInteract` trong `world.js`, phím E dùng chung). HUD gọn: thẻ nhân vật nhỏ (chạm để mở rộng), mọi nút chức năng + chat + thanh nhanh ẩn sau nút ☰, chat mở bằng nút 💬 và nâng theo bàn phím ảo (`visualViewport`, `--kb`). Ô nhập 16px (iOS không tự zoom), viewport `viewport-fit=cover`, safe-area, `dvh`, nút ≥44px. Mini-game phục vụ đổi `onmousemove` → pointer event; túi đồ chạm lần 2 để dùng/mặc; thanh nhanh nhấn giữ 600ms để gỡ.
+
+**PC (laptop văn phòng / cửa sổ nhỏ):** cỡ giao diện co liên tục theo rộng/cao cửa sổ (`--ui` 0.55–1, `layout.js`, áp bằng `zoom`); HUD gom vào 2 dock flex-wrap (trên/dưới) nên tự xuống dòng, không đè nhau; chat thu gọn được (nút ▼/▲, nhớ lựa chọn); thẻ nhân vật gọn khi cửa sổ nhỏ; panel lớn dính phải. Các `@media` px cũ viết cho điện thoại giờ chỉ áp cho `body.touch`.
+
+**Lỗi đã sửa:** `ui.js` gắn click đổi tab cho cả nút thu gọn chat (đặt tab `undefined`); ô thanh nhanh `position:absolute` mất gốc định vị khi vào dock và che nút chat (dock dùng `position: relative`).
+
+**Quyết định:** không dùng mốc px để đổi bố cục PC (người dùng yêu cầu dùng w/h); đổi bố cục bằng flex-wrap. Còn giữ vài cận px làm chặn trên/dưới.
+
+**Kiểm thử:** đo chồng chéo bằng JS ở 1920×1080, 1366×768, 900×700, 1100×520, 280×462 — không khung nào đè; bấm chuột thật nút chat 3 lần liên tiếp đều trúng. **Chưa thử trên iPhone thật** (lỗi gốc "không nhận bàn phím ảo" chưa tái hiện được; các sửa nhắm vào nguyên nhân khả dĩ). Chưa đo hộp thoại NPC (giữa-phải) với dock; thứ tự xếp tầng khi cửa sổ rất hẹp: chat dưới cùng, thanh nút trên cùng.
+
+**Quy trình:** thêm 5 agent theo model trong `.claude/agents/` (scout/chores Haiku, coder/asset-importer Sonnet, planner Opus) + mục 2b trong `CLAUDE.md`.
+
 ---
 
 ## Việc còn mở
