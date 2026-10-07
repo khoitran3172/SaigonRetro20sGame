@@ -18,7 +18,7 @@
 | 2026-10-07 | `e7ce286` | Hộp thoại NPC tự đóng khi đi xa · nhật ký phát triển |
 | 2026-10-07 | `83c182b` | README mới có ảnh chụp game, dẫn link sang nhật ký |
 | 2026-10-07 | `977ec5b` · `29706c6` | Nhập 68 ảnh V2 lần 2: nhà ống, vựa ve chai, xe buýt & trạm, chân dung NPC, 60 icon, cắt sẵn nội thất / phòng / UI |
-| 2026-10-07 | _(chưa commit)_ | Chợ Sạp Hàng Hóa thay CLB Bida; gỡ sạp vỉa hè, ô quy hoạch, giang hồ (G53) |
+| 2026-10-07 | `2721100` | Chợ Sạp Hàng Hóa thay CLB Bida; gỡ sạp vỉa hè, ô quy hoạch, giang hồ (G53) |
 | 2026-10-07 | `4f83e1f` | Code theo art lần 2: nghề tờ rơi / shipper / gia sư + thi chứng chỉ, phòng trọ & nội thất, ngủ, nấu ăn, TTTM + Gacha |
 
 ---
@@ -141,7 +141,7 @@ Người dùng tải 68 ảnh lên thẳng GitHub (`977ec5b`, thư mục `asset_
 
 **Dọn bản đồ (người dùng yêu cầu, trước khi làm Chợ):** gỡ trạm buýt / điểm taxi, người lái xe máy trong giao thông (còn taxi + xe buýt), bàn bán + cô bán cà phê vỉa hè, bàn trà đá vỉa hè, anh chủ quán net ngồi, cô Ba tạp hóa ngồi bán. Chỗ tương tác (hộp thoại) của các quán vẫn giữ.
 
-## 2026-10-07 · Chợ Sạp Hàng Hóa (G24, G55–G57) + gỡ sạp vỉa hè (G53)
+## 2026-10-07 · `2721100` — Chợ Sạp Hàng Hóa (G24, G55–G57) + gỡ sạp vỉa hè (G53)
 
 **Người dùng chốt:** đặt Chợ thay CLB Bida (Khu 1). Tạp Hóa dời sang x=3670, Cơm Tấm x=4040, thợ cắt tóc x=3820, chú sửa xe x=4190 để đủ chỗ (tòa chợ phóng 1,15).
 
