@@ -65,6 +65,7 @@ body.touch #actions { display: none; }
 body.touch.menu-open #actions {
   display: grid; grid-template-columns: repeat(2, 72px); gap: 6px; padding: 8px; z-index: 14;
   left: auto; right: max(10px, env(safe-area-inset-right)); bottom: calc(var(--edge) + 66px);
+  max-width: none; flex-wrap: initial; max-height: calc(100dvh - var(--edge) - 76px); overflow-y: auto;
   background: rgba(30, 22, 16, 0.92); border: 2px solid rgba(255, 246, 220, 0.4); border-radius: 14px;
 }
 body.touch #actions button { width: 72px; height: 58px; min-height: 58px; padding: 2px; flex-direction: column; }
@@ -84,3 +85,8 @@ body.touch #toasts { top: calc(max(4px, env(safe-area-inset-top)) + 36px); right
 /* Chat: nut dong rieng (khung chat phu len nut ☰ khi mo) */
 #chat-x { display: none; }
 body.touch #chat-x { display: block; flex: none; width: 44px; padding: 0; font-size: 18px; color: #fff6dc; background: #7a2e14; border: 2px solid rgba(255, 246, 220, 0.5); border-radius: 8px; }
+
+/* Dien thoai ngang (thap): thanh nhanh nam canh bang chuc nang thay vi chong len tren man hinh */
+@media (max-height: 500px) {
+  body.touch.menu-open #hotbar { right: calc(max(10px, env(safe-area-inset-right)) + 176px); bottom: calc(var(--edge) + 66px); width: 200px; height: 56px; }
+}

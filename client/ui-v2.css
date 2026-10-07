@@ -493,7 +493,11 @@ input, textarea, #chat-log, #chat-log * { -webkit-user-select: text; user-select
 #room-tray, .side, #dialog, #phone-body, #market-stage.buy, #market-stage.mine, #mall-stage.shop, #cook-stage.book, .mk-pop .mk-grid {
   -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
 }
-.side, #dialog, #job-box, #room-box, #market-box, #mall-box, #cook-box, #phone-body {
+.side, #dialog, #phone-body {
+  overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+}
+/* Khung lon (mini-game, phong, cho, TTTM, bep): chi cuon tren cam ung — PC khong cuon de khong cat nut dong / menu noi that */
+body.touch :is(#job-box, #room-box, #market-box, #mall-box, #cook-box) {
   overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
 }
 
@@ -540,12 +544,12 @@ input, textarea, #chat-log, #chat-log * { -webkit-user-select: text; user-select
   .choice { min-height: 44px; padding: 12px 9px; }
   .hot:hover, .dish:hover, .bowl:hover, .quiz-card:hover:not(:disabled) { box-shadow: none; }
   /* Chat mac dinh an tren cam ung; hien khi body.chat-open, nam tren cung */
-  #chat { display: none; }
-  body.chat-open #chat {
+  body.touch #chat { display: none; }
+  body.touch.chat-open #chat {
     display: flex; z-index: 60; width: calc(100vw - 20px); left: 10px; right: 10px;
     bottom: calc(var(--kb, 0px) + 10px);
   }
-  body.chat-open #chat-log { height: min(120px, 25vh); }
+  body.touch.chat-open #chat-log { height: min(120px, 25vh); }
   #chat-ch { width: 110px; }
 }
 

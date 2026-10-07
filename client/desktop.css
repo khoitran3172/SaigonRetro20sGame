@@ -13,17 +13,17 @@ body:not(.touch) :is(.dock-top, .dock-bottom) {
 body:not(.touch) .dock-top { top: 1vmin; align-items: flex-start; justify-content: space-between; }
 body:not(.touch) .dock-bottom { bottom: 1vmin; align-items: flex-start; justify-content: space-between; flex-wrap: wrap-reverse; /* wrap-reverse dao truc ngang: flex-start = sat day */ }
 body:not(.touch) :is(.dock-top, .dock-bottom) > * { position: relative !important; inset: auto !important; transform: none !important; margin: 0 !important; pointer-events: auto; max-width: calc(98vw / var(--ui, 1)); }
-body:not(.touch) .dock-top > #toasts { pointer-events: none; width: max-content; max-width: min(320px, calc(98vw / var(--ui, 1))); margin-left: auto; }
+body:not(.touch) #toasts { top: 1vmin; right: 1vmin; max-width: calc(98vw / var(--ui, 1)); }
 body:not(.touch) #card { font-size: inherit; }
 body:not(.touch) #topbar { display: block; min-width: 0; }
 body:not(.touch) #minimap { display: flex; }
 body:not(.touch) #chat { width: 380px; order: 1; }
 body:not(.touch) #hotbar { width: 260px; height: 72px; order: 2; }
-body:not(.touch) #actions { order: 3; margin-left: auto; gap: 6px; }
+body:not(.touch) #actions { order: 3; margin-left: auto !important; gap: 6px; }
 body:not(.touch) #actions button { flex: none; width: 52px; height: 52px; }
 body:not(.touch) #actions button img { width: 28px; height: 28px; }
 body:not(.touch) #actions button span:not(.badge) { display: none; }
-body:not(.touch):has(#led:not(.hidden)) .dock-top { top: calc(34px + 1vmin); }
+body:not(.touch):has(#led:not(.hidden)) :is(.dock-top, #toasts) { top: calc(34px + 1vmin); }
 
 /* ---- Chat: thu gon duoc ---- */
 body:not(.touch) #chat .tabs { align-items: flex-end; }

@@ -541,7 +541,9 @@ export class UI {
         this.invSel = it.uid;
         this.renderInv();
       };
-      cell.ondblclick = () => this.useOrEquip(it);
+      cell.ondblclick = () => {
+        if (!document.body.classList.contains('touch')) this.useOrEquip(it);
+      };
       this.tipOn(cell, () => this.itemTip(it));
       grid.append(cell);
     }

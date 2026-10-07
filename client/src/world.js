@@ -1,6 +1,6 @@
 // Scene the gioi: ban do 4 khu, nhan vat, NPC, sap hang, giao thong, ngay/dem, thoi tiet.
 import { BUILDINGS, CHAT, FLYER, POIS, WORLD, ZONES, walkerPos } from '/shared/config.js';
-import { TouchControls, isTouchDevice } from './touch.js';
+import { TouchControls } from './touch.js';
 import { genBuilding, genGround, genMisc, genTubeHouse } from './textures.js';
 
 const FONT = '"Be Vietnam Pro", system-ui, sans-serif';
@@ -388,7 +388,7 @@ export class WorldScene extends Phaser.Scene {
   // ================================================================ input
   setupInput() {
     this.keys = this.input.keyboard.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E', false);
-    if (isTouchDevice()) this.touch = new TouchControls();
+    if (document.body.classList.contains('touch')) this.touch = new TouchControls();
     this.input.on('pointerdown', (pointer, objs) => {
       // Cham vao khung game thi dong ban phim ao (canvas khong tu lam mat focus o nhap)
       if (this.ui.typing) document.activeElement.blur();

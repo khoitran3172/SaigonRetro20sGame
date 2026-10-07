@@ -18,7 +18,7 @@ function buildDocks() {
   const top = Object.assign(document.createElement('div'), { className: 'dock-top' });
   const bottom = Object.assign(document.createElement('div'), { className: 'dock-bottom' });
   const $ = (id) => document.getElementById(id);
-  top.append($('card'), $('topbar'), $('toasts'));
+  top.append($('card'), $('topbar')); // thong bao giu o ngoai dock de noi tren panel (z-index 30)
   bottom.append($('chat'), $('hotbar'), $('actions'));
   hud.prepend(top, bottom);
 }

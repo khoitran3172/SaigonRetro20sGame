@@ -180,8 +180,9 @@ export class HomeView {
     }
     const r = $('room-box').getBoundingClientRect();
     const a = anchor.getBoundingClientRect();
-    m.style.left = `${a.left + a.width / 2 - r.left}px`;
-    m.style.top = `${a.top - r.top}px`;
+    const box = $('room-box');
+    m.style.left = `${a.left + a.width / 2 - r.left + box.scrollLeft - box.clientLeft}px`;
+    m.style.top = `${a.top - r.top + box.scrollTop - box.clientTop}px`;
     m.classList.remove('hidden');
   }
 

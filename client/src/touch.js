@@ -39,6 +39,15 @@ export class TouchControls {
     }
     this.talk.addEventListener('click', () => this.talkFn?.());
 
+    // Mat ngon tay ma khong co pointerup (doi app, Control Center): nha het nut huong
+    const reset = () => {
+      this.held.clear();
+      for (const b of document.querySelectorAll('#dpad .on')) b.classList.remove('on');
+      this.recalc();
+    };
+    window.addEventListener('blur', reset);
+    document.addEventListener('visibilitychange', () => document.hidden && reset());
+
     // Menu ☰: mo/dong nhom nut chuc nang; chon xong tu dong dong
     const body = document.body;
     document.getElementById('btn-menu').addEventListener('click', () => body.classList.toggle('menu-open'));
@@ -64,7 +73,10 @@ export class TouchControls {
       sync();
     }
     // iOS tu cuon trang khi focus o nhap -> tra lai sau khi dong ban phim
-    document.addEventListener('focusout', () => setTimeout(() => window.scrollTo(0, 0), 60));
+    document.addEventListener('focusout', () => setTimeout(() => {
+      const a = document.activeElement;
+      if (!a || !['INPUT', 'SELECT', 'TEXTAREA'].includes(a.tagName)) window.scrollTo(0, 0);
+    }, 60));
   }
 
   recalc() {
