@@ -21,6 +21,20 @@ Game web **2D top-down MMORPG / Life-Sim đô thị Sài Gòn**, pixel art. 3 t�
 - Người dùng vẽ bằng **Gem Gemini "Họa sĩ Hàng Rong"** — hướng dẫn Gem (style bible, bảng màu rút từ art đã duyệt, quy chuẩn kỹ thuật) ở `docs/GEMINI_GEM.md`. Đổi quy chuẩn asset thì cập nhật cả file này.
 - Commit message kết thúc bằng dòng `Co-Authored-By` theo hướng dẫn của môi trường hiện tại.
 
+## 2b. Phân việc theo model (tiết kiệm token)
+
+Agent định nghĩa ở `.claude/agents/`. Phiên chính giao việc bằng tool `Agent`, chỉ nhận lại kết luận:
+
+| Agent | Model | Dùng cho |
+|---|---|---|
+| `scout` | haiku | Tìm file/hàm/chỗ hardcode, lần luồng dữ liệu (chỉ đọc) |
+| `chores` | haiku | GAMELOG, ASSET_STATUS, ROADMAP, README, chạy test & tóm tắt |
+| `coder` | sonnet | Code tính năng theo kế hoạch đã rõ + test |
+| `asset-importer` | sonnet | Quy trình asset mục 6, build, cập nhật asset_todo |
+| `planner` | opus | Thiết kế tính năng mới, kiến trúc, cân bằng kinh tế, bug khó (chỉ đọc) |
+
+Quy tắc: tìm kiếm → `scout` trước khi tự grep nhiều file; việc mới/mơ hồ → `planner` rồi mới `coder`; cuối phiên → `chores` ghi GAMELOG. Phiên chính chỉ điều phối, review và hỏi người dùng. Không agent nào được tự commit/push.
+
 ## 3. Chạy & kiểm tra
 
 ```bash
