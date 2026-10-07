@@ -237,7 +237,7 @@ export class Jobs {
   // Shipper: chon dia chi giao tiep theo, han theo quang duong
   nextLeg(s) {
     const job = s.job;
-    const pool = POIS.filter((x) => x.id !== 'buudien' && !job.used.has(x.id) && Math.hypot(x.x - s.x, x.y - s.y) >= SHIP.minDist);
+    const pool = POIS.filter((x) => !x.hidden && x.id !== 'buudien' && !job.used.has(x.id) && Math.hypot(x.x - s.x, x.y - s.y) >= SHIP.minDist);
     const poi = pool[rnd(pool.length)] || POIS.find((x) => x.id === 'buudien');
     job.used.add(poi.id);
     const dist = Math.hypot(poi.x - s.x, poi.y - s.y);

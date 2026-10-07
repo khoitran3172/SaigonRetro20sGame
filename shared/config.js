@@ -354,7 +354,7 @@ export const POIS = [
   { id: 'barber', kind: 'barber', name: 'Ông Thợ Cắt Tóc', x: 3820, y: 560, work: 'npc_barber', workDx: 45, prop: 'barber_set_v2', propDx: -40 },
   { id: 'comtam', kind: 'comtam', name: 'Quán Cơm Tấm', x: 4040, y: 470 },
   { id: 'mechanic', kind: 'mechanic', name: 'Chú Sửa Xe', x: 4190, y: 565, work: 'npc_mechanic', prop: 'veh_cub', propDx: 85, propDy: 4 },
-  { id: 'atm1', kind: 'atm', name: 'Cây ATM', x: 4140, y: 870 },
+  { id: 'atm1', kind: 'atm', name: 'Cây ATM', x: 4140, y: 870, hidden: true },
   { id: 'atm2', kind: 'atm', name: 'Cây ATM VietBank', x: 4290, y: 470 },
   { id: 'bank', kind: 'bank', name: 'Quầy Giao Dịch VietBank', x: 4480, y: 470, work: 'npc_guard', workDx: 70 },
   { id: 'office', kind: 'office', name: 'TechCorp (Chấm công)', x: 5020, y: 470, work: 'npc_guard', workDx: -70 },
@@ -363,8 +363,8 @@ export const POIS = [
   { id: 'apartment', kind: 'apartment', name: 'Chung Cư Phố Thị', x: 5445, y: 470 },
   { id: 'mall', kind: 'mall', name: 'Trung Tâm Mua Sắm', x: 5845, y: 470 },
   { id: 'tutor', kind: 'tutor', name: 'Nhà học sinh (Gia sư)', x: 4735, y: 470 },
-  { id: 'showroom', kind: 'showroom', name: 'Showroom Xe Máy', x: 4650, y: 900 },
-  { id: 'fashion', kind: 'fashion', name: 'Shop Thời Trang', x: 5200, y: 900 },
+  { id: 'showroom', kind: 'showroom', name: 'Showroom Xe Máy', x: 4650, y: 900, hidden: true },
+  { id: 'fashion', kind: 'fashion', name: 'Shop Thời Trang', x: 5200, y: 900, hidden: true },
   { id: 'junkyard', kind: 'junk', name: 'Vựa Ve Chai', x: 6280, y: 470, work: 'npc_vechai', workDx: 90, workDy: 10 },
 ];
 

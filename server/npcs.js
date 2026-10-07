@@ -152,7 +152,7 @@ export class NpcSystem {
     const inJunk = Math.random() < 0.75;
     this.add({
       kind: 'scrap', label: 'Ve chai', speed: 0,
-      x: inJunk ? rand(5660, 6740) : rand(200, 5500),
+      x: inJunk ? rand(6100, 6740) : rand(200, 5500),
       y: inJunk ? rand(800, 1150) : rand(820, 1150),
     });
   }

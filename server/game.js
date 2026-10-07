@@ -631,10 +631,11 @@ export class Game {
         this.weather = next;
         const msg = {
           sunny: '🌤️ Trời quang mây tạnh, thời tiết dễ chịu.',
-          hot: '🔥 Nắng gắt 38°C! Thể lực hao nhanh, nước mía trà đá đắt hàng.',
-          rain: '🌧️ Mưa to, đường ngập! Xe chậm 50%, nhớ mang dù.',
+          hot: '🔥 Nắng gắt 38°C! Thể lực hao nhanh hơn, ngủ không quạt khó hồi sức. Nhớ uống nước mát.',
+          rain: '🌧️ Trời mưa to, đường trơn ướt. Nhớ mang dù.',
         }[next];
-        this.news(msg, true);
+        this.news(msg);
+        for (const s of this.sessions.values()) this.toast(s, msg);
         for (const s of this.sessions.values()) s.stats = this.computeStats(s.p);
       }
     }

@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-import { APARTMENT, ECON, MARKET, walkerPos } from '../../shared/config.js';
+import { APARTMENT, ECON, MARKET, POIS, walkerPos } from '../../shared/config.js';
 import { JsonDB } from '../db.js';
 import { needleAt as cookNeedle } from '../cook.js';
 import { Game } from '../game.js';
@@ -262,6 +262,22 @@ test('To roi & shipper: server kiem tra vi tri nguoi choi', () => {
   assert.equal(r2.wrong, 1);
   assert.ok(r2.pay > 0);
   assert.ok(!toasts(a).some((t) => /quá giờ/.test(t)));
+});
+
+test('Shipper: don giao khong tro toi POI hidden', () => {
+  const { g, join, msg } = setup();
+  const a = join('Ship Test', 'sv');
+  Object.assign(a, { x: 2060, y: 490 });
+  msg(a, { t: 'act', poi: 'buudien', act: 'job', args: { id: 'ship' } });
+  assert.equal(a.job?.id, 'ship');
+  const hidden = new Set(POIS.filter((p) => p.hidden).map((p) => p.id));
+  assert.ok(hidden.size > 0);
+  for (let i = 0; i < 30; i++) {
+    a.job.used = new Set();
+    Object.assign(a, { x: 500 + (i % 6) * 1000, y: 520 });
+    g.jobs.nextLeg(a);
+    assert.ok(!hidden.has(a.job.leg.poi), `don ${i} toi POI hidden ${a.job.leg.poi}`);
+  }
 });
 
 test('Nha tro: vao phong, dat / cat noi that, ngu hoi nang luong, tien dien', () => {

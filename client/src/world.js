@@ -6,7 +6,7 @@ import { genBuilding, genGround, genMisc, genTubeHouse } from './textures.js';
 const FONT = '"Be Vietnam Pro", system-ui, sans-serif';
 const CLASS_COLOR = { sv: '#a8f0a0', vp: '#9fd8ff', tt: '#ffc77a' };
 const NPC_STYLE = {
-  police: { skin: 'vp_male', tint: 0xc4d488, color: '#bff0ff', label: '🚓 Cảnh sát' },
+  police: { skin: 'vp_male', tint: 0xc4d488, color: '#bff0ff', label: '' },
   thief: { skin: 'sv_male', tint: 0x6c6c92, color: '#ff9a85' },
   scrap: { image: 'scrap_pickup', color: '#ffe680', label: '' },
 };
@@ -156,19 +156,6 @@ export class WorldScene extends Phaser.Scene {
     for (const cx of [700, 1650, 2720, 4190, 4900, 5650]) {
       for (let y = 596; y < 764; y += 22) r.fillRect(cx - 40, y, 80, 12);
     }
-    // san bong mini (Khu 3)
-    r.lineStyle(4, 0xf2f2f2, 0.85);
-    r.strokeRect(160, 890, 700, 270);
-    r.lineBetween(510, 890, 510, 1160);
-    r.strokeCircle(510, 1025, 50);
-    this.prop('goal_mini', 190, 1062);
-    this.prop('goal_mini', 830, 1062, { flip: true });
-    // nhan khu vuc
-    for (const z of ZONES) {
-      this.add.text((z.x0 + z.x1) / 2, 1180, z.name.toUpperCase(), {
-        fontFamily: FONT, fontSize: '22px', color: '#ffffff', fontStyle: '800', stroke: '#000', strokeThickness: 4,
-      }).setOrigin(0.5, 1).setAlpha(0.55).setDepth(-870);
-    }
   }
 
   buildBuildings() {
@@ -188,7 +175,7 @@ export class WorldScene extends Phaser.Scene {
       const top = base - bh;
       used.push([left, left + bw]);
       if (b.sign) this.signText(b.sign, left, top, bw, bh);
-      const neon = b.gen?.neon ?? (b.sign?.neon ? Phaser.Display.Color.HexStringToColor(b.sign.neon).color : null);
+      const neon = b.id === 'net' ? null : b.gen?.neon ?? (b.sign?.neon ? Phaser.Display.Color.HexStringToColor(b.sign.neon).color : null);
       if (neon != null) {
         const sy = b.sign ? top + (bh * (b.sign.box[1] + b.sign.box[3])) / 2 : top + 44;
         const glow = this.add.image(b.x, sy, 'glow').setScale(bw / 200, 0.5)
@@ -278,33 +265,19 @@ export class WorldScene extends Phaser.Scene {
     for (const x of [520, 1900, 3300, 4600, 6000]) this.prop('manhole', x, 700, { depth: -880 });
     // Khu 3: lang dai hoc
     this.prop('plant_pots', 1150, 472);
-    this.prop('ganh_hang_v2', 1120, 1010);
     this.prop('bench', 1000, 1120);
     this.prop('bench', 1300, 1120);
-    // Khu 1: ban tra da, co tuong, gia dinh, tre con
+    // Khu 1
     this.prop('sign_stand', 2700, 470);
-    this.prop('stool_blue_v2', 2420, 1000);
-    this.prop('table_co_tuong', 2470, 1010);
-    this.prop('stool_red_v2', 2525, 1000);
-    this.prop('stools_family', 2700, 1080);
-    this.bob(this.prop('npc_girl', 2830, 1060));
-    this.bob(this.prop('npc_boy', 2875, 1066));
-    this.prop('cart_mia', 3300, 1090);
-    this.prop('stool_green', 3360, 1100);
-    this.prop('stool_pink_v2', 3240, 1104);
     this.prop('bench', 3800, 1120);
-    this.prop('tires_v2', 4255, 575);
     // Khu 2
     this.prop('plant_pots', 4250, 472);
     this.prop('plant_pots', 4760, 472);
     this.prop('plant_pots', 5260, 472);
-    this.prop('veh_cub', 4560, 905);
-    this.prop('veh_ga', 4740, 905);
     this.prop('bench', 5000, 1110);
-    // Khu 4: bai phe lieu
-    for (const [x, y] of [[5780, 1000], [5960, 1120], [6390, 940], [6640, 1080], [6560, 560]]) this.prop('tires_v2', x, y);
-    for (const [x, y] of [[5900, 900], [6200, 1060], [6500, 1150], [6120, 560]]) this.prop('junk_pile', x, y);
-    this.prop('veh_cub', 6000, 1100, { tint: 0x9a9080 });
+    // Khu 4: bai phe lieu — chi trong san vua ve chai (x >= 6100)
+    for (const [x, y] of [[6390, 940], [6640, 1080], [6560, 560]]) this.prop('tires_v2', x, y);
+    for (const [x, y] of [[6200, 1060], [6500, 1150], [6120, 560]]) this.prop('junk_pile', x, y);
   }
 
   bob(img) {
@@ -313,15 +286,8 @@ export class WorldScene extends Phaser.Scene {
   }
 
   buildPois() {
-    // Showroom / thoi trang: anh tam (chua co art)
-    const kiosk = (key, sign, bg, wall) => genBuilding(this, key, { w: 190, h: 130, wall, roof: bg, sign, signBg: bg, windows: 'shop' });
-    kiosk('kiosk_showroom', 'SHOWROOM XE', 0x1f4a7a, 0xdfe6ee);
-    kiosk('kiosk_fashion', 'THỜI TRANG', 0x7a1f4f, 0xf2d6e6);
-
     for (const poi of POIS) {
       if (poi.hidden) continue;
-      if (poi.kind === 'showroom') this.prop('kiosk_showroom', poi.x, poi.y - 14);
-      if (poi.kind === 'fashion') this.prop('kiosk_fashion', poi.x, poi.y - 14);
       if (poi.kind === 'atm') this.prop('atm_v2', poi.x, poi.y < 600 ? 456 : poi.y - 10);
       if (poi.prop) this.prop(poi.prop, poi.x + (poi.propDx || 0), poi.y + (poi.propDy || 0));
       if (poi.npc) this.bob(this.prop(poi.npc, poi.x + (poi.npcDx || 0), poi.y + 4));
@@ -333,14 +299,37 @@ export class WorldScene extends Phaser.Scene {
       const label = this.add.text(poi.x, poi.y - (poi.y < 600 ? 120 : 140), `${POI_ICON[poi.kind] || '❔'} ${poi.name}`, {
         fontFamily: FONT, fontSize: '12px', color: '#fff6dc', fontStyle: '800',
         backgroundColor: 'rgba(30,22,16,0.72)', padding: { x: 6, y: 3 },
-      }).setOrigin(0.5, 1).setDepth(4000);
-      this.tweens.add({ targets: label, y: label.y - 4, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.inOut' });
+      }).setOrigin(0.5, 1).setDepth(4000).setAlpha(0);
       poi.label = label;
+      // bien hieu co chu san thi chi hien nhan khi re chuot
+      poi.hoverOnly = BUILDINGS.some((b) => b.sign && Math.abs(b.x - poi.x) < 5);
 
       const zone = this.add.zone(poi.x, poi.y - 50, 140, 130).setInteractive({ useHandCursor: true }).setDepth(poi.y);
       zone.on('pointerdown', () => this.tapInteract(poi.x, poi.y + 24, () => this.net.send({ t: 'poi', id: poi.id })));
-      zone.on('pointerover', () => label.setColor('#ffd34d'));
-      zone.on('pointerout', () => label.setColor('#fff6dc'));
+      zone.on('pointerover', () => { poi.hover = true; label.setColor('#ffd34d'); });
+      zone.on('pointerout', () => { poi.hover = false; label.setColor('#fff6dc'); });
+    }
+  }
+
+  // Nhan POI: hien dan khi nguoi choi trong 220px (toi da 3 nhan gan nhat) hoac re chuot; bien hieu co chu chi hien khi re chuot
+  updatePoiLabels(dt) {
+    const me = this.me;
+    const near = [];
+    if (me) {
+      for (const poi of POIS) {
+        if (poi.hidden || !poi.label || poi.hoverOnly) continue;
+        const d = Math.hypot(poi.x - me.x, poi.y - me.y);
+        if (d <= 220) near.push([d, poi]);
+      }
+      near.sort((a, b) => a[0] - b[0]);
+    }
+    const show = new Set(near.slice(0, 3).map((e) => e[1]));
+    const k = Math.min(1, dt * 8);
+    for (const poi of POIS) {
+      if (!poi.label) continue;
+      const target = show.has(poi) || poi.hover ? 1 : 0;
+      poi.label.setAlpha(poi.label.alpha + (target - poi.label.alpha) * k);
+      poi.label.setVisible(poi.label.alpha > 0.02);
     }
   }
 
@@ -575,7 +564,7 @@ export class WorldScene extends Phaser.Scene {
       o.ty = n.y;
       o.dir = n.d;
       o.moving = !!n.m;
-      if (n.k === 'thief') o.label.setText(n.l === 'Kẻ khả nghi' ? '🦹 Kẻ khả nghi — click để đuổi!' : `🦹 ${n.l}`);
+      if (n.k === 'thief') o.label.setText(`🦹 ${n.l}`);
     }
     for (const [id, o] of this.npcObjs) {
       if (!seenN.has(id)) {
@@ -701,6 +690,7 @@ export class WorldScene extends Phaser.Scene {
     const dt = Math.min(0.05, deltaMs / 1000);
     this.updateWalkers(time);
     this.updateMe(dt, time);
+    this.updatePoiLabels(dt);
     this.updateJobTarget(time);
     this.autoCloseDialog();
     for (const a of this.avatars.values()) {
