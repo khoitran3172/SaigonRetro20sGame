@@ -1,6 +1,6 @@
 // Loi kinh te: moi thao tac tien/do kiem tra truoc roi moi ghi (all-or-nothing).
 // Node chay don luong nen moi ham o day la mot "transaction" nguyen tu.
-import { ECON, ITEMS } from '../shared/config.js';
+import { ECON, INV, ITEMS } from '../shared/config.js';
 
 export class EconError extends Error {}
 
@@ -158,9 +158,37 @@ export class Economy {
     }
   }
 
+  // ---- Suc chua tui (I1): 1 o = 1 phan tu cua p.inv ----
+  invCapacity(p) {
+    const bag = p.equip?.lung && p.inv.some((i) => i.uid === p.equip.lung);
+    return INV.base + (bag ? INV.bag : 0);
+  }
+
+  slotsNeeded(p, id, qty) {
+    if (ITEMS[id]?.type === 'equip') return qty;
+    return p.inv.some((s) => s.id === id) ? 0 : 1;
+  }
+
+  // wants: [[id, qty], ...] hoac {id: qty}. consume (tuy chon, {id: qty}): do se bi tru
+  // truoc khi nhan -> o cua stack bi tru het duoc tinh la giai phong. Throw neu khong du cho.
+  assertRoom(p, wants, consume = null) {
+    const merged = new Map();
+    for (const [id, q] of Array.isArray(wants) ? wants : Object.entries(wants)) merged.set(id, (merged.get(id) || 0) + q);
+    let need = 0;
+    for (const [id, q] of merged) need += this.slotsNeeded(p, id, q);
+    let free = this.invCapacity(p) - p.inv.length;
+    if (consume) {
+      for (const [id, q] of Object.entries(consume)) {
+        if (ITEMS[id]?.type !== 'equip' && p.inv.some((s) => s.id === id) && this.count(p, id) <= q) free++;
+      }
+    }
+    if (need > free) throw new EconError(`Túi đồ đầy (còn ${Math.max(0, free)} ô trống, cần ${need})`);
+  }
+
   buyFromNpc(p, id, qty, price, wallet = 'cash') {
     qty = Math.floor(qty);
     if (!(qty > 0 && qty <= 99)) throw new EconError('Số lượng không hợp lệ');
+    this.assertRoom(p, [[id, qty]]);
     this.pay(p, price * qty, wallet, `npc_buy:${id}`);
     this.addItem(p, id, qty);
   }

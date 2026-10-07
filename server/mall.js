@@ -63,16 +63,18 @@ export class Mall {
     const g = this.g;
     const p = s.p;
     const gc = this.gacha(p);
-    g.econ.pay(p, GACHA.price, 'cash', 'gacha');
+    // Quay truoc (chua ghi gi), kiem tra cho + tien roi moi ghi
     const rar = rollRarity(gc);
-    gc.n++;
-    gc.sinceRare = TIER[rar] >= 3 ? 0 : gc.sinceRare + 1;
-    gc.sinceLimited = rar === 'limited' ? 0 : gc.sinceLimited + 1;
     const kind = GACHA.kinds[Math.floor(Math.random() * GACHA.kinds.length)];
     const id = `gear_${kind}_${TIER[rar]}`;
     // Do trung (da co trong tui) -> phan ra thanh Manh lap lanh (G63)
     const dup = p.inv.some((it) => it.id === id);
     const shards = dup ? GACHA.shards[rar] : 0;
+    g.econ.assertRoom(p, [dup ? ['gacha_manh', shards] : [id, 1]]);
+    g.econ.pay(p, GACHA.price, 'cash', 'gacha');
+    gc.n++;
+    gc.sinceRare = TIER[rar] >= 3 ? 0 : gc.sinceRare + 1;
+    gc.sinceLimited = rar === 'limited' ? 0 : gc.sinceLimited + 1;
     if (dup) g.econ.addItem(p, 'gacha_manh', shards);
     else g.econ.addItem(p, id, 1);
     if (TIER[rar] >= 3) g.news(`🎰 ${p.name} vừa quay Gacha ra ${ITEMS[id].name} (${rar === 'limited' ? 'Giới hạn' : 'Hiếm'})!`);
@@ -86,8 +88,9 @@ export class Mall {
     if (!GACHA.kinds.includes(kind)) return;
     const g = this.g;
     if (g.econ.count(s.p, 'gacha_manh') < GACHA.exchange) throw new EconError(`Cần ${GACHA.exchange} Mảnh lấp lánh`);
-    g.econ.removeItems(s.p, { gacha_manh: GACHA.exchange });
     const id = `gear_${kind}_3`;
+    g.econ.assertRoom(s.p, [[id, 1]], { gacha_manh: GACHA.exchange });
+    g.econ.removeItems(s.p, { gacha_manh: GACHA.exchange });
     g.econ.addItem(s.p, id, 1);
     s.dirty = true;
     g.db.markDirty();

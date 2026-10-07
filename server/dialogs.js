@@ -640,6 +640,7 @@ export const DIALOGS = {
         const it = ITEMS[a.id];
         if (!it?.premium) throw new EconError('Không bán');
         if (s.p.diamonds < it.premium) throw new EconError('Không đủ Kim Cương');
+        g.econ.assertRoom(s.p, [[a.id, 1]]);
         s.p.diamonds -= it.premium;
         g.econ.addItem(s.p, a.id, 1);
         g.econ.log('premium', s.p, { item: a.id, diamonds: it.premium });

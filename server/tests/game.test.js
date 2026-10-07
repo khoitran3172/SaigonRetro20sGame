@@ -483,3 +483,53 @@ test('Dat ten: chap nhan tieng Viet go dau to hop (ban phim dien thoai) va ky tu
   const d = hello('😀😀');
   assert.ok(!d.p, 'emoji khong hop le');
 });
+
+test('Tui do day (I1): khong mua / nhat them duoc, tien va hang khong mat; gop stack va balo +10 o', () => {
+  const { g, join, toasts } = setup();
+  const a = join('Tui Day', 'sv');
+  const p = a.p;
+  p.cash = 1000000;
+  p.inv = [];
+  g.econ.addItem(p, 'nl_trung', 1);
+  for (let i = 0; p.inv.length < 20; i++) g.econ.addItem(p, 'balo', 1); // 1 stack + 19 trang bi = 20 o
+  assert.equal(p.inv.length, 20);
+  assert.equal(g.econ.invCapacity(p), 20);
+  // (a) do moi khi day -> bi tu choi, khong tru tien, tui khong doi
+  const before = JSON.stringify(p.inv);
+  assert.throws(() => g.econ.buyFromNpc(p, 'nl_dau_an', 1, 3000), /Túi đồ đầy/);
+  assert.throws(() => g.econ.buyFromNpc(p, 'balo', 2, 1000), /Túi đồ đầy/);
+  assert.equal(p.cash, 1000000);
+  assert.equal(JSON.stringify(p.inv), before);
+  // (b) da co stack cung id -> gop duoc du tui day
+  g.econ.buyFromNpc(p, 'nl_trung', 5, 3000);
+  assert.equal(g.econ.count(p, 'nl_trung'), 6);
+  assert.equal(p.inv.length, 20);
+  assert.equal(p.cash, 1000000 - 15000);
+  // (c) deo balo -> 30 o
+  const bag = p.inv.find((i) => i.id === 'balo');
+  p.equip.lung = bag.uid;
+  assert.equal(g.econ.invCapacity(p), 30);
+  g.econ.buyFromNpc(p, 'nl_dau_an', 1, 3000);
+  assert.equal(p.inv.length, 21);
+  // gop id trung trong wants: 2 trang bi khi chi con 9 o -> du; 10 -> khong
+  assert.doesNotThrow(() => g.econ.assertRoom(p, [['balo', 4], ['balo', 5]]));
+  assert.throws(() => g.econ.assertRoom(p, [['balo', 4], ['balo', 6]]), /còn 9 ô trống, cần 10/);
+  // (d) nhat ve chai khi day: bi tu choi, NPC con do, nang luong khong tru
+  p.equip.lung = null;
+  p.inv = p.inv.slice(0, 20);
+  for (const i of p.inv) if (i.id === 'nl_dau_an') p.inv.splice(p.inv.indexOf(i), 1);
+  while (p.inv.length < 20) g.econ.addItem(p, 'balo', 1);
+  g.econ.removeItems(p, {}); // no-op
+  p.inv = p.inv.filter((i) => i.id !== 've_chai' && i.id !== 'linh_kien');
+  const stam = p.stats.stamina;
+  g.npcs.spawnScrap();
+  const n = g.npcs.of('scrap').at(-1);
+  Object.assign(a, { x: n.x, y: n.y });
+  g.npcs.pickScrap(a, n.id);
+  assert.ok(g.npcs.list.has(n.id), 've chai con do');
+  assert.equal(p.stats.stamina, stam);
+  assert.match(toasts(a).at(-1), /Túi đồ đầy/);
+  p.inv.pop();
+  g.npcs.pickScrap(a, n.id);
+  assert.ok(!g.npcs.list.has(n.id), 've chai da nhat');
+});

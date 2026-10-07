@@ -163,9 +163,14 @@ export class NpcSystem {
     if (!n || n.kind !== 'scrap') return;
     if (dist(n, s) > 90) return g.toast(s, 'Lại gần hơn để nhặt.');
     if (s.p.stats.stamina < 3) return g.toast(s, 'Bạn quá mệt để nhặt ve chai.', 'bad');
+    const rare = Math.random() < 0.3;
+    try {
+      g.econ.assertRoom(s.p, [[rare ? 'linh_kien' : 've_chai', 1]]);
+    } catch (e) {
+      return g.toast(s, e.message, 'bad');
+    }
     this.remove(n);
     s.p.stats.stamina -= 3;
-    const rare = Math.random() < 0.3;
     g.econ.addItem(s.p, rare ? 'linh_kien' : 've_chai', 1);
     s.dirty = true;
     g.toast(s, rare ? 'Nhặt được ⚙️ Linh kiện cũ!' : 'Nhặt được 🥫 Ve chai', 'good');

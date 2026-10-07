@@ -184,6 +184,7 @@ export class Market {
     const p = s.p;
     this.mine(s);
     if (p.stats.stamina < r.stamina) throw new EconError('Bạn quá mệt để chế biến');
+    this.g.econ.assertRoom(p, r.out, r.in);
     this.g.econ.removeItems(p, r.in);
     for (const [out, n] of Object.entries(r.out)) this.g.econ.addItem(p, out, n);
     p.stats.stamina -= r.stamina;

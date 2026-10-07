@@ -80,6 +80,8 @@ export class Cook {
     for (const [id, n] of Object.entries(need)) {
       if (g.econ.count(p, id) < n) throw new EconError(`Thiếu ${ITEMS[id].name}`);
     }
+    // I1: chua du cho cho mon an (ke ca o nguyen lieu giai phong) thi khong bat dau nau (mon sao 1-3 co id khac nhau, can toi da 1 o)
+    g.econ.assertRoom(p, [[dish, 1]], need);
     g.econ.removeItems(p, need); // nguyen lieu mat khi bat dau (bo ngang = hong mon)
     p.stats.stamina -= COOK.stamina;
     // 5 bat: nguyen lieu cua mon + vai thu khac cho roi mat
