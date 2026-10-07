@@ -18,6 +18,7 @@
 | 2026-10-07 | `e7ce286` | Hộp thoại NPC tự đóng khi đi xa · nhật ký phát triển |
 | 2026-10-07 | `83c182b` | README mới có ảnh chụp game, dẫn link sang nhật ký |
 | 2026-10-07 | `977ec5b` · `29706c6` | Nhập 68 ảnh V2 lần 2: nhà ống, vựa ve chai, xe buýt & trạm, chân dung NPC, 60 icon, cắt sẵn nội thất / phòng / UI |
+| 2026-10-07 | _(chưa commit)_ | Code theo art lần 2: nghề tờ rơi / shipper / gia sư + thi chứng chỉ, phòng trọ & nội thất, ngủ, nấu ăn, TTTM + Gacha |
 
 ---
 
@@ -116,12 +117,35 @@ Người dùng tải 68 ảnh lên thẳng GitHub (`977ec5b`, thư mục `asset_
 
 **Kiểm thử:** 7 test logic pass (`node --test server/tests/*.js`; `npm test` lỗi tham số thư mục trên Node 24 — có từ trước); chạy thử trong trình duyệt: phố có nhà ống, vựa ve chai, trạm buýt, hộp thoại có chân dung.
 
+
+## 2026-10-07 · Code theo art lần 2 — nghề, nhà, nấu ăn, TTTM
+
+**Người dùng chốt:** thứ tự *mini-game các nghề → nhà → nấu ăn → TTTM*; G1/G2 giữ nguyên chưa đụng; gỡ bày sạp vỉa hè khi Chợ xong (G53); Gacha theo thiết kế G64. TTTM chỉ có 2 ảnh nhân viên → dùng chung cho cả 5 quầy; đồ thiếu art để "chưa mở bán".
+
+**Nghề (`server/jobs.js`, `client/src/jobs.js`):**
+- **J5 Phát tờ rơi** — làm ở đâu cũng được; 16 người đi đường (dùng sprite các nhân vật sẵn có) chỉ người làm ca thấy, đi qua lại theo hàm `walkerPos` dùng chung server/client; server kiểm tra người chơi đứng gần (150px) mới tính. Bấm vào người hoặc phím E.
+- **J6 Shipper** — nhận ở Bưu Điện, cần điện thoại; 3 đơn/ca, mỗi đơn hạn = quãng đường ÷ tốc độ đi bộ × 1,7 + 12s; tới nơi (140px) server tự tính giao xong, trễ hạn thì hủy đơn. Lương theo quãng đường. HUD nhỏ + mốc chỉ đường + mũi tên mép màn hình + bản đồ thành phố (4 cột = 4 khu).
+- **J8 Gia sư** — Nhà học sinh (Khu 2, x=4735), cần **Chứng chỉ Gia sư**: thi ở Giảng đường (50.000đ, đúng 7/10). Câu hỏi toán / trái nghĩa / tiếng Anh; **đáp án không gửi xuống client**, server chấm từng câu, chặn trả lời nhanh hơn 1,2s.
+- Nghề trên phố không khóa di chuyển (`ui.locked` chỉ khóa khi mở màn riêng / phòng / TTTM).
+
+**Nhà (`server/home.js`, `client/src/home.js`):** thuê phòng → phòng có sẵn nệm, quạt, bếp gas mini (người thuê từ trước nhận bù khi vào phòng). Chế độ Sắp xếp: kéo thả, lật, cất vào túi, đặt đồ từ khay; đồ treo tường (máy lạnh) chỉ đặt trên tường. Đồ ở xa vẽ nhỏ hơn. Ngủ 1/2/4/8 giờ game: hồi năng lượng = 12/giờ × hệ số giường × (1 + thoải mái) × nóng không quạt 0,6. Xem TV giảm căng thẳng (hồi chiêu 1 giờ). Tiền điện cộng vào tiền trọ lúc 00:00; không đủ tiền → trả phòng, đồ về túi. Máy tính / laptop cộng giờ ca IT.
+
+**Nấu ăn (`server/cook.js`, `client/src/cook.js`):** 12 nguyên liệu bán ở Tạp hóa + Siêu thị; 12 món (5 biết sẵn, 7 món cần *Sách công thức*), món kho / canh cần bếp gas đôi, món cơm cần nồi cơm điện. Mini-game: bấm bát theo thứ tự trên phiếu đúng lúc kim lửa ở vùng xanh; server tính lại vị trí kim theo thời điểm bấm → 1–3 sao (món 2–3 sao hồi nhiều hơn, bán giá cao hơn). Bỏ ngang = hỏng món, mất nguyên liệu.
+
+**TTTM (`server/mall.js`, `client/src/mall.js`):** tòa mới ở Khu 2 x=5800 (Khu 2 nới tới 6020). Sảnh có 5 quầy, biển hiệu in chữ, nhân viên hoạt ảnh. Nội thất xếp 3 phân khúc cạnh nhau để so sánh. Đồ ≥100.000đ trả bằng thẻ. Thời trang bán đồ Thường/Tốt; Gacha 30.000đ tiền mặt, tỉ lệ 60/28/10/2, bảo hiểm 40 lượt Hiếm / 100 lượt Giới hạn, đồ trùng → Mảnh lấp lánh, 30 mảnh đổi 1 món Hiếm; quay ra Hiếm/Giới hạn được loan tin.
+
+**Kiểm thử:** 12 test logic pass (thêm 5 test: gia sư + chứng chỉ, tờ rơi + shipper, nhà trọ, nấu ăn, TTTM + gacha). Chạy thử trong trình duyệt với nhân vật test: cả 3 nghề với server thật, phòng / ngủ / sắp xếp, nấu Trứng chiên ⭐⭐⭐, sảnh & quầy TTTM, màn gacha + hoạt ảnh.
+
+**Quyết định / đơn giản hóa:** tiền trọ vẫn theo ngày (G8 hóa đơn tuần chưa làm); đồ TTTM vào thẳng túi (chưa giao sau 1 giờ); chưa có chung cư.
+
+**Dọn bản đồ (người dùng yêu cầu, trước khi làm Chợ):** gỡ trạm buýt / điểm taxi, người lái xe máy trong giao thông (còn taxi + xe buýt), bàn bán + cô bán cà phê vỉa hè, bàn trà đá vỉa hè, anh chủ quán net ngồi, cô Ba tạp hóa ngồi bán. Chỗ tương tác (hộp thoại) của các quán vẫn giữ.
+
 ---
 
 ## Việc còn mở
 
 - **Chờ art** (51 ảnh, prompt trong `docs/asset_todo.html`): animation V2 của `sv_male`, Cảnh sát / Ăn trộm / người đi đường, NPC chủ quán cơm tấm & trà sữa, J3 ly/topping, J4 cà phê, 2 chân dung vẽ lại, 4 nội thất, 4 nhân viên TTTM, nhà ống số 5.
-- **Code chờ làm (đã có art):** nấu ăn (G44–G48), trang trí phòng (G19–G22), TTTM (G25–G28), trang bị & gacha (G60–G64), Chợ Sạp Hàng Hóa (G24, G55–G57), tuyến buýt (G29–G30), nghề J5 / J6 / J8, giao diện trường / ATM / bưu điện.
+- **Code chờ làm (đã có art):** Chợ Sạp Hàng Hóa (G24, G55–G57; xong thì gỡ sạp vỉa hè G53), tuyến buýt (G29–G30), chung cư (G20), giao diện ATM / bưu điện / hợp đồng + hóa đơn tuần.
 - **Code chưa làm dù đã chốt:** gỡ xe máy (G32), hóa đơn tuần trọ + học phí (G8), chặn nhặt/mua khi túi đầy (I1).
 - `npm test` cần sửa script thành `node --test server/tests/*.js` cho Node 24.
 - **Chờ duyệt:** các mã G / A / I còn mở trong tài liệu V2 (G1 chỉ Sinh viên nam, G2 ẩn giải trí…).

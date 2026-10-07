@@ -2,7 +2,10 @@
 import {
   CLASSES, DOLL_SLOTS, ECON, FORMAT, INV, ITEMS, POIS, QUESTS, RARITY, SKINS, SLOTS, WORLD, ZONES, zoneAt,
 } from '/shared/config.js';
+import { CookView } from './cook.js';
+import { HomeView, furnDesc } from './home.js';
 import { JobGame } from './jobs.js';
+import { MallView } from './mall.js';
 
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => {
@@ -38,6 +41,9 @@ export class UI {
     this.invSel = null;
     this.hotbar = null;
     this.jobs = new JobGame(net, this);
+    this.home = new HomeView(net, this);
+    this.cook = new CookView(net, this);
+    this.mall = new MallView(net, this);
 
     net.on('error', (m) => { $('login-err').textContent = m.msg; });
     net.on('self', (m) => this.setSelf(m.self));
@@ -51,11 +57,19 @@ export class UI {
     this.bindHud();
   }
 
-  // Icon art (assets/icons/<id>.png); chua co art thi dung emoji
+  // Mini-game man rieng hoac dang trong phong -> khoa di chuyen / phim tat
+  get locked() {
+    return this.jobs.active || this.home.active || this.mall.active;
+  }
+
+  // Icon art (assets/icons/<id>.png; noi that dung chinh anh mon do); chua co art thi dung emoji
   icon(id, fallback, size = 28) {
-    if (!this.icons.has(id)) return el('span', 'emo', fallback);
+    const own = ITEMS[id]?.img;
+    const ico = ITEMS[id]?.ico || id; // mon nau 2–3 sao dung chung icon mon goc
+    if (!own && !this.icons.has(ico)) return el('span', 'emo', fallback);
     const img = el('img', 'icon');
-    img.src = `assets/icons/${id}.png`;
+    img.src = own ? `assets/${own}` : `assets/icons/${ico}.png`;
+    if (own) img.style.objectFit = 'contain';
     img.width = size;
     img.height = size;
     img.alt = '';
@@ -186,7 +200,7 @@ export class UI {
     };
     window.addEventListener('keydown', (e) => {
       if (!this.self) return;
-      if (this.jobs.active) return;
+      if (this.locked) return;
       if (e.key === 'Escape') {
         document.activeElement?.blur();
         this.closePanels();
@@ -240,6 +254,8 @@ export class UI {
 
   setSelf(s) {
     this.self = s;
+    if (this.home.active && this.home.edit) this.home.renderTray();
+    if (this.mall.active) this.mall.refresh();
     $('h-name').textContent = s.name;
     $('h-title').textContent = s.title ? `「${s.title}」` : '';
     $('h-class').textContent = `${s.clsName} · ${s.rankName}`;
@@ -508,7 +524,7 @@ export class UI {
     if (def.type === 'equip') {
       if (Object.values(this.self.equip).includes(it.uid)) this.net.send({ t: 'unequip', slot: def.slot });
       else this.net.send({ t: 'equip', uid: it.uid });
-    } else if (def.type === 'food' || def.type === 'data') this.net.send({ t: 'use', uid: it.uid });
+    } else if (['food', 'data', 'book'].includes(def.type)) this.net.send({ t: 'use', uid: it.uid });
   }
 
   renderInvDetail(it, equipped) {
@@ -532,7 +548,7 @@ export class UI {
       row.append(b);
       return b;
     };
-    if (def.type === 'food' || def.type === 'data') btn('Dùng', () => this.net.send({ t: 'use', uid: it.uid }));
+    if (['food', 'data', 'book'].includes(def.type)) btn(def.type === 'book' ? 'Đọc' : 'Dùng', () => this.net.send({ t: 'use', uid: it.uid }));
     if (def.type === 'equip') {
       if (on) btn('Tháo', () => this.net.send({ t: 'unequip', slot: def.slot }));
       else btn('Trang bị', () => this.net.send({ t: 'equip', uid: it.uid }));
@@ -562,6 +578,7 @@ export class UI {
   }
 
   itemDesc(def) {
+    if (def.type === 'furn') return `${furnDesc(def)} · giá gốc ${vnd(def.base)} · đặt trong phòng trọ (Sắp xếp)`;
     if (def.type === 'equip') {
       return `${SLOTS[def.slot]} · ${RARITY[def.rar || 'common']} · ${Object.entries(def.st).map(([k, v]) => `${STAT_NAME[k]} ${v}`).join(', ')}`;
     }
@@ -580,6 +597,7 @@ export class UI {
     w.append(el('b', `rar-${rar}`, `${def.name}${it.lvl ? ` +${it.lvl}` : ''}`));
     w.append(el('div', 'muted', def.type === 'equip' ? `${SLOTS[def.slot]} · ${RARITY[rar]}` : TYPE_NAME[def.type]));
     if (def.eff) for (const [k, v] of Object.entries(def.eff)) w.append(el('div', null, effText(k, v)));
+    if (def.furn) w.append(el('div', null, furnDesc(def)));
     if (def.type === 'equip') {
       const cur = s.inv.find((i) => i.uid === s.equip[def.slot]);
       const curSt = cur && cur.uid !== it.uid ? ITEMS[cur.id].st : null;
@@ -850,11 +868,11 @@ const INV_TABS = [
   { id: 'food', name: 'Ăn uống', icon: 'food', match: (d) => d.type === 'food' },
   { id: 'ingredient', name: 'Nguyên liệu', icon: 'ingredient', match: (d) => d.type === 'ingredient' },
   { id: 'equip', name: 'Trang bị', icon: 'equip', match: (d) => d.type === 'equip' },
-  // tab Noi that (tab_furniture) tam an: chua co do noi that
-  { id: 'other', name: 'Khác', icon: 'other', match: (d) => !['food', 'ingredient', 'equip'].includes(d.type) },
+  { id: 'furn', name: 'Nội thất', icon: 'furniture', match: (d) => d.type === 'furn' },
+  { id: 'other', name: 'Khác', icon: 'other', match: (d) => !['food', 'ingredient', 'equip', 'furn'].includes(d.type) },
 ];
 const TYPE_NAME = {
-  food: 'Ăn uống', ingredient: 'Nguyên liệu', material: 'Vật liệu', collectible: 'Sưu tầm', data: 'Gói cước', stall: 'Đồ bày sạp', equip: 'Trang bị',
+  furn: 'Nội thất', book: 'Sách', tool: 'Dụng cụ', food: 'Ăn uống', ingredient: 'Nguyên liệu', material: 'Vật liệu', collectible: 'Sưu tầm', data: 'Gói cước', stall: 'Đồ bày sạp', equip: 'Trang bị',
 };
 const STAT_NAME = { charisma: 'Thu hút', speed: 'Tốc độ %', staminaSave: 'Tiết kiệm NL %', vehicle: 'Xe ×' };
 const EFF_NAME = { hunger: 'No bụng', stamina: 'Năng lượng', stress: 'Tinh thần' };

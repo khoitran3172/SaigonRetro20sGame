@@ -6,6 +6,8 @@ Cập nhật sau lần nhập `asset_new_by_khoit/` (30 file). Quy trình build:
 
 ## ✅ Đã dùng trong game
 
+> **Gỡ khỏi bản đồ 2026-10-07 (người dùng yêu cầu):** người lái xe máy trong giao thông (`cub_rider` — chỉ còn dùng khi người chơi tự cưỡi xe), trạm buýt + điểm taxi, bàn bán + cô bán cà phê (`coffee_table`, `npc_cafe`), bàn trà đá vỉa hè (`table_tra_da`), anh chủ quán net ngồi (`npc_netco`), cô Ba tạp hóa ngồi bán (`npc_taphoa`). Hộp thoại các quán vẫn giữ (kể cả chân dung).
+
 | Mục | Asset | File nguồn |
 |---|---|---|
 | 2 | `sv_male` đủ 6 dải (đứng, đi xuống, đi lên, đi ngang, đứng quay hướng, ngồi lái) | `art_srccharssv_male*.png` |
@@ -23,7 +25,7 @@ Cập nhật sau lần nhập `asset_new_by_khoit/` (30 file). Quy trình build:
 |---|---|---|
 | Khung panel + thanh tiêu đề + nút đóng | Mọi hộp thoại, Túi đồ, Trang bị, HUD, mini-game (`assets/ui/panel.png` …) | `ui_wood_paper_panel.png` |
 | 8 ô túi (trống, chọn, khóa, 4 độ hiếm, ô nhanh) | Túi đồ dạng lưới | `ui_slots.png` |
-| 6 icon tab lọc | Túi đồ (tab Nội thất tạm ẩn — chưa có nội thất) | `ui_tabs.png` |
+| 6 icon tab lọc | Túi đồ (đủ 6 tab, có tab Nội thất) | `ui_tabs.png` |
 | Nút 4 trạng thái | Mọi nút | `ui_buttons.png` |
 | Khung thông tin + thanh dùng nhanh 5 ô | Ô thông tin rê chuột, thông báo (toast), thanh phím 1–5 | `ui_tooltip_hotbar.png` |
 | Nền búp bê giấy 8 ô | Màn Trang bị (phím C) | `ui_equipment_screen.png` |
@@ -49,11 +51,27 @@ Tự tách blob theo nền magenta (chữ, số thứ tự, người mẫu tham 
 | Vựa ve chai | Thay ảnh tạm ở Khu 4 (x=6250), biển hiệu in chữ "VỰA VE CHAI CHÚ TƯ" | `bld_vechai.png` |
 | 7 nhà ống | Thay ảnh tạm lấp khe giữa các công trình (đặt lùi sau, mép khuất sau nhà bên cạnh) | `tube_1..4, 6..8.png` |
 | Xe buýt mới | Giao thông (thay xe buýt cũ dính watermark) | `veh_bus.png` |
-| Trạm xe buýt ×4, điểm đón taxi ×2 | Vỉa hè trên, mỗi khu 1 trạm — **chỉ trang trí**, chưa có hệ thống buýt/taxi (G29–G31) | `bus_stop.png`, `taxi_stand.png` |
+| Trạm xe buýt ×4, điểm đón taxi ×2 | ~~Trang trí vỉa hè~~ — **đã gỡ khỏi bản đồ (2026-10-07)**, để dành khi làm tuyến buýt / taxi (G29–G31) | `bus_stop.png`, `taxi_stand.png` |
 | 6 chân dung | Ảnh NPC trong hộp thoại: bánh mì, cà phê, tạp hóa, sửa xe, ve chai, bưu tá (`assets/ui/portrait_*.png`) | `ui_portraits.png` |
-| 60 icon vật phẩm | `assets/icons/`: 12 món nấu `mon_*`, 12 nguyên liệu `nl_*`, 12 đồ điện tử, 28 trang bị `gear_<loại>_<1..4 = Thường/Tốt/Hiếm/Giới hạn>`, 4 vật phẩm gacha `gacha_*` — đã cắt, **chưa có vật phẩm trong game** | `icons_*.png` |
+| 60 icon vật phẩm | `assets/icons/`: 12 món nấu `mon_*`, 12 nguyên liệu `nl_*` (nấu ăn), 28 trang bị `gear_*` (TTTM + Gacha), laptop / điện thoại `laptop_*`, `dt_*` (quầy Điện tử), `gacha_manh` (Mảnh lấp lánh). Chưa dùng: tai nghe ×2, loa, sạc dự phòng, `gacha_capsule/xu/ve_vang` | `icons_*.png` |
 
-**Đã cắt sẵn, chờ code tính năng** — `client/assets/v2/` (danh sách + kích thước: `v2/v2.json`, không nạp lúc vào game)
+**Vào game 2026-10-07 (lần 3 — code tính năng theo art đã cắt)** — vẫn để trong `client/assets/v2/`, client tham chiếu thẳng đường dẫn
+
+| Asset | Dùng ở đâu |
+|---|---|
+| `v2/jobs/*` (bản đồ thành phố, tờ rơi, thẻ / thùng / đồng hồ shipper, vở & bảng gia sư) | Nghề J5 Phát tờ rơi, J6 Shipper (HUD + bản đồ), J8 Gia sư |
+| `v2/ui/chalkboard`, `card_*` | Thi Chứng chỉ Gia sư ở Giảng đường + thẻ đáp án gia sư |
+| `v2/furn/*` (60 món) | Nội thất trong phòng trọ + quầy TTTM |
+| `v2/rooms/room_tro`, `room_mall` | Phòng trọ (sắp xếp, ngủ, TV, bếp) · Sảnh TTTM |
+| `v2/ui/cooking_stove_v2`, `star_full`, `cook_timer` | Màn nấu ăn |
+| `v2/bld/b_mall` | Tòa TTTM trên bản đồ (Khu 2, x=5800, phóng 1,35) |
+| `v2/anim/npc_mall_giadung`, `npc_mall_noithat` | 5 nhân viên quầy TTTM (2 ảnh dùng chung cho cả 5 quầy theo ý người dùng) |
+| `v2/ui/mall_*` (5 banner) | Đầu trang mỗi quầy TTTM |
+| `v2/props/gacha_machine`, `v2/ui/gacha_open_1..6`, `reveal_*` | Máy Gacha + hoạt ảnh mở viên nang |
+
+Chưa dùng: `room_apartment`, `room_market`, `b_apartment`, `b_market`, `mstall_*`, `veh_bus_open`, `banner_school`, `atm`, `bus_map`, `contract`, `bill`, `post_*`, `market_*`, `recipe_book`, `star_half`, `cooking_stove` (bản 1).
+
+**Đã cắt sẵn (bảng gốc lúc nhập — phần đã vào game xem mục "lần 3" ở trên)** — `client/assets/v2/` (danh sách + kích thước: `v2/v2.json`, không nạp lúc vào game)
 
 | Nhóm | Asset | Tính năng chờ |
 |---|---|---|

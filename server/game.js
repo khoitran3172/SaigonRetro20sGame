@@ -5,6 +5,9 @@ import {
 import { Auction } from './auction.js';
 import { DIALOGS, addStat } from './dialogs.js';
 import { EconError, Economy, newUid } from './economy.js';
+import { Cook } from './cook.js';
+import { Home } from './home.js';
+import { Mall } from './mall.js';
 import { Jobs, jobInfo } from './jobs.js';
 import { NpcSystem } from './npcs.js';
 
@@ -40,6 +43,9 @@ export class Game {
     this.npcs = new NpcSystem(this);
     this.auction = new Auction(this);
     this.jobs = new Jobs(this);
+    this.home = new Home(this);
+    this.cook = new Cook(this);
+    this.mall = new Mall(this);
   }
 
   get minute() { return this.db.data.world.minute; }
@@ -145,7 +151,11 @@ export class Game {
         case 'emote': return this.chatNear(s, cleanText(m.e, 8), true);
         case 'job_start': return this.jobs.start(s, String(m.job || ''));
         case 'job_end': return this.jobs.end(s, m);
+        case 'job_act': return this.jobs.act(s, m);
         case 'inv_sort': return this.sortInv(s);
+        case 'home': return this.home.handle(s, m);
+        case 'cook': return this.cook.handle(s, m);
+        case 'mall': return this.mall.handle(s, m);
         default: return undefined;
       }
     } catch (e) {
@@ -180,6 +190,7 @@ export class Game {
     s.p = p;
     p.stats.hunger ??= 80;
     p.jobs ??= {};
+    p.certs ??= {};
     s.x = clamp(p.x, WORLD.walk.x0, WORLD.walk.x1);
     s.y = clamp(p.y, WORLD.walk.y0, WORLD.walk.y1);
     this.ensureDaily(p);
@@ -226,7 +237,7 @@ export class Game {
 
   // ================================================================ nhiem vu ngay (G7)
   pickQuests(p) {
-    const pool = Object.entries(QUESTS).filter(([, q]) => (!q.cls || q.cls === p.cls) && (!q.rent || p.renting));
+    const pool = Object.entries(QUESTS).filter(([, q]) => (!q.cls || q.cls === p.cls) && (!q.rent || p.renting) && (!q.cert || p.certs?.[q.cert]));
     for (let i = pool.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -316,6 +327,7 @@ export class Game {
       buffs: p.buffs.map((b) => ({ name: b.name, left: b.until - this.absMinute() })),
       daily: p.daily, mail: p.mail.length,
       jobs: Object.fromEntries(Object.keys(JOBS).map((id) => [id, jobInfo(p, id)])),
+      certs: p.certs || {}, cookbook: !!p.cookbook,
       stall: st ? { x: st.x, y: st.y, legal: !!st.plot, listings: st.listings.map((l) => ({ lid: l.lid, id: l.stack.id, qty: l.stack.qty, price: l.price, lvl: l.stack.lvl })) } : null,
     };
   }
@@ -352,6 +364,7 @@ export class Game {
     s.dir = ['left', 'right', 'up', 'down'].includes(m.d) ? m.d : s.dir;
     s.moving = !!m.m;
     if (s.moving) s.lastInput = now;
+    if (s.job) this.jobs.onMove(s);
   }
 
   // ================================================================ chat
@@ -408,6 +421,7 @@ export class Game {
     const poi = this.findPoi(id);
     if (!poi) return;
     if (dist(poi, s) > POI_RANGE) throw new EconError(`Hãy lại gần ${poi.name} hơn`);
+    if (poi.kind === 'mall') return this.mall.handle(s, { a: 'enter' });
     const dlg = DIALOGS[poi.kind].open(this, s, poi);
     this.pushDialog(s, { poi: id, ...dlg });
   }
@@ -497,6 +511,8 @@ export class Game {
       this.econ.removeItems(p, { [st.id]: 1 });
       this.toast(s, `Bạn dùng ${def.icon} ${def.name}${bonus > 1 ? ' — mát lạnh giữa trời nắng!' : ''}`, 'good');
       this.questProgress(s, 'eat', 1);
+    } else if (def.type === 'book') {
+      this.cook.learn(s);
     } else if (def.type === 'data') {
       this.econ.removeItems(p, { [st.id]: 1 });
       p.data += def.data;
@@ -771,6 +787,7 @@ export class Game {
       this.onNewDay();
     }
     if (this.minute % 60 === 0) this.onHour(this.minute / 60);
+    this.home.onMinute();
     const hot = this.weather === 'hot' ? 1.5 : 1;
     const h = Math.floor(this.minute / 60);
     const now = this.absMinute();
@@ -857,10 +874,15 @@ export class Game {
       this.ensureDaily(p);
       this.econ.dailyInterest(p);
       if (p.renting) {
-        if (p.bank >= ECON.rentPerDay) this.econ.pay(p, ECON.rentPerDay, 'bank', 'rent');
-        else {
+        // Tien tro + tien dien (G52) theo do dien dang dat trong phong
+        const power = this.home.dailyPower(p);
+        if (p.bank >= ECON.rentPerDay + power) {
+          this.econ.pay(p, ECON.rentPerDay, 'bank', 'rent');
+          if (power) this.econ.pay(p, power, 'bank', 'power');
+        } else {
           p.renting = false;
-          p.mail.push({ from: 'Chủ trọ', text: 'Tài khoản không đủ tiền trọ, phòng đã bị thu hồi.', cash: 0 });
+          this.home.vacate(p);
+          p.mail.push({ from: 'Chủ trọ', text: 'Tài khoản không đủ tiền trọ + tiền điện, phòng đã bị thu hồi. Đồ đạc đã trả về túi.', cash: 0 });
         }
       }
       // Khau hao trang bi dang mac
@@ -877,6 +899,7 @@ export class Game {
     this.tickN++;
     this.npcs.update(dt);
     this.auction.tick();
+    this.jobs.tick();
 
     // Luoi AOI theo truc x (ban do dang dai)
     const cells = new Map();

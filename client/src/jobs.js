@@ -1,6 +1,6 @@
 // Mini-game cac nghe (GAMEPLAY_V2 G34). Server gui de (tasks) -> choi -> gui dap an, server tu cham.
 // Toa do diem bam tinh theo anh nen goc 1024x572 (doi ra %).
-import { FORMAT, JOBS } from '/shared/config.js';
+import { FORMAT, JOBS, ZONES } from '/shared/config.js';
 
 const $ = (id) => document.getElementById(id);
 const el = (tag, cls, text) => {
@@ -44,6 +44,14 @@ const MT = {
   trash: [676, 296, 744, 434],
 };
 
+// ---- Gia su / thi chung chi: 4 the dap an
+const CARDS = ['red', 'blue', 'green', 'yellow'];
+const QUIZ_GAP = 1300; // >= nhip toi thieu server (1200ms)
+
+// ---- Shipper: ban do thanh pho (anh 956x484) — 4 cot tu trai qua phai = 4 khu theo truc x
+const MAP_COLS = [[18, 238], [252, 472], [486, 706], [720, 940]];
+const V2 = 'assets/v2';
+
 export class JobGame {
   constructor(net, ui) {
     this.net = net;
@@ -51,19 +59,30 @@ export class JobGame {
     this.cur = null;
     net.on('job', (m) => this.start(m));
     net.on('job_result', (m) => this.result(m));
+    net.on('job_ack', (m) => this.cur?.jid === m.jid && this.cur.onAck?.(m));
+    net.on('job_leg', (m) => this.cur?.jid === m.jid && this.cur.onLeg?.(m));
     $('job-quit').onclick = () => this.finish();
+    $('jobhud-quit').onclick = () => this.finish();
+    $('jobhud-map').onclick = () => $('shipmap').classList.toggle('hidden');
+    $('shipmap').onclick = () => $('shipmap').classList.add('hidden');
   }
 
+  // Mini-game mo man rieng thi khoa di chuyen; nghe tren pho (to roi, ship) van di lai binh thuong
   get active() {
-    return !!this.cur;
+    return !!this.cur && !this.cur.street;
+  }
+
+  get scene() {
+    return this.ui.worldScene;
   }
 
   start(m) {
     this.ui.closePanels();
-    const def = JOBS[m.job];
+    const def = { ...JOBS[m.job], name: m.name, icon: m.icon };
     this.cur = { ...m, def, answers: [], correct: 0, wrong: 0, t0: performance.now(), timers: [], done: false };
+    if (m.street) return this.startStreet(m);
     $('job').classList.remove('hidden');
-    $('job-title').textContent = `${def.icon} ${def.name} · Cấp ${m.lvl}`;
+    $('job-title').textContent = m.job === 'exam' ? `${def.icon} Thi ${def.name}` : `${def.icon} ${def.name} · Cấp ${m.lvl}`;
     $('job-quit').disabled = false;
     $('job-quit').textContent = 'Nghỉ ca';
     const stage = $('job-stage');
@@ -83,15 +102,20 @@ export class JobGame {
   tick() {
     const c = this.cur;
     if (!c || c.done) return;
-    const left = Math.max(0, c.secs - (performance.now() - c.t0) / 1000);
-    $('job-time').textContent = `⏱ ${Math.ceil(left)}s`;
-    if (left <= 0) return this.finish();
+    const left = Math.max(0, (c.legUntil ?? c.t0 + c.secs * 1000) - performance.now()) / 1000;
+    $(c.street ? 'jobhud-time' : 'job-time').textContent = `${Math.ceil(left)}s`;
+    // Ship: het han tung don do server xu ly; cac nghe khac het gio la nop
+    if (left <= 0 && c.job !== 'ship') return this.finish();
     c.raf = requestAnimationFrame(() => this.tick());
     c.onTick?.();
   }
 
   score() {
     const c = this.cur;
+    if (c.street) {
+      if (c.job === 'flyer') $('jobhud-text').textContent = `Đã phát ${c.correct}/${c.target} tờ — bấm vào người đi đường`;
+      return;
+    }
     $('job-score').textContent = `✅ ${c.correct}/${c.target}${c.wrong ? ` · ❌ ${c.wrong}` : ''}`;
   }
 
@@ -113,30 +137,52 @@ export class JobGame {
     cancelAnimationFrame(c.raf);
     for (const t of c.timers) clearTimeout(t);
     $('job-quit').disabled = true;
+    $('jobhud-quit').disabled = true;
     this.net.send({ t: 'job_end', jid: c.jid, answers: c.answers });
+    if (c.street) return;
     const r = el('div', 'result');
     r.append(el('div', null, 'Đang chấm điểm...'));
     $('job-stage').append(r);
   }
 
+  // Ket qua ca do server gui (ca cham xong / tu ket thuc). Nghe tren pho: mo khung ket qua luc nay.
   result(m) {
     const c = this.cur;
     if (!c) return;
+    c.done = true;
+    cancelAnimationFrame(c.raf);
+    for (const t of c.timers) clearTimeout(t);
+    if (c.street) this.stopStreet();
+    $('job').classList.remove('hidden');
+    $('job-time').textContent = '';
+    if (c.street) {
+      $('job-title').textContent = `${c.def.icon} ${c.def.name}`;
+      $('job-score').textContent = '';
+      $('job-stage').textContent = '';
+      $('job-hint').textContent = '';
+    }
     const stage = $('job-stage');
     stage.querySelector('.result')?.remove();
     const r = el('div', 'result');
     const card = el('div');
-    card.append(el('h4', null, m.correct ? 'Hết ca!' : 'Nghỉ ca'));
-    card.append(el('div', null, `Đúng ${m.correct} · Sai ${m.wrong}`));
-    card.append(el('div', null, `💵 Lương ca: ${FORMAT.vnd(m.pay)}`));
-    card.append(el('div', null, `${c.def.name} cấp ${m.lvl}${m.up ? ' 🎉 LÊN CẤP!' : ''} · ${m.next ? `${m.xp}/${m.next} KN` : 'cấp tối đa'}`));
     const row = el('div');
     row.style.cssText = 'display:flex;gap:8px;justify-content:center;margin-top:8px';
-    const again = el('button', 'btn', 'Làm ca nữa');
-    again.onclick = () => this.net.send({ t: 'job_start', job: c.job });
     const close = el('button', 'btn', 'Về');
     close.onclick = () => this.close();
-    row.append(again, close);
+    if (m.job === 'exam') {
+      card.append(el('h4', null, m.pass ? '🎓 Đậu rồi!' : 'Chưa đậu'));
+      card.append(el('div', null, `Đúng ${m.correct} · Sai ${m.wrong} (cần ${m.need})`));
+      card.append(el('div', null, m.pass ? `Đã có ${c.def.name}. Tới Nhà học sinh (Khu 2) để dạy kèm!` : 'Ôn lại rồi thi lần sau nhé.'));
+      row.append(close);
+    } else {
+      card.append(el('h4', null, m.correct ? 'Hết ca!' : 'Nghỉ ca'));
+      card.append(el('div', null, c.job === 'ship' ? `Giao được ${m.correct} · Trễ ${m.wrong}` : `Đúng ${m.correct} · Sai ${m.wrong}`));
+      card.append(el('div', null, `💵 Lương ca: ${FORMAT.vnd(m.pay)}`));
+      card.append(el('div', null, `${c.def.name} cấp ${m.lvl}${m.up ? ' 🎉 LÊN CẤP!' : ''} · ${m.next ? `${m.xp}/${m.next} KN` : 'cấp tối đa'}`));
+      const again = el('button', 'btn', 'Làm ca nữa');
+      again.onclick = () => this.net.send({ t: 'job_start', job: c.job });
+      row.append(again, close);
+    }
     card.append(row);
     r.append(card);
     stage.append(r);
@@ -150,6 +196,138 @@ export class JobGame {
     this.cur = null;
     $('job').classList.add('hidden');
     $('job-quit').onclick = () => this.finish();
+  }
+
+  // ================================================================ Gia su / thi chung chi
+  // Tung cau gui len server cham (client khong co dap an). Bang + vo ghi chep + 4 the dap an.
+  start_tutor(stage, m) {
+    this.quiz(stage, m, false);
+  }
+
+  start_exam(stage, m) {
+    this.quiz(stage, m, true);
+  }
+
+  quiz(stage, m, exam) {
+    const c = this.cur;
+    this.hint(exam
+      ? `Trả lời ${m.count} câu trên bảng đen — đúng từ ${m.target} câu trở lên là đậu.`
+      : 'Học sinh hỏi bài trên bảng — bấm thẻ có đáp án đúng để giảng cho học sinh.');
+    const wrap = el('div', `quiz ${exam ? 'exam' : 'tutor'}`);
+    const board = el('div', 'quiz-board');
+    const q = el('div', 'quiz-q');
+    board.append(q);
+    const book = el('div', 'quiz-book');
+    const log = el('div', 'quiz-log');
+    book.append(log);
+    const cards = el('div', 'quiz-cards');
+    const btns = CARDS.map((color, k) => {
+      const b = el('button', 'quiz-card');
+      b.style.backgroundImage = `url(${V2}/ui/card_${color}.png)`;
+      b.onclick = () => pick(k);
+      cards.append(b);
+      return b;
+    });
+    wrap.append(board, ...(exam ? [] : [book]), cards);
+    stage.append(wrap);
+    let i = 0;
+    let wait = true;
+    let lastAt = 0;
+    const show = () => {
+      const t = m.tasks[i];
+      if (!t || c.done) return;
+      q.textContent = '';
+      q.append(el('small', null, exam ? `Câu ${i + 1}/${m.count}` : `Học sinh hỏi · câu ${i + 1}`), el('div', null, t.q));
+      btns.forEach((b, k) => {
+        b.textContent = t.opts[k];
+        b.className = 'quiz-card';
+        b.disabled = false;
+      });
+      wait = false;
+    };
+    const pick = (k) => {
+      if (wait || c.done) return;
+      wait = true;
+      lastAt = performance.now();
+      btns.forEach((b) => { b.disabled = true; });
+      btns[k].classList.add('picked');
+      this.net.send({ t: 'job_act', jid: c.jid, i, pick: k });
+    };
+    c.onAck = (a) => {
+      c[a.ok ? 'correct' : 'wrong']++;
+      btns[a.a]?.classList.add('right');
+      if (!a.ok) btns.forEach((b) => b.classList.contains('picked') && b.classList.add('bad'));
+      this.flash(a.ok ? (exam ? 'Chính xác!' : 'Học sinh hiểu bài! ✔') : 'Sai rồi!', a.ok ? '#9fe58a' : '#ff9a85');
+      if (!exam) {
+        const t = m.tasks[i];
+        log.prepend(el('div', a.ok ? 'ok' : 'bad', `${a.ok ? '✔' : '✘'} ${t.q}  →  ${t.opts[a.a]}`));
+        while (log.children.length > 7) log.lastChild.remove();
+      }
+      this.score();
+      i++;
+      this.later(show, Math.max(700, QUIZ_GAP - (performance.now() - lastAt)));
+    };
+    show();
+  }
+
+  // ================================================================ Nghe tren pho: to roi, shipper
+  // Khong mo man rieng: hien thanh HUD nho, nguoi choi van di lai; server kiem tra vi tri.
+  startStreet(m) {
+    const c = this.cur;
+    $('job').classList.add('hidden');
+    $('job-quit').onclick = () => this.finish();
+    $('jobhud').classList.remove('hidden');
+    $('jobhud-quit').disabled = false;
+    $('jobhud-title').textContent = `${c.def.icon} ${c.def.name} · Cấp ${m.lvl}`;
+    $('jobhud-img').src = `${V2}/jobs/${m.job === 'ship' ? 'ship_box' : 'flyer_stack'}.png`;
+    $('jobhud-map').classList.toggle('hidden', m.job !== 'ship');
+    if (m.job === 'flyer') {
+      this.scene?.showWalkers(m.tasks, (w) => this.net.send({ t: 'job_act', jid: c.jid, w }));
+      c.onAck = (a) => {
+        if (a.ok) {
+          c.correct++;
+          this.scene?.walkerGot(a.w);
+        } else if (a.far) this.ui.toast('Lại gần người đó hơn chút nữa!', 'info');
+        this.score();
+      };
+    } else {
+      $('jobhud-text').textContent = 'Đang nhận đơn...';
+      c.onLeg = (l) => {
+        c.legUntil = performance.now() + l.secs * 1000;
+        const zone = ZONES.find((z) => z.id === l.zone);
+        $('jobhud-text').textContent = `Đơn ${l.n}/${l.of}: giao tới ${l.name} (${zone?.name || ''})`;
+        this.scene?.setJobTarget({ x: l.x, y: l.y, label: `📦 Giao: ${l.name}` });
+        this.drawShipMap(l, zone);
+        this.ui.toast(`📦 Đơn mới: giao tới ${l.name} trong ${l.secs}s`, 'info');
+      };
+      c.onAck = (a) => {
+        c[a.ok ? 'correct' : 'wrong']++;
+        this.ui.toast(a.ok ? `✅ Giao xong đơn ${a.leg}!` : `⌛ Trễ hạn đơn ${a.leg}, khách hủy đơn.`, a.ok ? 'good' : 'bad');
+        this.scene?.setJobTarget(null);
+      };
+    }
+    this.score();
+    this.tick();
+  }
+
+  stopStreet() {
+    $('jobhud').classList.add('hidden');
+    $('shipmap').classList.add('hidden');
+    this.scene?.showWalkers(null);
+    this.scene?.setJobTarget(null);
+  }
+
+  // Ban do thanh pho: ghim diem giao theo khu (cot) va phia duong (tren / duoi)
+  drawShipMap(l, zone) {
+    const zi = Math.max(0, ZONES.indexOf(zone));
+    const z = ZONES[zi];
+    const [c0, c1] = MAP_COLS[zi];
+    const mx = c0 + 16 + ((l.x - z.x0) / (z.x1 - z.x0)) * (c1 - c0 - 32);
+    const my = l.y < 680 ? 150 : 330;
+    const pin = $('shipmap-pin');
+    pin.style.left = `${(mx / 956) * 100}%`;
+    pin.style.top = `${(my / 484) * 100}%`;
+    $('shipmap-label').textContent = `📦 ${l.name} — ${z.name}`;
   }
 
   // ================================================================ J1 IT

@@ -141,6 +141,57 @@
       </div>
     </div>
 
+    <!-- Phong o: sap xep noi that, ngu, xem TV -->
+    <div id="room" class="hidden">
+      <div id="room-box">
+        <div id="room-head">
+          <b id="room-title"></b><span id="room-stats"></span>
+          <button id="room-edit" class="btn small"></button><button id="room-leave" class="btn small">🚪 Ra ngoài</button>
+        </div>
+        <div id="room-stage"></div>
+        <div id="room-tray" class="hidden"></div>
+        <div id="room-hint"></div>
+        <div id="room-menu" class="hidden"></div>
+      </div>
+    </div>
+
+    <!-- Trung Tam Mua Sam: sanh 5 quay + Gacha -->
+    <div id="mall" class="hidden">
+      <div id="mall-box">
+        <div id="mall-head">
+          <button id="mall-back" class="btn small hidden">← Sảnh</button><b id="mall-title"></b><span id="mall-info"></span>
+          <button class="x" id="mall-x" aria-label="Ra về"></button>
+        </div>
+        <div id="mall-stage"></div>
+        <div id="mall-hint"></div>
+      </div>
+    </div>
+
+    <!-- Nau an: sach cong thuc + mat bep -->
+    <div id="cook" class="hidden">
+      <div id="cook-box">
+        <div id="cook-head"><b id="cook-title"></b><span id="cook-info"></span><button class="x" id="cook-x" aria-label="Đóng"></button></div>
+        <div id="cook-stage"></div>
+        <div id="cook-hint"></div>
+      </div>
+    </div>
+
+    <!-- Nghe tren pho (to roi, shipper): thanh nho, van di lai duoc -->
+    <div id="jobhud" class="hidden">
+      <img id="jobhud-img" alt="">
+      <div class="jobhud-body"><b id="jobhud-title"></b><div id="jobhud-text"></div></div>
+      <div class="jobhud-time"><img src="assets/v2/jobs/ship_timer.png" alt=""><span id="jobhud-time"></span></div>
+      <button id="jobhud-map" class="btn small">🗺️ Bản đồ</button>
+      <button id="jobhud-quit" class="btn small">Nghỉ ca</button>
+    </div>
+    <div id="shipmap" class="hidden" title="Bấm để đóng">
+      <div class="shipmap-box">
+        <img src="assets/v2/jobs/city_map.png" alt="Bản đồ thành phố">
+        <img id="shipmap-pin" src="assets/v2/jobs/ship_card.png" alt="">
+        <div id="shipmap-label"></div>
+      </div>
+    </div>
+
     <div id="help" class="panel side hidden">
       <button class="x" data-close>✕</button>
       <h3>❓ Hướng dẫn nhanh</h3>

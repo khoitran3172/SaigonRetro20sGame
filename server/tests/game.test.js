@@ -3,8 +3,9 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-import { ECON, PLOTS } from '../../shared/config.js';
+import { ECON, PLOTS, walkerPos } from '../../shared/config.js';
 import { JsonDB } from '../db.js';
+import { needleAt as cookNeedle } from '../cook.js';
 import { Game } from '../game.js';
 
 function setup() {
@@ -171,4 +172,230 @@ test('Nghe: mini-game do server cham, khong khai diem duoc; nhiem vu ngay tra th
   Object.assign(a, { x: 910, y: 490 });
   msg(a, { t: 'job_start', job: 'it' });
   assert.match(toasts(a).at(-1), /thuê phòng/);
+});
+
+test('Gia su: phai thi chung chi o Truong; dap an khong gui xuong client, server cham tung cau', () => {
+  const { g, join, msg, toasts } = setup();
+  const a = join('Gia Su', 'sv');
+  a.p.cash = 200000;
+  Object.assign(a, { x: 4735, y: 490 }); // Nha hoc sinh
+  msg(a, { t: 'job_start', job: 'tutor' });
+  assert.match(toasts(a).at(-1), /Chứng chỉ Gia sư/);
+  // Thi o Giang duong: mat le phi, 10 cau
+  Object.assign(a, { x: 420, y: 490 });
+  msg(a, { t: 'act', poi: 'school_gate', act: 'exam', args: { id: 'tutor' } });
+  const exam = a.ws.out.findLast((m) => m.t === 'job');
+  assert.equal(exam.job, 'exam');
+  assert.equal(a.p.cash, 200000 - 50000);
+  assert.ok(exam.tasks.every((t) => t.a === undefined && t.opts.length === 4), 'khong lo dap an');
+  // tra loi qua nhanh -> bo qua
+  msg(a, { t: 'job_act', jid: exam.jid, i: 0, pick: 0 });
+  msg(a, { t: 'job_act', jid: exam.jid, i: 1, pick: 0 });
+  assert.equal(a.ws.out.filter((m) => m.t === 'job_ack').length, 1);
+  // tra loi dung het (lay dap an tu server), gia lap nhip 1.3s
+  for (let i = 1; i < 10; i++) {
+    a.job.last -= 1300;
+    msg(a, { t: 'job_act', jid: exam.jid, i, pick: a.job.tasks[i].a });
+  }
+  const res = a.ws.out.findLast((m) => m.t === 'job_result');
+  assert.equal(res.job, 'exam');
+  assert.ok(res.pass && a.p.certs.tutor);
+  // Day kem
+  Object.assign(a, { x: 4735, y: 490 });
+  msg(a, { t: 'act', poi: 'tutor', act: 'job', args: { id: 'tutor' } });
+  const job = a.ws.out.findLast((m) => m.t === 'job');
+  assert.equal(job.job, 'tutor');
+  for (let i = 0; i < 6; i++) {
+    a.job.last -= 1300;
+    const t = a.job.tasks[i];
+    msg(a, { t: 'job_act', jid: job.jid, i, pick: i < 5 ? t.a : (t.a + 1) % 4 });
+  }
+  msg(a, { t: 'job_end', jid: job.jid, answers: [] });
+  const r2 = a.ws.out.findLast((m) => m.t === 'job_result');
+  assert.equal(r2.correct, 5);
+  assert.equal(r2.wrong, 1);
+  assert.ok(r2.pay > 0);
+});
+
+test('To roi & shipper: server kiem tra vi tri nguoi choi', () => {
+  const { g, join, msg, toasts } = setup();
+  const a = join('Pho Phuong', 'sv');
+  Object.assign(a, { x: 3000, y: 520 });
+  msg(a, { t: 'job_start', job: 'flyer' });
+  const job = a.ws.out.findLast((m) => m.t === 'job');
+  assert.ok(job.street && job.tasks.length >= 10);
+  // phat tu xa -> khong tinh
+  Object.assign(a, { x: 6700, y: 1100 });
+  msg(a, { t: 'job_act', jid: job.jid, w: 0 });
+  assert.equal(a.job.live.correct, 0);
+  // dung ngay canh tung nguoi -> tinh, du 10 to thi tu ket thuc ca
+  for (const w of job.tasks.slice(0, 10)) {
+    a.job.last -= 600;
+    const { x, y } = walkerPos(w, Date.now() - a.job.started);
+    Object.assign(a, { x, y });
+    msg(a, { t: 'job_act', jid: job.jid, w: w.i });
+  }
+  const res = a.ws.out.findLast((m) => m.t === 'job_result');
+  assert.equal(res.job, 'flyer');
+  assert.equal(res.correct, 10);
+  assert.ok(res.pay > 0);
+
+  // Shipper: nhan don o Buu dien, toi dung dia chi thi giao xong
+  Object.assign(a, { x: 2060, y: 490 });
+  msg(a, { t: 'act', poi: 'buudien', act: 'job', args: { id: 'ship' } });
+  for (let n = 0; n < 3; n++) {
+    const leg = a.ws.out.findLast((m) => m.t === 'job_leg');
+    assert.equal(leg.n, n + 1);
+    if (n === 1) {
+      a.job.leg.until = Date.now() - 1; // tre han don 2
+      g.jobs.tick();
+    } else {
+      Object.assign(a, { x: leg.x, y: leg.y + 20 });
+      a.lastMoveAt -= 100000;
+      msg(a, { t: 'move', x: leg.x, y: leg.y + 20, d: 'down', m: 0 });
+    }
+  }
+  const r2 = a.ws.out.findLast((m) => m.t === 'job_result');
+  assert.equal(r2.job, 'ship');
+  assert.equal(r2.correct, 2);
+  assert.equal(r2.wrong, 1);
+  assert.ok(r2.pay > 0);
+  assert.ok(!toasts(a).some((t) => /quá giờ/.test(t)));
+});
+
+test('Nha tro: vao phong, dat / cat noi that, ngu hoi nang luong, tien dien', () => {
+  const { g, join, msg, toasts } = setup();
+  const a = join('Chu Phong', 'sv');
+  Object.assign(a, { x: 910, y: 490 });
+  msg(a, { t: 'home', a: 'enter' });
+  assert.match(toasts(a).at(-1), /chưa thuê/);
+  msg(a, { t: 'act', poi: 'tro', act: 'rent' });
+  assert.ok(a.p.renting);
+  msg(a, { t: 'act', poi: 'tro', act: 'enter' });
+  let st = a.ws.out.findLast((m) => m.t === 'home');
+  assert.ok(a.inHome && st.placed.length === 3, 'phong co san nem, quat, bep gas');
+  // dat them TV tu tui, sai cho -> loi, khong mat do
+  g.econ.addItem(a.p, 'tv_1', 1);
+  msg(a, { t: 'home', a: 'place', id: 'tv_1', x: 500, y: 100 });
+  assert.equal(g.econ.count(a.p, 'tv_1'), 1);
+  msg(a, { t: 'home', a: 'place', id: 'tv_1', x: 500, y: 420 });
+  st = a.ws.out.findLast((m) => m.t === 'home');
+  assert.equal(st.placed.length, 4);
+  assert.equal(g.econ.count(a.p, 'tv_1'), 0);
+  assert.equal(st.power, 1000 + 2000);
+  // xem TV giam cang thang, co hoi chieu
+  a.p.stats.stress = 50;
+  msg(a, { t: 'home', a: 'tv' });
+  assert.equal(a.p.stats.stress, 44);
+  msg(a, { t: 'home', a: 'tv' });
+  assert.match(toasts(a).at(-1), /mỏi mắt/);
+  // ngu 1 gio game
+  a.p.stats.stamina = 10;
+  msg(a, { t: 'home', a: 'sleep', hours: 1 });
+  for (let i = 0; i < 60; i++) g.onMinute();
+  assert.ok(!a.sleep, 'tu day sau 1 gio');
+  assert.ok(a.p.stats.stamina > 18, `hoi nang luong: ${a.p.stats.stamina}`);
+  // cat TV ve tui; tien dien tru luc sang ngay moi
+  msg(a, { t: 'home', a: 'store', i: 3 });
+  assert.equal(g.econ.count(a.p, 'tv_1'), 1);
+  const paid = [];
+  const pay = g.econ.pay.bind(g.econ);
+  g.econ.pay = (p, amount, wallet, reason) => {
+    if (p === a.p) paid.push([reason, amount]);
+    return pay(p, amount, wallet, reason);
+  };
+  g.onNewDay();
+  assert.deepEqual(paid, [['rent', ECON.rentPerDay], ['power', 1000]]);
+  assert.ok(a.p.renting);
+  // tra phong: do dat trong phong ve tui
+  msg(a, { t: 'act', poi: 'tro', act: 'unrent' });
+  assert.equal(g.econ.count(a.p, 'bed_1'), 1);
+  assert.equal(g.econ.count(a.p, 'fan_1'), 1);
+  assert.equal(g.econ.count(a.p, 'stove_1'), 1);
+});
+
+test('Nau an: can bep + nguyen lieu, server cham sao theo thu tu & nhip kim lua', () => {
+  const { g, join, msg, toasts } = setup();
+  const a = join('Dau Bep', 'sv');
+  Object.assign(a, { x: 910, y: 490 });
+  msg(a, { t: 'act', poi: 'tro', act: 'rent' });
+  msg(a, { t: 'home', a: 'enter' });
+  // thieu nguyen lieu
+  msg(a, { t: 'cook', a: 'start', dish: 'mon_trung_op_la' });
+  assert.match(toasts(a).at(-1), /Thiếu/);
+  // mon can sach cong thuc
+  msg(a, { t: 'cook', a: 'start', dish: 'mon_canh_chua' });
+  assert.match(toasts(a).at(-1), /Sách công thức/);
+  for (const id of ['nl_dau_an', 'nl_trung', 'nl_nuoc_mam']) g.econ.addItem(a.p, id, 2);
+  msg(a, { t: 'cook', a: 'start', dish: 'mon_trung_op_la' });
+  const go = a.ws.out.findLast((m) => m.t === 'cook_go');
+  assert.deepEqual(go.steps, ['nl_dau_an', 'nl_trung', 'nl_nuoc_mam']);
+  assert.equal(go.bowls.length, 5);
+  assert.equal(g.econ.count(a.p, 'nl_trung'), 1, 'tru nguyen lieu khi bat dau');
+  // bam dung thu tu, dung luc kim o vung xanh -> 3 sao
+  const inZone = (from) => {
+    for (let t = from; ; t += 10) {
+      const v = cookNeedle(t, go.period);
+      if (v > go.zone[0] + 0.02 && v < go.zone[1] - 0.02) return t;
+    }
+  };
+  a.cook.started -= 20000;
+  let t = 0;
+  const clicks = go.steps.map((ing) => {
+    t = inZone(t + 400);
+    return { ing, t };
+  });
+  msg(a, { t: 'cook', a: 'done', cid: go.cid, clicks });
+  const r = a.ws.out.findLast((m) => m.t === 'cook_result');
+  assert.equal(r.stars, 3);
+  assert.equal(g.econ.count(a.p, 'mon_trung_op_la_s3'), 1);
+  // lan 2: bam sai thu tu roi bo do -> hong mon
+  msg(a, { t: 'cook', a: 'start', dish: 'mon_trung_op_la' });
+  const go2 = a.ws.out.findLast((m) => m.t === 'cook_go');
+  msg(a, { t: 'cook', a: 'done', cid: go2.cid, clicks: [{ ing: 'nl_trung', t: 100 }] });
+  assert.equal(a.ws.out.findLast((m) => m.t === 'cook_result').stars, 0);
+});
+
+test('TTTM: mua o quay (gia co dinh, do dat tra the), gacha co bao hiem + phan ra do trung', () => {
+  const { g, join, msg, toasts } = setup();
+  const a = join('Di Mua Sam', 'sv');
+  Object.assign(a, { x: 5800, y: 490 });
+  a.p.cash = 1000000;
+  a.p.bank = 5000000;
+  msg(a, { t: 'poi', id: 'mall' });
+  assert.ok(a.ws.out.findLast((m) => m.t === 'mall'), 'vao TTTM');
+  msg(a, { t: 'mall', a: 'buy', counter: 'noithat', id: 'bed_2', qty: 1 });
+  assert.equal(g.econ.count(a.p, 'bed_2'), 1);
+  assert.equal(a.p.bank, 5000000 - 2000000);
+  msg(a, { t: 'mall', a: 'buy', counter: 'noithat', id: 'gear_ao_3' });
+  assert.match(toasts(a).at(-1), /không bán/);
+  msg(a, { t: 'mall', a: 'buy', counter: 'sieuthi', id: 'nl_trung', qty: 3 });
+  assert.equal(g.econ.count(a.p, 'nl_trung'), 3);
+  // 40 luot chua ra Hiem -> luot 40 chac chan Hiem tro len
+  a.p.gacha = { n: 0, sinceRare: 39, sinceLimited: 0 };
+  msg(a, { t: 'mall', a: 'gacha' });
+  const r = a.ws.out.findLast((m) => m.t === 'mall').spin;
+  assert.ok(['rare', 'limited'].includes(r.rar));
+  assert.equal(a.p.gacha.sinceRare, 0);
+  assert.equal(a.p.cash, 1000000 - 3 * 3000 - 30000);
+  // quay trung mon da co -> manh
+  const owned = r.id;
+  let dupSeen = false;
+  for (let i = 0; i < 200 && !dupSeen; i++) {
+    msg(a, { t: 'mall', a: 'gacha' });
+    const sp = a.ws.out.findLast((m) => m.t === 'mall').spin;
+    if (sp.dup) dupSeen = sp.shards > 0;
+    a.p.cash = 1000000;
+  }
+  assert.ok(dupSeen, 'co luot trung do');
+  assert.ok(g.econ.count(a.p, 'gacha_manh') > 0);
+  assert.ok(g.econ.count(a.p, owned) === 1, 'do trung khong nhan them');
+  // doi manh
+  g.econ.addItem(a.p, 'gacha_manh', 30);
+  msg(a, { t: 'mall', a: 'exchange', kind: 'kinh' });
+  assert.ok(g.econ.count(a.p, 'gear_kinh_3') >= 1);
+  // ngoai TTTM khong mua duoc
+  Object.assign(a, { x: 3000, y: 490 });
+  msg(a, { t: 'mall', a: 'gacha' });
+  assert.match(toasts(a).at(-1), /Trung Tâm Mua Sắm/);
 });

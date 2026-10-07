@@ -1,5 +1,5 @@
 // Scene the gioi: ban do 4 khu, nhan vat, NPC, sap hang, giao thong, ngay/dem, thoi tiet.
-import { BUILDINGS, CHAT, PLOTS, POIS, WORLD, ZONES } from '/shared/config.js';
+import { BUILDINGS, CHAT, FLYER, PLOTS, POIS, WORLD, ZONES, walkerPos } from '/shared/config.js';
 import { genBuilding, genGround, genMisc, genTubeHouse } from './textures.js';
 
 const FONT = '"Be Vietnam Pro", system-ui, sans-serif';
@@ -13,14 +13,14 @@ const NPC_STYLE = {
 const POI_ICON = {
   school: '🏫', tro: '🏠', net: '🖥️', veso: '🎫', buudien: '📮', cafe: '☕', banhmi: '🥖', bangdia: '📼', bida: '🎱',
   barber: '💈', cho: '🧺', mechanic: '🔧', atm: '🏧', bank: '🏦', office: '🏢', auction: '🔨', showroom: '🛵',
-  fashion: '👗', junk: '♻️', comtam: '🍛', trasua: '🧋',
+  fashion: '👗', junk: '♻️', comtam: '🍛', trasua: '🧋', tutor: '📚', mall: '🛍️',
 };
 // Vi tri nguoi ngoi tren xe (theo ty le anh xe): dx > 0 = tien ve dau xe, dy = nang len
 export const RIDE_FIT = { scale: 0.75, dx: -0.05, dy: 0.32 };
 // Xe nguoi choi dang lai -> anh xe (dau xe quay PHAI)
 const VEHICLE_SPRITE = { xe_cub: 'veh_cub', xe_ga: 'veh_ga', xe_pkl: 'veh_pkl', xe_dap: 'veh_dap' };
-// Giao thong trang tri: [anh, trong so]. cub_rider la art cu (chua co NPC lai xe moi)
-const TRAFFIC = [['cub_rider', 5], ['veh_taxi', 2], ['veh_taxi2', 2], ['veh_bus', 1]];
+// Giao thong trang tri: [anh, trong so]. Chi con taxi + xe buyt (G32: bo xe may)
+const TRAFFIC = [['veh_taxi', 2], ['veh_taxi2', 2], ['veh_bus', 1]];
 const stallSprite = (s) => (s.u ? 'stall_lv3' : s.lg ? 'stall_lv2' : 'stall_lv1');
 const SEND_HZ = 15;
 const INTERACT_RANGE = 120;
@@ -59,6 +59,7 @@ export class WorldScene extends Phaser.Scene {
       this.load.spritesheet(k, `assets/chars/${k}.png`, { frameWidth: m.frameWidth, frameHeight: m.frameHeight });
     }
     for (const k of Object.keys(props)) this.load.image(k, `assets/props/${k}.png`);
+    for (const b of BUILDINGS) if (b.v2) this.load.image(b.sprite, `assets/v2/bld/${b.sprite}.png`);
     for (const [k, m] of Object.entries(anims)) {
       this.load.spritesheet(k, `assets/anim/${k}.png`, { frameWidth: m.frameWidth, frameHeight: m.frameHeight });
     }
@@ -75,6 +76,7 @@ export class WorldScene extends Phaser.Scene {
     this.setupAtmosphere();
     this.setupInput();
     this.ui.onNavigate = (poi) => this.navigateTo(poi);
+    this.ui.worldScene = this;
     this.setupNet();
 
     const w = this.welcome;
@@ -190,15 +192,17 @@ export class WorldScene extends Phaser.Scene {
         key = `bld_${b.id}`;
         genBuilding(this, key, b.gen);
       }
-      const img = this.add.image(b.x, base, key).setOrigin(0.5, 1).setDepth(WORLD.buildingBase);
-      const left = b.x - img.width / 2;
-      const top = base - img.height;
-      used.push([left, left + img.width]);
-      if (b.sign) this.signText(b.sign, left, top, img.width, img.height);
+      const img = this.add.image(b.x, base, key).setOrigin(0.5, 1).setDepth(WORLD.buildingBase).setScale(b.scale || 1);
+      const bw = img.displayWidth;
+      const bh = img.displayHeight;
+      const left = b.x - bw / 2;
+      const top = base - bh;
+      used.push([left, left + bw]);
+      if (b.sign) this.signText(b.sign, left, top, bw, bh);
       const neon = b.gen?.neon ?? (b.sign?.neon ? Phaser.Display.Color.HexStringToColor(b.sign.neon).color : null);
       if (neon != null) {
-        const sy = b.sign ? top + (img.height * (b.sign.box[1] + b.sign.box[3])) / 2 : top + 44;
-        const glow = this.add.image(b.x, sy, 'glow').setScale(img.width / 200, 0.5)
+        const sy = b.sign ? top + (bh * (b.sign.box[1] + b.sign.box[3])) / 2 : top + 44;
+        const glow = this.add.image(b.x, sy, 'glow').setScale(bw / 200, 0.5)
           .setTint(neon).setBlendMode(Phaser.BlendModes.ADD).setDepth(5001).setAlpha(0);
         this.lamps.push({ img: glow, max: 0.7 });
       }
@@ -216,7 +220,7 @@ export class WorldScene extends Phaser.Scene {
       const key = `tube_${seed}`;
       return { key, w: genTubeHouse(this, key, seed * 7919).w };
     };
-    const CITY_END = 5600;
+    const CITY_END = 5590; // sau Nha Dau Gia: TTTM roi den Ngoai o (trong cay)
     const gaps = [];
     let prev = 0;
     for (const [a, b] of [...used].sort((p, q) => p[0] - q[0])) {
@@ -276,8 +280,6 @@ export class WorldScene extends Phaser.Scene {
       }
     }
     // Tram xe buyt (G29: moi khu 1 tram) + diem don taxi — hien chi trang tri, chua co he thong buyt/taxi
-    for (const x of [790, 3310, 4990, 5830]) this.prop('bus_stop', x, 578);
-    for (const x of [370, 4150]) this.prop('taxi_stand', x, 578);
     // Cay via he duoi (tranh khu o quy hoach), thung rac, nap cong
     for (let i = 0, x = 120; x < WORLD.width; x += 330, i++) {
       if (x > 1780 && x < 3620) continue;
@@ -291,7 +293,6 @@ export class WorldScene extends Phaser.Scene {
     this.prop('bench', 1000, 1120);
     this.prop('bench', 1300, 1120);
     // Khu 1: ban tra da, co tuong, gia dinh, tre con
-    this.prop('table_tra_da', 2420, 575);
     this.prop('sign_stand', 2700, 470);
     this.prop('stool_blue_v2', 2420, 1000);
     this.prop('table_co_tuong', 2470, 1010);
@@ -313,7 +314,7 @@ export class WorldScene extends Phaser.Scene {
     this.prop('bench', 5000, 1110);
     // Khu 4: bai phe lieu
     for (const [x, y] of [[5780, 1000], [5960, 1120], [6390, 940], [6640, 1080], [6560, 560]]) this.prop('tires_v2', x, y);
-    for (const [x, y] of [[5900, 900], [6200, 1060], [6500, 1150], [6060, 560]]) this.prop('junk_pile', x, y);
+    for (const [x, y] of [[5900, 900], [6200, 1060], [6500, 1150], [6120, 560]]) this.prop('junk_pile', x, y);
     this.prop('veh_cub', 6000, 1100, { tint: 0x9a9080 });
   }
 
@@ -403,7 +404,10 @@ export class WorldScene extends Phaser.Scene {
       this.moveTarget = { x: pointer.worldX, y: pointer.worldY };
     });
     this.input.keyboard.on('keydown-E', () => {
-      if (this.ui.typing || this.ui.jobs.active) return;
+      if (this.ui.typing || this.ui.locked) return;
+      // Dang phat to roi: E = phat cho nguoi gan nhat
+      const w = this.nearestWalker();
+      if (w) return this.jobWalkers.onGive(w.w.i);
       let best = null;
       for (const poi of POIS) {
         const d = Phaser.Math.Distance.Between(poi.x, poi.y, this.me.x, this.me.y);
@@ -418,9 +422,93 @@ export class WorldScene extends Phaser.Scene {
     this.goInteract(poi.x, poi.y + 24, () => this.net.send({ t: 'poi', id: poi.id }));
   }
 
-  goInteract(x, y, fn, range = INTERACT_RANGE) {
+  // track: ham tra vi tri moi (doi tuong dang di chuyen) -> bam theo
+  goInteract(x, y, fn, range = INTERACT_RANGE, track = null) {
     this.moveTarget = { x, y };
-    this.pending = { x, y, fn, range };
+    this.pending = { x, y, fn, range, track };
+  }
+
+  // ================================================================ nghe tren pho
+  // Phat to roi: nguoi di duong chi nguoi dang lam ca moi thay (server gui danh sach, vi tri tinh theo walkerPos)
+  showWalkers(list, onGive) {
+    for (const o of this.jobWalkers?.objs || []) for (const g of [o.sprite, o.shadow, o.label]) g.destroy();
+    this.jobWalkers = null;
+    if (!list) return;
+    const objs = list.map((w) => {
+      const shadow = this.add.image(w.x0, w.y, 'shadow');
+      const sprite = this.add.sprite(w.x0, w.y, w.sk, 0).setOrigin(0.5, 1).setInteractive({ useHandCursor: true });
+      const label = this.add.text(w.x0, w.y, '📄?', {
+        fontFamily: FONT, fontSize: '13px', fontStyle: '800', color: '#ffe680', stroke: '#1a120c', strokeThickness: 4,
+      }).setOrigin(0.5, 1);
+      const o = { w, sprite, shadow, label, skin: w.sk, x: w.x0, y: w.y, anim: '', got: false };
+      sprite.on('pointerdown', () => {
+        if (o.got) return;
+        this.goInteract(o.x, o.y, () => onGive(w.i), 90, () => (o.got ? null : { x: o.x, y: o.y }));
+      });
+      return o;
+    });
+    this.jobWalkers = { objs, onGive, t0: performance.now() };
+  }
+
+  walkerGot(i) {
+    const o = this.jobWalkers?.objs.find((x) => x.w.i === i);
+    if (!o) return;
+    o.got = true;
+    o.label.setText('✅').setColor('#9fe58a');
+    o.sprite.disableInteractive();
+    this.floatText(o.x, o.y - 90, '+1 tờ rơi', '#ffe680');
+  }
+
+  nearestWalker() {
+    if (!this.jobWalkers) return null;
+    let best = null;
+    for (const o of this.jobWalkers.objs) {
+      const d = Phaser.Math.Distance.Between(o.x, o.y, this.me.x, this.me.y);
+      if (!o.got && d < FLYER.range - 20 && (!best || d < best.d)) best = { w: o.w, d };
+    }
+    return best;
+  }
+
+  updateWalkers(time) {
+    const jw = this.jobWalkers;
+    if (!jw) return;
+    const ms = performance.now() - jw.t0;
+    for (const o of jw.objs) {
+      const p = walkerPos(o.w, ms);
+      o.x = p.x;
+      o.y = p.y;
+      o.sprite.setPosition(p.x, p.y).setDepth(p.y);
+      o.shadow.setPosition(p.x, p.y).setDepth(p.y - 1);
+      o.label.setPosition(p.x, p.y - o.sprite.displayHeight - 4 - Math.abs(Math.sin(time / 300)) * 3).setDepth(4000);
+      this.playAnim(o, this.animKey(o.skin, p.dir, true), p.dir);
+    }
+  }
+
+  // Shipper: moc chi diem giao (nhan tren dia diem + mui ten o mep man hinh khi o xa)
+  setJobTarget(t) {
+    this.jobTarget?.mark.destroy();
+    this.jobTarget?.arrow.destroy();
+    this.jobTarget = null;
+    if (!t) return;
+    const style = { fontFamily: FONT, fontSize: '15px', fontStyle: '800', color: '#ffe680', backgroundColor: 'rgba(122,40,20,0.85)', padding: { x: 8, y: 4 } };
+    const mark = this.add.text(t.x, t.y - 70, `${t.label} ▼`, style).setOrigin(0.5, 1).setDepth(4200);
+    const arrow = this.add.text(0, 0, '', style).setOrigin(0.5).setDepth(4200);
+    this.jobTarget = { ...t, mark, arrow };
+  }
+
+  updateJobTarget(time) {
+    const t = this.jobTarget;
+    if (!t) return;
+    t.mark.y = t.y - 70 - Math.abs(Math.sin(time / 250)) * 8;
+    const view = this.cameras.main.worldView;
+    const off = t.x < view.left + 40 || t.x > view.right - 40;
+    t.arrow.setVisible(off);
+    if (off) {
+      const left = t.x < view.left;
+      const m = Math.round(Math.abs(t.x - this.me.x) / 10);
+      t.arrow.setText(left ? `◀ 📦 ${m}m` : `📦 ${m}m ▶`);
+      t.arrow.setPosition(left ? view.left + t.arrow.width / 2 + 12 : view.right - t.arrow.width / 2 - 12, view.top + view.height * 0.45);
+    }
   }
 
   // ================================================================ mang
@@ -608,7 +696,6 @@ export class WorldScene extends Phaser.Scene {
     let r = Math.random() * total;
     const key = TRAFFIC.find(([, w]) => (r -= w) < 0)[0];
     const img = this.add.image(x, y, key).setOrigin(0.5, 1).setDepth(y).setFlipX(left);
-    if (key === 'cub_rider') img.setTint([0xffffff, 0xd8e6ff, 0xffe0d0, 0xe0ffe0, 0xf0e0ff][Math.floor(Math.random() * 5)]);
     const speed = (key === 'veh_bus' ? 110 : 150 + Math.random() * 120) * (this.weather === 'rain' ? 0.5 : 1);
     this.traffic.push({ img, vx: left ? -speed : speed });
   }
@@ -631,7 +718,9 @@ export class WorldScene extends Phaser.Scene {
   // ================================================================ vong lap
   update(time, deltaMs) {
     const dt = Math.min(0.05, deltaMs / 1000);
+    this.updateWalkers(time);
     this.updateMe(dt, time);
+    this.updateJobTarget(time);
     this.autoCloseDialog();
     for (const a of this.avatars.values()) {
       if (!a.isMe) {
@@ -752,7 +841,17 @@ export class WorldScene extends Phaser.Scene {
     if (!me || !self) return;
     let vx = 0;
     let vy = 0;
-    if (!this.ui.typing && !this.ui.jobs.active) {
+    if (this.pending?.track) {
+      const p = this.pending.track();
+      if (!p) {
+        this.pending = null;
+        this.moveTarget = null;
+      } else {
+        Object.assign(this.pending, p);
+        this.moveTarget = { ...p };
+      }
+    }
+    if (!this.ui.typing && !this.ui.locked) {
       const k = this.keys;
       if (k.A.isDown || k.LEFT.isDown) vx -= 1;
       if (k.D.isDown || k.RIGHT.isDown) vx += 1;

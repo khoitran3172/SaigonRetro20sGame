@@ -1,7 +1,7 @@
 // Hoi thoai cua cac diem tuong tac (POI). Server dung UI -> client chi hien thi.
 // Moi kind: open(g, s, ctx) -> {title, text, options}; acts[act](g, s, args, inputs, ctx) -> string (toast)
 import {
-  CLASSES, ECON, ITEMS, JOBS, JOBS_SOON, PROMOTION, QUESTS, QUEST_BONUS, RECIPES, SLOTS, zoneAt,
+  CLASSES, ECON, EXAMS, ITEMS, JOBS, JOBS_SOON, PROMOTION, QUESTS, QUEST_BONUS, RECIPES, SLOTS, zoneAt,
 } from '../shared/config.js';
 import { EconError } from './economy.js';
 import { jobInfo } from './jobs.js';
@@ -48,7 +48,8 @@ function jobOption(g, s, id) {
   const def = JOBS[id];
   const info = jobInfo(s.p, id);
   const pay = def.pay[info.lvl - 1];
-  return opt(`${def.icon} Làm 1 ca ${def.name} · Cấp ${info.lvl} · tới ${vnd(pay)} (−${def.energy} năng lượng)`, 'job', { id });
+  const locked = def.needCert && !s.p.certs?.[def.needCert];
+  return opt(`${def.icon} Làm 1 ca ${def.name} · Cấp ${info.lvl} · ${id === 'ship' ? 'khoảng' : 'tới'} ${vnd(pay)} (−${def.energy} năng lượng)`, 'job', { id }, { disabled: locked });
 }
 const jobAct = (g, s, a) => {
   g.jobs.start(s, a.id);
@@ -60,6 +61,8 @@ const comtamShop = shop(['com_suon', 'com_bi_cha', 'canh_chua', 'trung_op_la', '
 const trasuaShop = shop(['tra_sua'], 1);
 const banhmiShop = shop(['banhmi'], 1.2);
 const choShop = shop(['phoi_banh', 'thit_nguoi', 'rau_thom', 'tra_kho', 'da_vien', 'cay_mia', 'du_che'], 1);
+// Nguyen lieu nau an o nha (G44) + sach cong thuc
+const kitchenShop = shop([...Object.keys(ITEMS).filter((id) => id.startsWith('nl_')), 'sach_cong_thuc'], 1);
 const showroomShop = shop(['xe_dap', 'xe_cub', 'xe_ga', 'xe_pkl', 'non_bh'], 1, (price) => (price >= 100000 ? 'bank' : 'cash'));
 const fashionShop = shop(['ao_thun', 'ao_somi', 'ao_dai_do', 'quan_jean', 'dep_lao', 'dep_quai', 'giay_tt', 'non_la', 'non_ket',
   'kinh_ram', 'khuyen_tai', 'dong_ho', 'balo', 'tui_xach', 'dien_thoai'], 1, (price) => (price >= 100000 ? 'bank' : 'cash'));
@@ -123,14 +126,24 @@ export const DIALOGS = {
         text: isSv
           ? `Điểm danh: 07:00–11:00. Hôm nay: ${p.daily.attended ? '✅ đã điểm danh' : '❌ chưa điểm danh'}.\nĐiểm danh: ${p.stats.attendance} · Đủ điểm có thể thăng tiến lên Thực tập sinh và nộp CV vào TechCorp.`
           : 'Giảng đường dành cho Sinh viên. Bạn có thể ghé thăm trường cũ.',
-        options: isSv ? [
-          opt('📋 Điểm danh (+ tiền hỗ trợ SV)', 'attend'),
-          opt('📚 Ôn thi / làm đồ án (1 giờ)', 'study'),
-          promoteOption(g, s),
-        ] : [],
+        options: [
+          ...(isSv ? [
+            opt('📋 Điểm danh (+ tiền hỗ trợ SV)', 'attend'),
+            opt('📚 Ôn thi / làm đồ án (1 giờ)', 'study'),
+            promoteOption(g, s),
+          ] : []),
+          // Khoa hoc ky nang (G10): mo cho moi tang lop
+          ...Object.entries(EXAMS).map(([id, e]) => (p.certs?.[id]
+            ? opt(`${e.icon} ${e.name} — ✅ đã có`, 'exam', { id }, { disabled: true })
+            : opt(`${e.icon} Thi ${e.name} (lệ phí ${vnd(e.fee)} · đúng ${e.pass}/${e.count} câu là đậu)`, 'exam', { id }))),
+        ],
       };
     },
     acts: {
+      exam(g, s, a) {
+        g.jobs.start(s, `exam:${a.id}`);
+        return false;
+      },
       attend(g, s) {
         const p = s.p;
         if (p.cls !== 'sv') throw new EconError('Chỉ dành cho sinh viên');
@@ -165,11 +178,12 @@ export const DIALOGS = {
       return {
         title: '🏠 Nhà trọ sinh viên',
         text: p.renting
-          ? `Bạn đang thuê phòng 15m² gác lửng (${vnd(ECON.rentPerDay)}/ngày, tự trừ ngân hàng lúc 00:00).\nNghỉ trong phòng hồi phục nhanh gấp 3 lần.`
-          : `Phòng trọ ${vnd(ECON.rentPerDay)}/ngày. Thuê để nghỉ ngơi hồi phục nhanh gấp 3 lần.`,
+          ? `Bạn đang thuê phòng 15m² gác lửng (${vnd(ECON.rentPerDay)}/ngày + tiền điện ${vnd(g.home.dailyPower(p))}/ngày, tự trừ ngân hàng lúc 00:00).\nVào phòng để ngủ, xem TV, sắp xếp nội thất.`
+          : `Phòng trọ ${vnd(ECON.rentPerDay)}/ngày (+ tiền điện theo đồ dùng). Có sẵn nệm và quạt — vào ngủ, trang trí theo ý thích.`,
         options: [
-          p.renting ? opt('Trả phòng', 'unrent') : opt(`Thuê phòng (${vnd(ECON.rentPerDay)}/ngày)`, 'rent'),
-          opt(p.renting ? '😴 Ngủ một giấc (hồi phục mạnh)' : '🪑 Ngồi nghỉ ở bậc thềm', 'rest'),
+          ...(p.renting ? [opt('🚪 Vào phòng', 'enter')] : []),
+          p.renting ? opt('Trả phòng (đồ đạc về lại túi)', 'unrent') : opt(`Thuê phòng (${vnd(ECON.rentPerDay)}/ngày)`, 'rent'),
+          ...(p.renting ? [] : [opt('🪑 Ngồi nghỉ ở bậc thềm', 'rest')]),
           ...(p.renting ? [jobOption(g, s, 'it')] : []),
         ],
       };
@@ -179,18 +193,24 @@ export const DIALOGS = {
       rent(g, s) {
         g.econ.pay(s.p, ECON.rentPerDay, 'bank', 'rent_first_day');
         s.p.renting = true;
-        return 'Đã thuê phòng! Ngày đầu đã trả.';
+        g.home.furnishStarter(s.p);
+        return 'Đã thuê phòng! Ngày đầu đã trả. Bấm "Vào phòng" để nghỉ ngơi.';
       },
       unrent(g, s) {
         s.p.renting = false;
-        return 'Đã trả phòng.';
+        g.home.vacate(s.p);
+        return 'Đã trả phòng, đồ đạc đã về lại túi.';
+      },
+      enter(g, s) {
+        g.home.enter(s);
+        return false;
       },
       rest(g, s) {
+        if (s.p.renting) throw new EconError('Vào phòng mà ngủ cho ngon!');
         cooldown(g, s, 'rest', 30);
-        const k = s.p.renting ? 3 : 1;
-        addStat(s.p, 'stamina', 15 * k);
-        addStat(s.p, 'stress', -10 * k);
-        return s.p.renting ? 'Ngủ ngon! Thể lực và tinh thần hồi phục mạnh.' : 'Nghỉ một chút cho đỡ mệt.';
+        addStat(s.p, 'stamina', 15);
+        addStat(s.p, 'stress', -10);
+        return 'Nghỉ một chút cho đỡ mệt.';
       },
     },
   },
@@ -246,6 +266,20 @@ export const DIALOGS = {
     },
   },
 
+  tutor: {
+    open(g, s) {
+      const has = s.p.certs?.tutor;
+      return {
+        title: '📚 Nhà học sinh',
+        text: has
+          ? 'Phụ huynh: "Cháu đang chờ thầy/cô đó! Kèm cháu toán, tiếng Việt với tiếng Anh nha."\nTrả lời đúng câu hỏi của học sinh để được trả công.'
+          : `Phụ huynh: "Nhà tôi chỉ nhận gia sư có ${EXAMS.tutor.name}. Thi ở Giảng đường (Khu 3) nhé!"`,
+        options: [jobOption(g, s, 'tutor')],
+      };
+    },
+    acts: { job: jobAct },
+  },
+
   buudien: {
     open(g, s) {
       const p = s.p;
@@ -265,6 +299,7 @@ export const DIALOGS = {
             ],
           }),
           opt(`📶 Mua gói cước 4G +30 tin (${vnd(10000)})`, 'data'),
+          jobOption(g, s, 'ship'),
           ...TITLES.filter((t) => !p.titles.includes(t.name)).map((t) =>
             opt(`🏅 Đổi danh hiệu "${t.name}" (${t.cost} Danh Vọng)`, 'title', { id: t.id }, { disabled: p.social < t.cost })),
           opt('📰 Bảng tin thành phố', 'newsboard'),
@@ -272,6 +307,7 @@ export const DIALOGS = {
       };
     },
     acts: {
+      job: jobAct,
       collect(g, s) {
         const p = s.p;
         let n = 0;
@@ -426,12 +462,16 @@ export const DIALOGS = {
   cho: {
     open: (g, s) => ({
       title: '🧺 Tạp Hóa Cô Ba (Nguyên liệu)',
-      text: s.p.cls === 'tt'
-        ? 'Nhập nguyên liệu để chế biến tại sạp của bạn (mở sạp → nút Chế biến).'
-        : 'Nguyên liệu dành cho tiểu thương chế biến. Ai cũng mua được.',
-      options: [...choShop.options(g, s), ...(s.p.cls === 'tt' ? [promoteOption(g, s)] : [])],
+      text: `🍳 Đồ nấu ăn ở nhà (cần thuê phòng trọ có bếp):\n${s.p.cls === 'tt'
+        ? '🧺 Nguyên liệu bánh mì / trà đá / nước mía để chế biến tại sạp (mở sạp → nút Chế biến).'
+        : '🧺 Nguyên liệu chế biến bán sạp — ai cũng mua được.'}`,
+      options: [...kitchenShop.options(g, s), ...choShop.options(g, s), ...(s.p.cls === 'tt' ? [promoteOption(g, s)] : [])],
     }),
-    acts: { buy: choShop.buy, promote },
+    acts: {
+      buy: (g, s, a, inp) => (ITEMS[a.id]?.type === 'ingredient' && a.id.startsWith('nl_') || a.id === 'sach_cong_thuc'
+        ? kitchenShop.buy(g, s, a, inp) : choShop.buy(g, s, a, inp)),
+      promote,
+    },
   },
 
   mechanic: {
@@ -663,11 +703,12 @@ const PHONE_APPS = {
     const rows = Object.entries(JOBS).map(([id, d]) => {
       const info = jobInfo(s.p, id);
       const xp = info.next ? `${info.xp}/${info.next} KN` : 'cấp tối đa';
-      return `${d.icon} ${d.name} — Cấp ${info.lvl} (${xp})\n   📍 ${d.place} · lương ${vnd(d.pay[info.lvl - 1])}/ca`;
+      const lock = d.needCert && !s.p.certs?.[d.needCert] ? ` · 🔒 cần ${EXAMS[d.needCert].name}` : '';
+      return `${d.icon} ${d.name} — Cấp ${info.lvl} (${xp})\n   📍 ${d.place} · lương ${vnd(d.pay[info.lvl - 1])}/ca${lock}`;
     });
     return {
       title: '💼 Việc Làm',
-      text: `${rows.join('\n')}\n🥫 Nhặt ve chai — Ngoại ô (bán ở Vựa Ve Chai)\n\nSắp có: ${JOBS_SOON.join(' · ')}\nTới đúng nơi làm rồi bấm "Làm ca".`,
+      text: `${rows.join('\n')}\n🥫 Nhặt ve chai — Ngoại ô (bán ở Vựa Ve Chai)\n\nSắp có: ${JOBS_SOON.join(' · ')}\nTới đúng nơi làm rồi bấm "Làm ca" (Phát tờ rơi làm ở đâu cũng được).`,
       options: Object.keys(JOBS).map((id) => jobOption(g, s, id)),
     };
   },
