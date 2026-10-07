@@ -5,7 +5,7 @@
 // - To roi / Shipper (street): lam tren pho, server kiem tra vi tri nguoi choi.
 import { EXAMS, FLYER, ITEMS, JOBS, JOB_XP, POIS, SHIP, SPEED, WORLD, walkerPos, zoneAt } from '../shared/config.js';
 import { EconError } from './economy.js';
-import { roomStats } from './home.js';
+import { homeDoor, homeOf, roomStats } from './home.js';
 
 const POI_RANGE = 170;
 const QUIZ_GAP = 1200; // ms toi thieu giua 2 cau tra loi
@@ -191,21 +191,25 @@ export class Jobs {
     if (s.job) throw new EconError('Bạn đang làm một ca khác');
     if (s.sleep) throw new EconError('Bạn đang ngủ');
     if (s.cook) throw new EconError('Bạn đang nấu ăn');
-    const poiId = examId ? 'school_gate' : def.poi;
+    // IT lam o nha: phong tro hoac can ho dang o
+    const home = def.needRent ? homeOf(p, g.day) : null;
+    if (def.needRent && !home) throw new EconError('Cần chỗ ở (thuê phòng trọ hoặc chung cư) để có bàn ngồi làm IT');
+    const poiId = examId ? 'school_gate' : home ? homeDoor(home).id : def.poi;
     if (poiId) {
       const poi = POIS.find((x) => x.id === poiId);
-      if (Math.hypot(poi.x - s.x, poi.y - s.y) > POI_RANGE) throw new EconError(`Hãy tới ${examId ? 'Giảng đường' : def.place} để làm ca này`);
+      if (Math.hypot(poi.x - s.x, poi.y - s.y) > POI_RANGE) throw new EconError(`Hãy tới ${examId ? 'Giảng đường' : poi.name} để làm ca này`);
     }
     p.certs ??= {};
     if (examId && p.certs[examId]) throw new EconError(`Bạn đã có ${def.name} rồi`);
-    if (def.needRent && !p.renting) throw new EconError('Cần thuê phòng trọ để có chỗ ngồi làm IT');
     if (def.needPhone && !g.hasPhone(p)) throw new EconError('Shipper cần trang bị Điện thoại để nhận đơn');
     if (def.needCert && !p.certs[def.needCert]) throw new EconError(`Cần ${EXAMS[def.needCert].name} — thi ở Giảng đường (Khu 3)`);
-    if (p.stats.stamina < def.energy) throw new EconError('Bạn hết năng lượng. Ăn uống hoặc nghỉ ngơi đã!');
+    // Trang bi "Tiet kiem NL" giam nang luong ton moi ca
+    const energy = Math.round(def.energy * (1 - (s.stats?.staminaSave || 0) / 100));
+    if (p.stats.stamina < energy) throw new EconError('Bạn hết năng lượng. Ăn uống hoặc nghỉ ngơi đã!');
     if ((p.stats.hunger ?? 100) < 5) throw new EconError('Đói quá, không làm nổi. Ăn gì đi đã!');
     if (examId) g.econ.pay(p, def.fee, 'cash', `exam:${examId}`);
     // Tru nang luong ngay khi vao ca (bo ngang van mat)
-    p.stats.stamina -= def.energy;
+    p.stats.stamina -= energy;
     p.stats.hunger = Math.max(0, (p.stats.hunger ?? 100) - def.hunger);
     p.stats.stress = Math.min(100, p.stats.stress + def.stress);
     const lvl = examId ? 3 : jobInfo(p, id).lvl;

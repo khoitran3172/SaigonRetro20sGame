@@ -298,6 +298,17 @@
 .room-sleep .zzz { font-size: 42px; letter-spacing: 6px; animation: zz 1.6s ease-in-out infinite alternate; }
 @keyframes zz { to { transform: translateY(-10px); opacity: 0.6; } }
 
+/* Cong cu GM (chi chay o may) */
+#gm { width: 470px; max-width: calc(100vw - 20px); }
+#gm-body { display: flex; flex-direction: column; gap: 6px; font-size: 13px; }
+#gm-body h4 { margin: 6px 0 0; color: var(--paper-accent); }
+.gm-row { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.gm-row b { width: 100px; }
+.gm-row input { width: 110px; }
+.gm-row input.qty { width: 50px; }
+.gm-row select { max-width: 220px; }
+#btn-gm { filter: hue-rotate(160deg); }
+
 /* Cho Sap Hang Hoa (G24, G55–G57) */
 #market { position: fixed; inset: 0; z-index: 44; display: grid; place-items: center; background: rgba(12, 8, 5, 0.6); }
 #market-box { position: relative; width: min(1000px, 96vw); border: 24px solid transparent; border-image: url(assets/ui/panel.png) 48 fill / 24px stretch; color: var(--paper-ink); }

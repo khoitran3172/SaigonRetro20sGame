@@ -7,6 +7,7 @@
 > **Đã code (2026-10-07, theo art đã có):** G6 3 nhu cầu (thêm chỉ số No bụng) · G7 3 nhiệm vụ/ngày · G11 + G43 hệ thống nghề có cấp 1–5 với 3 mini-game J1 IT (ở phòng trọ, cần thuê), J2 Phục vụ (Quán Cơm Tấm), J3 Trà sữa (Tiệm Trà Sữa) · G58 điện thoại (Việc Làm, Ngân hàng, Bản đồ bấm-để-đi, Chợ, Nhiệm vụ, Bạn bè, Cài đặt) · INVENTORY_V2 I1/I3/I4/I5/I6/I7/I11/I12/I14 (túi lưới, tab, chọn/bấm đúp, thanh nhanh 1–5, ô thông tin so sánh, viền độ hiếm, búp bê giấy 8 ô). Chưa chặn khi túi đầy (I1 chỉ hiển thị). Nhân vật giữ nguyên art & màn tạo nhân vật cũ.
 > **Đã code (2026-10-07, lần 3):** J5 Phát tờ rơi (làm ngay trên phố, người đi đường chỉ người làm ca thấy) · J6 Shipper (nhận đơn ở Bưu Điện, 3 đơn/ca, hạn theo quãng đường, bản đồ thành phố) · J8 Gia sư (Nhà học sinh Khu 2) + G10 thi Chứng chỉ Gia sư ở Giảng đường · G19/G21 phòng trọ: vào phòng, kéo thả / lật / cất nội thất, phòng có sẵn nệm + quạt + bếp gas mini · G49/G50 ngủ 1/2/4/8 giờ (hồi theo giường × thoải mái × nóng) · G42 xem TV · G52 tiền điện trừ hằng ngày cùng tiền trọ · G44–G48 nấu ăn 12 món (5 cơ bản + 7 món trong sách công thức), mini-game canh lửa, 1–3 sao · G22/G51 nội thất 20 loại × 3 phân khúc · G25–G27 TTTM (Khu 2 x=5800) 5 quầy · G60–G64 trang bị 4 độ hiếm + Gacha (30k tiền mặt, pity 40/100, đồ trùng → mảnh, 30 mảnh đổi 1 món Hiếm).
 > **Đã code (2026-10-07, lần 4):** G24/G55–G57 Chợ Sạp Hàng Hóa (thay CLB Bida, Khu 1): thuê sạp 3 cỡ theo tuần, bày hàng tự đặt giá trong khung 50%–300% giá gốc, bán khi offline, thuế 5%, màn Mua / Sạp của tôi, giá trung bình · G53 đã gỡ sạp vỉa hè, ô quy hoạch, Cảnh sát phạt, Giang hồ, khách NPC.
+> **Đã code (2026-10-07, lần 5):** G20 chung cư (thay Nhà Đấu Giá; thuê 600k/7 ngày trả trước hoặc mua 2 tỷ; chuyển nhà mang theo nội thất; đấu giá chỉ qua điện thoại) · đi bộ không tốn năng lượng (người dùng yêu cầu), Tiết kiệm NL giảm năng lượng mỗi ca.
 > Đơn giản hóa tạm: tiền trọ vẫn tính theo ngày (chưa làm hóa đơn tuần G8); đồ lớn mua ở TTTM vào thẳng túi (chưa giao sau 1 giờ — G28); nguyên liệu chưa hỏng (I8); chưa có chung cư (G20).
 > Tạm ẩn vì chưa có art: J4 cà phê, app Taxi; đồ chưa mở bán: cây cảnh, rèm, tranh, đồng hồ treo tường, tai nghe, loa, sạc dự phòng.
 >
@@ -113,7 +114,7 @@ Một **Sinh viên nam** ở Sài Gòn: **đi làm nhiều nghề bất kỳ lú
 | Mã | Nội dung |
 |---|---|
 | **G19** | Thuê phòng trọ 150k/tuần → **Vào nhà** → cảnh trong phòng. |
-| **G20** | Chung cư thuê 600k/tuần hoặc mua 30 triệu; phòng rộng hơn. |
+| **G20** ✅ | Chung cư thuê 600k/tuần hoặc mua 2 tỷ (người dùng chốt); phòng rộng hơn. |
 | **G21** | Chế độ **Sắp xếp**: đặt nội thất lên lưới sàn / tường, xoay, lật, cất lại. |
 | **G22** ✏️ | **Nội thất có nhiều mẫu**: mỗi loại có **3 phân khúc** (Bình dân · Tầm trung · Cao cấp), mỗi phân khúc là một **mẫu riêng có tên hãng tự đặt**, hình riêng, giá & chỉ số riêng. Ví dụ ở bảng dưới. |
 | **G51** 🆕 | **Chỉ số nội thất**: *Thoải mái* (cộng điểm phòng), *Công năng* (tùy loại: làm mát, dung tích, tốc độ nấu, tốc độ máy…), *Điện tiêu thụ / ngày*, *Độ bền*. Đồ điện cũ/hỏng phải sửa. |

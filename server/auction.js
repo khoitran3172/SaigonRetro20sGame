@@ -35,7 +35,7 @@ export class Auction {
         const id = SYSTEM_LOTS[Math.floor(Math.random() * SYSTEM_LOTS.length)];
         this.queue.push({ seller: null, stack: { uid: newUid(), id, qty: 1, dur: 100, lvl: 0 }, start: 200000 + Math.floor(Math.random() * 4) * 100000 });
       }
-      this.g.news(`🔨 Phiên đấu giá tối nay bắt đầu tại Nhà Đấu Giá (Khu 2)! ${this.queue.length} lô hàng. Đấu giá từ xa qua điện thoại.`, true);
+      this.g.news(`🔨 Phiên đấu giá tối nay bắt đầu! ${this.queue.length} lô hàng. Vào điện thoại → app Chợ → Đấu giá.`, true);
       this.next();
     }
   }

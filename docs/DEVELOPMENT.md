@@ -30,6 +30,8 @@ npm run assets   # = python tools/extract_sprites.py && python tools/build_asset
 
 Cần Python 3 + `pillow numpy scipy`.
 
+**Công cụ GM khi chạy ở máy:** không đặt `DATABASE_URL` (và không chạy trên Render) thì có nút 🛠️ GM trên thanh dưới — cộng/trừ tiền, hồi chỉ số, thêm vật phẩm để test. Code: `server/gm.js` (`GM_ENABLED`), `client/src/gm.js`.
+
 **Art mới** (`asset_new_by_Khoit/`, nền magenta, dải 6 frame) được ưu tiên hơn concept cũ:
 - `tools/import_new_art.py` — nhân vật người chơi: nhận diện theo tên file (`sv_male_walk_down.png`), tự lật hướng (`FACING`), chuẩn hóa chiều cao, sheet gộp khai báo ở `SHEETS`.
 - `tools/new_manifest.py` — công trình, NPC làm việc, xe, icon, props: map theo mã blob `hàng.cột`. Xem mã bằng `python tools/contact_new.py` → `tools/out/new/_contact_*.png`.

@@ -3,6 +3,7 @@ import {
   CLASSES, DOLL_SLOTS, ECON, FORMAT, INV, ITEMS, POIS, QUESTS, RARITY, SKINS, SLOTS, WORLD, ZONES, zoneAt,
 } from '/shared/config.js';
 import { CookView } from './cook.js';
+import { GmPanel } from './gm.js';
 import { HomeView, furnDesc } from './home.js';
 import { JobGame } from './jobs.js';
 import { MallView } from './mall.js';
@@ -46,6 +47,7 @@ export class UI {
     this.cook = new CookView(net, this);
     this.mall = new MallView(net, this);
     this.market = new MarketView(net, this);
+    this.gm = new GmPanel(net, this);
 
     net.on('error', (m) => { $('login-err').textContent = m.msg; });
     net.on('self', (m) => this.setSelf(m.self));
@@ -248,6 +250,7 @@ export class UI {
       this.net.send({ t: 'poi', id: 'phone' });
       this.net.send({ t: 'act', poi: 'phone', act: 'app', args: { app: 'quests' } });
     }
+    else if (a === 'gm') this.gm.toggle();
     else if (a === 'stall') {
       // Cho Sap Hang Hoa: xem tu xa bang dien thoai, toi cho thi thao tac duoc
       if (!this.self.equip.phone) return this.toast('Tới Chợ Sạp Hàng Hóa (Khu 1) để thuê sạp, mua bán.');
@@ -260,6 +263,7 @@ export class UI {
     if (this.home.active && this.home.edit) this.home.renderTray();
     if (this.mall.active) this.mall.refresh();
     if (this.market.active) this.market.refresh();
+    $('btn-gm').classList.toggle('hidden', !s.gm);
     $('h-name').textContent = s.name;
     $('h-title').textContent = s.title ? `「${s.title}」` : '';
     $('h-class').textContent = `${s.clsName} · ${s.rankName}`;
@@ -809,7 +813,7 @@ export class UI {
       const zh = el('div', 'map-zone', z.name);
       zh.style.background = ZONE_COLORS[z.id];
       w.append(zh);
-      for (const p of POIS.filter((x) => x.x >= z.x0 && x.x < z.x1 && !HIDDEN_POI.has(x.kind))) {
+      for (const p of POIS.filter((x) => x.x >= z.x0 && x.x < z.x1 && !x.hidden && !HIDDEN_POI.has(x.kind))) {
         const b = el('button', 'map-poi', `${POI_EMOJI[p.kind] || '📍'} ${p.name}`);
         b.onclick = () => {
           this.hide('phone');
@@ -844,7 +848,7 @@ export class UI {
   }
 
   closePanels() {
-    for (const id of ['dialog', 'inv', 'equip', 'help', 'emotes', 'phone']) this.hide(id);
+    for (const id of ['dialog', 'inv', 'equip', 'help', 'emotes', 'phone', 'gm']) this.hide(id);
     $('tip').classList.add('hidden');
   }
 }
@@ -886,7 +890,7 @@ const PHONE_APPS = [
   { id: 'settings', name: 'Cài đặt', icon: 'settings', client: 'phoneSettings' },
 ];
 const POI_EMOJI = {
-  school: '🏫', tro: '🏠', net: '🖥️', veso: '🎫', buudien: '📮', cafe: '☕', banhmi: '🥖', bangdia: '📼', market: '🧺', mall: '🛍️', tutor: '📚',
+  school: '🏫', tro: '🏠', net: '🖥️', veso: '🎫', buudien: '📮', cafe: '☕', banhmi: '🥖', bangdia: '📼', market: '🧺', mall: '🛍️', tutor: '📚', apartment: '🏢',
   barber: '💈', cho: '🧺', mechanic: '🔧', atm: '🏧', bank: '🏦', office: '🏢', auction: '🔨', showroom: '🛵',
   fashion: '👗', junk: '♻️', comtam: '🍛', trasua: '🧋',
 };

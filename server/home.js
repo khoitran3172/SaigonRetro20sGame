@@ -1,10 +1,21 @@
-// Nha o (GAMEPLAY_V2 G19, G21, G49–G52): vao phong tro, sap xep noi that, ngu, xem TV, tien dien.
-// p.home.placed = [{ id, x, y, f }] — do da dat (rut khoi tui); toa do theo anh nen phong 1024x572.
-import { FURN_FLAT, FURN_WALL, HOME, ITEMS, POIS, ROOMS, SLEEP } from '../shared/config.js';
+// Nha o (GAMEPLAY_V2 G19–G21, G49–G52): phong tro / chung cu, sap xep noi that, ngu, xem TV, tien dien.
+// p.home = { room: 'tro' | 'apartment', placed: [{ id, x, y, f }] } — do da dat (rut khoi tui); toa do theo anh nen 1024x572.
+// Chi o 1 noi: p.renting (tro, tra theo ngay) hoac p.apartment = { owned, until } (chung cu). Chuyen nha mang theo noi that.
+import { APARTMENT, FURN_WALL, HOME, ITEMS, POIS, ROOMS, SLEEP } from '../shared/config.js';
 import { addStat } from './dialogs.js';
 import { EconError } from './economy.js';
 
-const TRO = POIS.find((p) => p.id === 'tro');
+const DOOR = { tro: POIS.find((p) => p.id === 'tro'), apartment: POIS.find((p) => p.id === 'apartment') };
+
+// Noi dang o: 'apartment' (da mua / con han thue), 'tro' (dang thue tro) hoac null
+export function homeOf(p, day) {
+  if (p.apartment && (p.apartment.owned || p.apartment.until >= day)) return 'apartment';
+  return p.renting ? 'tro' : null;
+}
+
+export function homeDoor(room) {
+  return DOOR[room];
+}
 
 export function ensureHome(p) {
   p.home ??= { room: 'tro', placed: [] };
@@ -71,12 +82,12 @@ export class Home {
   }
 
   need(s) {
-    if (!s.inHome || !s.p.renting) throw new EconError('Bạn đang không ở trong phòng');
+    if (!s.inHome || homeOf(s.p, this.g.day) !== ensureHome(s.p).room) throw new EconError('Bạn đang không ở trong phòng');
   }
 
   handle(s, m) {
     const a = String(m.a || '');
-    if (a === 'enter') return this.enter(s);
+    if (a === 'enter') return this.enter(s, m.room === 'apartment' ? 'apartment' : 'tro');
     if (a === 'leave') return this.leave(s);
     this.need(s);
     if (a === 'place') return this.place(s, m);
@@ -101,12 +112,28 @@ export class Home {
     for (const pl of home.placed.splice(0)) this.g.econ.addItem(p, pl.id, 1);
   }
 
-  enter(s) {
+  // Chuyen noi that sang phong moi: thua cho thi ve tui, vi tri ep vao trong phong moi
+  moveIn(p, room) {
+    const home = ensureHome(p);
+    if (home.room === room) return;
+    home.room = room;
+    const r = ROOMS[room];
+    for (const pl of home.placed.splice(r.max)) this.g.econ.addItem(p, pl.id, 1);
+    for (const pl of home.placed) {
+      const [y0, y1] = FURN_WALL.includes(ITEMS[pl.id].furn.type) ? r.wall : r.floor;
+      pl.x = Math.max(r.x[0], Math.min(r.x[1], pl.x));
+      pl.y = Math.max(y0, Math.min(y1, pl.y));
+    }
+  }
+
+  enter(s, where) {
     const p = s.p;
-    if (!p.renting) throw new EconError('Bạn chưa thuê phòng');
+    if (homeOf(p, this.g.day) !== where) throw new EconError(where === 'tro' ? 'Bạn chưa thuê phòng trọ' : 'Bạn chưa thuê / mua căn hộ');
     if (s.job) throw new EconError('Đang làm ca, chưa vào phòng được');
-    if (Math.hypot(TRO.x - s.x, TRO.y - s.y) > HOME.enterRange) throw new EconError('Hãy tới Nhà trọ');
-    this.furnishStarter(p); // nguoi da thue tu truoc khi co tinh nang nay
+    const door = DOOR[where];
+    if (Math.hypot(door.x - s.x, door.y - s.y) > HOME.enterRange) throw new EconError(`Hãy tới ${door.name}`);
+    if (where === 'tro') this.furnishStarter(p); // nguoi da thue tu truoc khi co tinh nang nay
+    this.moveIn(p, where);
     s.inHome = true;
     this.g.closeDialog(s);
     this.push(s);
@@ -198,6 +225,56 @@ export class Home {
 
   // Tien dien moi ngay theo do dien dang dat (G52)
   dailyPower(p) {
-    return p.renting ? roomStats(p).power : 0;
+    return homeOf(p, this.g.day) ? roomStats(p).power : 0;
+  }
+
+  // ---------------------------------------------------------------- chung cu (G20)
+  rentApartment(s) {
+    const p = s.p;
+    const a = p.apartment;
+    if (a?.owned) throw new EconError('Căn hộ này của bạn rồi');
+    this.g.econ.pay(p, APARTMENT.rent, 'bank', 'apartment_rent');
+    const from = Math.max(this.g.day, a?.until ?? 0);
+    p.apartment = { owned: false, until: from + APARTMENT.days };
+    const moved = this.switchFromTro(p);
+    return `🏢 Đã thuê căn hộ tới hết ngày ${p.apartment.until}.${moved}`;
+  }
+
+  buyApartment(s) {
+    const p = s.p;
+    if (p.apartment?.owned) throw new EconError('Căn hộ này của bạn rồi');
+    this.g.econ.pay(p, APARTMENT.price, 'bank', 'apartment_buy');
+    p.apartment = { owned: true, until: null };
+    const moved = this.switchFromTro(p);
+    this.g.news(`🏢 ${p.name} vừa tậu căn hộ Chung Cư Phố Thị!`);
+    return `🏢 Chúc mừng! Căn hộ giờ là của bạn — chỉ còn tiền điện.${moved}`;
+  }
+
+  // Dang thue tro -> thoi thue, noi that chuyen sang can ho
+  switchFromTro(p) {
+    if (p.renting) p.renting = false;
+    const had = ensureHome(p).placed.length;
+    this.moveIn(p, 'apartment');
+    return had ? ' Đồ đạc đã chuyển sang căn hộ.' : '';
+  }
+
+  leaveApartment(s) {
+    const p = s.p;
+    if (!p.apartment || p.apartment.owned) return;
+    p.apartment = null;
+    if (s.inHome) this.leave(s);
+    this.vacate(p);
+    return 'Đã trả căn hộ, đồ đạc về lại túi.';
+  }
+
+  // Ngay moi: het han thue chung cu -> tra phong, do ve tui
+  onNewDay(p) {
+    const a = p.apartment;
+    if (!a || a.owned || a.until >= this.g.day) return;
+    p.apartment = null;
+    if (ensureHome(p).room === 'apartment') this.vacate(p);
+    p.mail.push({ from: 'Ban quản lý chung cư', text: 'Hết hạn thuê căn hộ, phòng đã thu hồi. Đồ đạc đã trả về túi.', cash: 0 });
+    const s = this.g.sessionByName(p.name);
+    if (s?.inHome) this.leave(s);
   }
 }

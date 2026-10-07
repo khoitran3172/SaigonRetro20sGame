@@ -6,7 +6,8 @@ import { Auction } from './auction.js';
 import { DIALOGS, addStat } from './dialogs.js';
 import { EconError, Economy } from './economy.js';
 import { Cook } from './cook.js';
-import { Home } from './home.js';
+import { GM_ENABLED, Gm } from './gm.js';
+import { Home, homeOf } from './home.js';
 import { Mall } from './mall.js';
 import { Market } from './market.js';
 import { Jobs, jobInfo } from './jobs.js';
@@ -45,6 +46,7 @@ export class Game {
     this.cook = new Cook(this);
     this.mall = new Mall(this);
     this.market = new Market(this);
+    this.gm = new Gm(this);
   }
 
   get minute() { return this.db.data.world.minute; }
@@ -152,6 +154,7 @@ export class Game {
         case 'cook': return this.cook.handle(s, m);
         case 'mall': return this.mall.handle(s, m);
         case 'market': return this.market.handle(s, m);
+        case 'gm': return this.gm.handle(s, m);
         default: return undefined;
       }
     } catch (e) {
@@ -233,7 +236,7 @@ export class Game {
 
   // ================================================================ nhiem vu ngay (G7)
   pickQuests(p) {
-    const pool = Object.entries(QUESTS).filter(([, q]) => (!q.cls || q.cls === p.cls) && (!q.rent || p.renting) && (!q.cert || p.certs?.[q.cert]));
+    const pool = Object.entries(QUESTS).filter(([, q]) => (!q.cls || q.cls === p.cls) && (!q.rent || homeOf(p, this.day)) && (!q.cert || p.certs?.[q.cert]));
     for (let i = pool.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -322,7 +325,7 @@ export class Game {
       buffs: p.buffs.map((b) => ({ name: b.name, left: b.until - this.absMinute() })),
       daily: p.daily, mail: p.mail.length,
       jobs: Object.fromEntries(Object.keys(JOBS).map((id) => [id, jobInfo(p, id)])),
-      certs: p.certs || {}, cookbook: !!p.cookbook,
+      certs: p.certs || {}, cookbook: !!p.cookbook, gm: GM_ENABLED,
     };
   }
 
@@ -345,8 +348,8 @@ export class Game {
       const p = s.p;
       const hot = this.weather === 'hot' ? 1.5 : 1;
       const veh = s.stats.vehicle;
-      const drain = d * 0.0025 * hot * (1 - s.stats.staminaSave / 100) * (veh ? 0.15 : 1);
-      p.stats.stamina = Math.max(0, p.stats.stamina - drain);
+      // Di bo khong ton nang luong; chi con xe tu lai hao chut it (nang luong de danh cho di lam, nau an)
+      if (veh) p.stats.stamina = Math.max(0, p.stats.stamina - d * 0.0025 * 0.15 * hot * (1 - s.stats.staminaSave / 100));
       if (veh) {
         const it = this.equipped(p, 'xe');
         if (it) it.dur = Math.max(0, it.dur - (d / 400) * (this.weather === 'rain' ? 2 : 1));
@@ -412,7 +415,7 @@ export class Game {
       return this.pushDialog(s, { ...DIALOGS.phone.open(this, s), poi: 'phone' });
     }
     const poi = this.findPoi(id);
-    if (!poi) return;
+    if (!poi || poi.hidden) return;
     if (dist(poi, s) > POI_RANGE) throw new EconError(`Hãy lại gần ${poi.name} hơn`);
     if (poi.kind === 'mall') return this.mall.handle(s, { a: 'enter' });
     if (poi.kind === 'market') return this.market.handle(s, { a: 'enter' });
@@ -435,6 +438,7 @@ export class Game {
       const poi = this.findPoi(poiId);
       if (!poi) return;
       const remoteOk = poi.kind === 'auction' && this.hasPhone(s.p);
+      if (poi.hidden && !remoteOk) return;
       if (!remoteOk && dist(poi, s) > POI_RANGE) throw new EconError(`Hãy lại gần ${poi.name} hơn`);
       kind = poi.kind;
     }
@@ -675,6 +679,12 @@ export class Game {
     for (const p of Object.values(this.db.data.players)) {
       this.ensureDaily(p);
       this.econ.dailyInterest(p);
+      this.home.onNewDay(p); // het han thue chung cu
+      // Chung cu: chi tien dien (tien thue tra truoc theo tuan)
+      if (homeOf(p, this.day) === 'apartment') {
+        const power = Math.min(p.bank, this.home.dailyPower(p));
+        if (power > 0) this.econ.pay(p, power, 'bank', 'power');
+      }
       if (p.renting) {
         // Tien tro + tien dien (G52) theo do dien dang dat trong phong
         const power = this.home.dailyPower(p);

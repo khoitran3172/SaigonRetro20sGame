@@ -32,6 +32,7 @@ npm run assets     # build lại asset (cần Python 3 + pillow numpy scipy)
 
 - Máy dev (Windows) có sẵn PostgreSQL 16 tại `C:\Program Files\PostgreSQL\16\bin`. Muốn test Postgres: tạo cụm tạm bằng `initdb -A trust` + `pg_ctl -o "-p 55432" start` trong thư mục tạm — **không đụng database có sẵn của người dùng**.
 - `.claude/launch.json` có cấu hình preview `hangrong` (node server/index.js, cổng 3000).
+- Chạy ở máy có **nút GM** (cộng tiền, hồi chỉ số, thêm vật phẩm) — dùng nó để test tính năng tốn tiền với nhân vật test.
 - `window.hangrong` = đối tượng Phaser.Game, tiện debug trong console (`hangrong.scene.getScene('world')`).
 - Pane trình duyệt ẩn sẽ làm Phaser tải chậm/treo ở 32 file — chụp màn hình để kích render, không phải bug.
 - Đừng đăng nhập bằng nhân vật của người dùng để thử thao tác tốn tiền; tạo nhân vật test riêng và trả lại `localStorage.hr_token` sau khi thử.
@@ -87,7 +88,9 @@ Người dùng bỏ ảnh vào **`asset_new_by_Khoit/`** (chữ K hoa trên đĩ
 > Nguyên tắc người dùng chốt (2026-10-07): **làm phần nào có art; phần chưa có art thì tạm ẩn; nhân vật giữ art & UI cũ, chưa sửa** (chưa làm G1 chỉ-Sinh-viên-nam, chưa đổi animation).
 > Đã chốt: G6–G9, G32 (bỏ xe máy — CHƯA gỡ khỏi code), G53, G54. Hướng chính: một SV làm nhiều nghề, nấu ăn, ngủ, trang trí phòng, Chợ Sạp Hàng Hóa, chỉ xe buýt + taxi.
 
-**Phiên gần nhất (2026-10-07, lần 4):** Chợ Sạp Hàng Hóa (G24, G55–G57) thay CLB Bida (người dùng chọn); Tạp Hóa / Cơm Tấm dời sang phải. Đã gỡ sạp vỉa hè, ô quy hoạch, Cảnh sát phạt, Giang hồ (G53). `server/market.js`, `client/src/market.js`, dữ liệu `db.data.world.market` (pgdb chỉ lưu players + world). 11 test pass. **Việc kế tiếp:** tuyến buýt (G29–G31), chung cư (G20), hóa đơn tuần (G8), ATM / bưu điện UI.
+**Phiên gần nhất (2026-10-07, lần 5):** chung cư G20 thay Nhà Đấu Giá (người dùng chọn; thuê trả trước 7 ngày hoặc mua đứt; 1 nơi ở, chuyển nhà mang nội thất; `homeOf()` trong `server/home.js`); đấu giá chỉ qua điện thoại (POI `hidden`). Đi bộ không tốn năng lượng. Giá mua chung cư 2 tỷ. **Nút GM** chỉ khi chạy ở máy (`server/gm.js`, `GM_ENABLED` = không có DATABASE_URL / RENDER) — dùng để test thay vì tạo nhân vật nghèo. 13 test pass. **Việc kế tiếp:** tuyến buýt / taxi (G29–G31), hóa đơn tuần (G8), UI ATM / bưu điện.
+
+**Phiên trước (2026-10-07, lần 4):** Chợ Sạp Hàng Hóa (G24, G55–G57) thay CLB Bida (người dùng chọn); Tạp Hóa / Cơm Tấm dời sang phải. Đã gỡ sạp vỉa hè, ô quy hoạch, Cảnh sát phạt, Giang hồ (G53). `server/market.js`, `client/src/market.js`, dữ liệu `db.data.world.market` (pgdb chỉ lưu players + world). 11 test pass. **Việc kế tiếp:** tuyến buýt (G29–G31), chung cư (G20), hóa đơn tuần (G8), ATM / bưu điện UI.
 
 **Phiên trước (2026-10-07, lần 3):** người dùng chốt thứ tự *nghề → nhà → nấu ăn → TTTM*, G1/G2 chưa đụng, gỡ sạp vỉa hè khi Chợ xong, Gacha theo G64; TTTM chỉ 2 ảnh nhân viên → dùng chung 5 quầy; đồ thiếu art để "chưa mở bán". Đã code: J5 tờ rơi, J6 shipper, J8 gia sư + thi chứng chỉ ở Giảng đường; phòng trọ (sắp xếp nội thất, ngủ, TV, tiền điện); nấu ăn 12 món; TTTM (Khu 2 x=5800) 5 quầy + Gacha. 12 test pass. Đã dọn bản đồ: bỏ trạm buýt/taxi, người lái xe máy, bàn + cô bán cà phê, bàn trà đá, chủ quán net, cô Ba tạp hóa. **Việc kế tiếp:** Chợ Sạp Hàng Hóa (G24, G55–G57) rồi gỡ sạp vỉa hè (G53); tuyến buýt; chung cư; hóa đơn tuần (G8).
 

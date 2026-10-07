@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
-import { ECON, MARKET, walkerPos } from '../../shared/config.js';
+import { APARTMENT, ECON, MARKET, walkerPos } from '../../shared/config.js';
 import { JsonDB } from '../db.js';
 import { needleAt as cookNeedle } from '../cook.js';
 import { Game } from '../game.js';
@@ -399,4 +399,69 @@ test('TTTM: mua o quay (gia co dinh, do dat tra the), gacha co bao hiem + phan r
   Object.assign(a, { x: 3000, y: 490 });
   msg(a, { t: 'mall', a: 'gacha' });
   assert.match(toasts(a).at(-1), /Trung Tâm Mua Sắm/);
+});
+
+test('Chung cu: thue tuan tu tro chuyen sang mang theo noi that, het han tra phong; mua dut; di bo khong ton nang luong', () => {
+  const { g, join, msg, toasts } = setup();
+  const a = join('Dan Chung Cu', 'sv');
+  a.p.bank = 3_000_000_000;
+  // di bo khong ton nang luong
+  const stamina = a.p.stats.stamina;
+  Object.assign(a, { x: 900, y: 500 });
+  a.lastMoveAt -= 1000;
+  msg(a, { t: 'move', x: 1050, y: 500, d: 'right', m: 1 });
+  assert.equal(a.x, 1050);
+  assert.equal(a.p.stats.stamina, stamina);
+  // dang thue tro co nem / quat / bep
+  Object.assign(a, { x: 910, y: 490 });
+  msg(a, { t: 'act', poi: 'tro', act: 'rent' });
+  msg(a, { t: 'act', poi: 'tro', act: 'enter' });
+  msg(a, { t: 'home', a: 'leave' });
+  // thue chung cu: thoi thue tro, noi that chuyen sang
+  Object.assign(a, { x: 5445, y: 490 });
+  msg(a, { t: 'act', poi: 'apartment', act: 'rent' });
+  assert.equal(a.p.renting, false);
+  assert.equal(a.p.apartment.until, g.day + APARTMENT.days);
+  assert.equal(a.p.bank, 3_000_000_000 - ECON.rentPerDay - APARTMENT.rent);
+  msg(a, { t: 'act', poi: 'apartment', act: 'enter' });
+  const st = a.ws.out.findLast((m) => m.t === 'home');
+  assert.equal(st.room, 'apartment');
+  assert.equal(st.placed.length, 3);
+  // khong thue tro duoc khi dang o chung cu
+  msg(a, { t: 'home', a: 'leave' });
+  Object.assign(a, { x: 910, y: 490 });
+  msg(a, { t: 'act', poi: 'tro', act: 'rent' });
+  assert.match(toasts(a).at(-1), /chung cư/);
+  // het han -> tra phong, do ve tui
+  g.day = a.p.apartment.until + 1;
+  g.onNewDay();
+  assert.equal(a.p.apartment, null);
+  assert.equal(g.econ.count(a.p, 'bed_1'), 1);
+  // mua dut
+  Object.assign(a, { x: 5445, y: 490 });
+  const bank = a.p.bank;
+  msg(a, { t: 'act', poi: 'apartment', act: 'buy' });
+  assert.ok(a.p.apartment.owned);
+  assert.equal(a.p.bank, bank - APARTMENT.price);
+  g.day += 30;
+  g.onNewDay();
+  assert.ok(a.p.apartment?.owned, 'mua dut thi khong het han');
+  // Nha dau gia khong bam tren pho nua, van dau gia tu xa
+  msg(a, { t: 'poi', id: 'auction' });
+  assert.ok(!a.ws.out.some((m) => m.t === 'dialog' && m.poi === 'auction'));
+});
+
+test('GM (chi chay o may): cong / tru tien, hoi chi so, them vat pham', () => {
+  const { g, join, msg } = setup();
+  const a = join('Admin', 'sv');
+  assert.equal(g.selfState(a).gm, true, 'test chay khong co DATABASE_URL -> bat GM');
+  msg(a, { t: 'gm', a: 'money', wallet: 'bank', amount: 2000000000 });
+  assert.equal(a.p.bank, 100000 + 2000000000);
+  msg(a, { t: 'gm', a: 'money', wallet: 'cash', amount: -999999999 });
+  assert.equal(a.p.cash, 0, 'khong am tien');
+  a.p.stats.stamina = 5;
+  msg(a, { t: 'gm', a: 'stats' });
+  assert.equal(a.p.stats.stamina, 100);
+  msg(a, { t: 'gm', a: 'item', id: 'bed_3', qty: 2 });
+  assert.equal(g.econ.count(a.p, 'bed_3'), 2);
 });

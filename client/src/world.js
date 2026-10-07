@@ -12,7 +12,7 @@ const NPC_STYLE = {
 const POI_ICON = {
   school: '🏫', tro: '🏠', net: '🖥️', veso: '🎫', buudien: '📮', cafe: '☕', banhmi: '🥖', bangdia: '📼', market: '🧺',
   barber: '💈', cho: '🛒', mechanic: '🔧', atm: '🏧', bank: '🏦', office: '🏢', auction: '🔨', showroom: '🛵',
-  fashion: '👗', junk: '♻️', comtam: '🍛', trasua: '🧋', tutor: '📚', mall: '🛍️',
+  fashion: '👗', junk: '♻️', comtam: '🍛', trasua: '🧋', tutor: '📚', mall: '🛍️', apartment: '🏢',
 };
 // Vi tri nguoi ngoi tren xe (theo ty le anh xe): dx > 0 = tien ve dau xe, dy = nang len
 export const RIDE_FIT = { scale: 0.75, dx: -0.05, dy: 0.32 };
@@ -318,6 +318,7 @@ export class WorldScene extends Phaser.Scene {
     kiosk('kiosk_fashion', 'THỜI TRANG', 0x7a1f4f, 0xf2d6e6);
 
     for (const poi of POIS) {
+      if (poi.hidden) continue;
       if (poi.kind === 'showroom') this.prop('kiosk_showroom', poi.x, poi.y - 14);
       if (poi.kind === 'fashion') this.prop('kiosk_fashion', poi.x, poi.y - 14);
       if (poi.kind === 'atm') this.prop('atm_v2', poi.x, poi.y < 600 ? 456 : poi.y - 10);
@@ -398,6 +399,7 @@ export class WorldScene extends Phaser.Scene {
       if (w) return this.jobWalkers.onGive(w.w.i);
       let best = null;
       for (const poi of POIS) {
+        if (poi.hidden) continue;
         const d = Phaser.Math.Distance.Between(poi.x, poi.y, this.me.x, this.me.y);
         if (d < 160 && (!best || d < best.d)) best = { poi, d };
       }

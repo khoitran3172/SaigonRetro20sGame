@@ -43,7 +43,7 @@
       <div class="who"><b id="h-name"></b> <span id="h-title" class="title"></span></div>
       <div id="h-class" class="muted"></div>
       <div class="bar need hunger" title="No bụng — ăn uống để hồi"><img src="assets/ui/hud_hunger.png" alt=""><span>No bụng</span><i><em id="b-hunger"></em></i><small id="v-hunger"></small></div>
-      <div class="bar need energy" title="Năng lượng — đi làm, đi bộ tốn; ăn, nghỉ để hồi"><img src="assets/ui/hud_energy.png" alt=""><span>Năng lượng</span><i><em id="b-stamina"></em></i><small id="v-stamina"></small></div>
+      <div class="bar need energy" title="Năng lượng — đi làm, nấu ăn tốn (đi bộ không tốn); ăn, ngủ để hồi"><img src="assets/ui/hud_energy.png" alt=""><span>Năng lượng</span><i><em id="b-stamina"></em></i><small id="v-stamina"></small></div>
       <div class="bar need mood" title="Tinh thần — làm việc mệt giảm; trà sữa, cà phê, nghỉ ngơi tăng"><img src="assets/ui/hud_mood.png" alt=""><span>Tinh thần</span><i><em id="b-mood"></em></i><small id="v-mood"></small></div>
       <div class="bar cls"><span id="l-cls"></span><i><em id="b-cls"></em></i><small id="v-cls"></small></div>
       <div class="money">
@@ -88,6 +88,7 @@
       <button data-act="phone" title="Điện thoại (P)"><img src="assets/icons/ui_phone.png" alt=""><span>Điện thoại</span></button>
       <button data-act="quests" title="Nhiệm vụ hôm nay (Q)"><img src="assets/ui/hud_quest.png" alt=""><span>Nhiệm vụ</span><b id="q-badge" class="badge hidden"></b></button>
       <button data-act="stall" title="Xem Chợ Sạp Hàng Hóa (B)">🧺<span>Chợ</span></button>
+      <button data-act="gm" id="btn-gm" class="hidden" title="Công cụ GM — chỉ khi chạy ở máy">🛠️<span>GM</span></button>
       <button data-act="emote" title="Biểu cảm">😀<span>Biểu cảm</span></button>
       <button data-act="help" title="Hướng dẫn (H)">❓<span>Hướng dẫn</span></button>
     </div>
@@ -204,6 +205,12 @@
         <img id="shipmap-pin" src="assets/v2/jobs/ship_card.png" alt="">
         <div id="shipmap-label"></div>
       </div>
+    </div>
+
+    <div id="gm" class="panel side hidden">
+      <button class="x" data-close>✕</button>
+      <h3>🛠️ Công cụ GM</h3>
+      <div id="gm-body"></div>
     </div>
 
     <div id="help" class="panel side hidden">

@@ -13,8 +13,8 @@ export const WORLD = {
 export const ZONES = [
   { id: 'daihoc', name: 'Khu 3 · Làng Đại Học', x0: 0, x1: 1600, crime: 0.6, police: 1 },
   { id: 'phoam', name: 'Khu 1 · Phố Ẩm Thực & Chợ Đêm', x0: 1600, x1: 4200, crime: 1.0, police: 1 },
-  { id: 'cbd', name: 'Khu 2 · Trung Tâm Tài Chính', x0: 4200, x1: 6020, crime: 0.3, police: 2 },
-  { id: 'ngoaio', name: 'Khu 4 · Ngoại Ô & Bãi Phế Liệu', x0: 6020, x1: 6800, crime: 1.6, police: 0 },
+  { id: 'cbd', name: 'Khu 2 · Trung Tâm Tài Chính', x0: 4200, x1: 6060, crime: 0.3, police: 2 },
+  { id: 'ngoaio', name: 'Khu 4 · Ngoại Ô & Bãi Phế Liệu', x0: 6060, x1: 6800, crime: 1.6, police: 0 },
 ];
 
 export function zoneAt(x) {
@@ -259,7 +259,11 @@ export const FURN_FLAT = ['rug']; // nam duoi sat san, luon ve duoi cac do khac
 // Phong o (G19, G21). floor/wall: khoang y dat do (theo anh nen 1024x572); x: khoang ngang; max: so mon toi da
 export const ROOMS = {
   tro: { name: 'Phòng trọ 15m²', bg: 'v2/rooms/room_tro.png', floor: [330, 560], wall: [70, 300], x: [70, 860], max: 12 },
+  apartment: { name: 'Căn hộ chung cư 45m²', bg: 'v2/rooms/room_apartment.png', floor: [290, 565], wall: [60, 270], x: [60, 880], max: 25 },
 };
+// Chung cu (G20): thue tra truoc theo tuan (het han khong gia han -> tra phong) hoac mua dut. Chi o 1 noi: chuyen nha mang theo noi that
+export const APARTMENT = { rent: 600000, days: 7, price: 2_000_000_000 };
+
 // Trung Tam Mua Sam (G25–G28): 5 quay trong anh sanh room_mall (1024x572).
 // box: vung bam · sign: o bien hieu trong · staff: nhan vien [anim, x chan, y chan] · soon: hang chua co art (chua mo ban)
 const furnOf = (...types) => types.flatMap((t) => [1, 2, 3].map((i) => `${t}_${i}`));
@@ -327,10 +331,10 @@ export const BUILDINGS = [
   { id: 'comtam', x: 4040, sprite: 'b_comtam', sign: { text: 'CƠM TẤM SÀI GÒN', box: [0.378, 0.12, 0.778, 0.317] } },
   { id: 'bank', x: 4480, gen: { w: 420, h: 380, wall: 0x9fc4d8, roof: 0x24495e, sign: 'VIETBANK', signBg: 0x0d2a4a, neon: 0xffd34d, windows: 'glass' } },
   { id: 'office', x: 5020, gen: { w: 480, h: 400, wall: 0xa9b8c9, roof: 0x2f3b4a, sign: 'TECHCORP TOWER', signBg: 0x202a36, neon: 0x5fd0ff, windows: 'glass' } },
-  { id: 'auction', x: 5440, gen: { w: 300, h: 300, wall: 0xc9a86a, roof: 0x5a3d1a, sign: 'NHÀ ĐẤU GIÁ', signBg: 0x5a1a1a, neon: 0xff5fa8, windows: 'arch' } },
+  { id: 'apartment', x: 5445, sprite: 'b_apartment', v2: true, scale: 1.2, sign: { text: 'CHUNG CƯ PHỐ THỊ', box: [0.36, 0.69, 0.645, 0.78] } },
   // v2: anh trong client/assets/v2/bld (nap rieng), scale: phong to so voi anh cat
-  { id: 'mall', x: 5800, sprite: 'b_mall', v2: true, scale: 1.35, sign: { text: 'TTTM PHỐ THỊ', box: [0.3, 0.555, 0.69, 0.645] } },
-  { id: 'junk', x: 6250, sprite: 'b_vechai', sign: { text: 'VỰA VE CHAI CHÚ TƯ', box: [0.28, 0.13, 0.75, 0.32] } },
+  { id: 'mall', x: 5845, sprite: 'b_mall', v2: true, scale: 1.35, sign: { text: 'TTTM PHỐ THỊ', box: [0.3, 0.555, 0.69, 0.645] } },
+  { id: 'junk', x: 6280, sprite: 'b_vechai', sign: { text: 'VỰA VE CHAI CHÚ TƯ', box: [0.28, 0.13, 0.75, 0.32] } },
 ];
 
 // Diem tuong tac. kind quyet dinh hop thoai phia server.
@@ -354,18 +358,20 @@ export const POIS = [
   { id: 'atm2', kind: 'atm', name: 'Cây ATM VietBank', x: 4290, y: 470 },
   { id: 'bank', kind: 'bank', name: 'Quầy Giao Dịch VietBank', x: 4480, y: 470, work: 'npc_guard', workDx: 70 },
   { id: 'office', kind: 'office', name: 'TechCorp (Chấm công)', x: 5020, y: 470, work: 'npc_guard', workDx: -70 },
-  { id: 'auction', kind: 'auction', name: 'Nhà Đấu Giá', x: 5440, y: 470, work: 'npc_auction', workDx: 70 },
-  { id: 'mall', kind: 'mall', name: 'Trung Tâm Mua Sắm', x: 5800, y: 470 },
+  // hidden: khong co toa nha / khong bam duoc tren pho — chi dung tu xa (dau gia qua dien thoai)
+  { id: 'auction', kind: 'auction', name: 'Nhà Đấu Giá', x: 5445, y: 470, hidden: true },
+  { id: 'apartment', kind: 'apartment', name: 'Chung Cư Phố Thị', x: 5445, y: 470 },
+  { id: 'mall', kind: 'mall', name: 'Trung Tâm Mua Sắm', x: 5845, y: 470 },
   { id: 'tutor', kind: 'tutor', name: 'Nhà học sinh (Gia sư)', x: 4735, y: 470 },
   { id: 'showroom', kind: 'showroom', name: 'Showroom Xe Máy', x: 4650, y: 900 },
   { id: 'fashion', kind: 'fashion', name: 'Shop Thời Trang', x: 5200, y: 900 },
-  { id: 'junkyard', kind: 'junk', name: 'Vựa Ve Chai', x: 6250, y: 470, work: 'npc_vechai', workDx: 90, workDy: 10 },
+  { id: 'junkyard', kind: 'junk', name: 'Vựa Ve Chai', x: 6280, y: 470, work: 'npc_vechai', workDx: 90, workDy: 10 },
 ];
 
 // He thong nghe (GAMEPLAY_V2 G11, G43). Lam 1 ca = 1 mini-game, khong gioi han gio, ton nang luong + lam doi.
 // pay: luong co ban theo cap 1..5 (nhan theo do chinh xac). target: so diem de dat 100%.
 export const JOBS = {
-  it: { name: 'IT freelance', icon: '💻', poi: 'tro', place: 'Phòng trọ (đang thuê)', pay: [40000, 60000, 85000, 115000, 150000], energy: 14, hunger: 6, stress: 6, secs: 60, target: 8, needRent: true },
+  it: { name: 'IT freelance', icon: '💻', poi: 'tro', place: 'Nhà (phòng trọ / chung cư)', pay: [40000, 60000, 85000, 115000, 150000], energy: 14, hunger: 6, stress: 6, secs: 60, target: 8, needRent: true },
   waiter: { name: 'Phục vụ quán cơm', icon: '🍽️', poi: 'comtam', place: 'Quán Cơm Tấm (Khu 1)', pay: [20000, 30000, 40000, 50000, 60000], energy: 12, hunger: 10, stress: 4, secs: 60, target: 10 },
   milktea: { name: 'Pha trà sữa', icon: '🧋', poi: 'trasua', place: 'Tiệm Trà Sữa (Khu 3)', pay: [25000, 35000, 45000, 57000, 70000], energy: 10, hunger: 8, stress: 4, secs: 75, target: 6 },
   // street: lam ngay tren pho (khong mo man rieng), server tu kiem tra vi tri

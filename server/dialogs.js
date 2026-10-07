@@ -1,9 +1,10 @@
 // Hoi thoai cua cac diem tuong tac (POI). Server dung UI -> client chi hien thi.
 // Moi kind: open(g, s, ctx) -> {title, text, options}; acts[act](g, s, args, inputs, ctx) -> string (toast)
 import {
-  CLASSES, ECON, EXAMS, ITEMS, JOBS, JOBS_SOON, PROMOTION, QUESTS, QUEST_BONUS, RECIPES, SLOTS, zoneAt,
+  APARTMENT, CLASSES, ECON, EXAMS, ITEMS, JOBS, JOBS_SOON, PROMOTION, QUESTS, QUEST_BONUS, RECIPES, SLOTS, zoneAt,
 } from '../shared/config.js';
 import { EconError } from './economy.js';
+import { homeOf } from './home.js';
 import { jobInfo } from './jobs.js';
 
 const opt = (label, act, args = {}, extra = {}) => ({ label, act, args, ...extra });
@@ -191,6 +192,7 @@ export const DIALOGS = {
     acts: {
       job: jobAct,
       rent(g, s) {
+        if (homeOf(s.p, g.day) === 'apartment') throw new EconError('Bạn đang ở chung cư rồi — trả căn hộ trước nếu muốn về trọ');
         g.econ.pay(s.p, ECON.rentPerDay, 'bank', 'rent_first_day');
         s.p.renting = true;
         g.home.furnishStarter(s.p);
@@ -198,11 +200,11 @@ export const DIALOGS = {
       },
       unrent(g, s) {
         s.p.renting = false;
-        g.home.vacate(s.p);
+        if (s.p.home?.room !== 'apartment') g.home.vacate(s.p);
         return 'Đã trả phòng, đồ đạc đã về lại túi.';
       },
       enter(g, s) {
-        g.home.enter(s);
+        g.home.enter(s, 'tro');
         return false;
       },
       rest(g, s) {
@@ -212,6 +214,40 @@ export const DIALOGS = {
         addStat(s.p, 'stress', -10);
         return 'Nghỉ một chút cho đỡ mệt.';
       },
+    },
+  },
+
+  // Chung cu (G20): thue tra truoc 7 ngay hoac mua dut; chi o 1 noi, chuyen nha mang theo noi that
+  apartment: {
+    open(g, s) {
+      const p = s.p;
+      const a = p.apartment;
+      const mine = homeOf(p, g.day) === 'apartment';
+      const status = a?.owned ? '🔑 Căn hộ của bạn (đã mua) — chỉ trả tiền điện.'
+        : mine ? `Đang thuê tới hết ngày ${a.until} (hôm nay ngày ${g.day}). Hết hạn không gia hạn thì phải trả phòng.`
+          : `Căn hộ 45m², rộng gấp đôi phòng trọ (đặt tới 25 món nội thất).`;
+      return {
+        title: '🏢 Chung Cư Phố Thị',
+        text: `${status}\nThuê ${vnd(APARTMENT.rent)}/${APARTMENT.days} ngày (trả trước bằng thẻ) hoặc mua đứt ${vnd(APARTMENT.price)}. Tiền điện trừ hằng ngày.${p.renting ? '\nĐang thuê trọ: chuyển sang đây thì thôi thuê trọ, đồ đạc mang theo.' : ''}`,
+        options: [
+          ...(mine ? [opt('🚪 Vào nhà', 'enter'), jobOption(g, s, 'it')] : []),
+          ...(a?.owned ? [] : [
+            opt(mine ? `📅 Gia hạn ${APARTMENT.days} ngày (${vnd(APARTMENT.rent)})` : `📝 Thuê ${APARTMENT.days} ngày (${vnd(APARTMENT.rent)})`, 'rent'),
+            opt(`🔑 Mua đứt căn hộ (${vnd(APARTMENT.price)})`, 'buy'),
+          ]),
+          ...(mine && !a?.owned ? [opt('Trả căn hộ (đồ đạc về lại túi)', 'leave')] : []),
+        ],
+      };
+    },
+    acts: {
+      job: jobAct,
+      enter(g, s) {
+        g.home.enter(s, 'apartment');
+        return false;
+      },
+      rent: (g, s) => g.home.rentApartment(s),
+      buy: (g, s) => g.home.buyApartment(s),
+      leave: (g, s) => g.home.leaveApartment(s),
     },
   },
 

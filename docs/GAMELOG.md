@@ -18,6 +18,7 @@
 | 2026-10-07 | `e7ce286` | Hộp thoại NPC tự đóng khi đi xa · nhật ký phát triển |
 | 2026-10-07 | `83c182b` | README mới có ảnh chụp game, dẫn link sang nhật ký |
 | 2026-10-07 | `977ec5b` · `29706c6` | Nhập 68 ảnh V2 lần 2: nhà ống, vựa ve chai, xe buýt & trạm, chân dung NPC, 60 icon, cắt sẵn nội thất / phòng / UI |
+| 2026-10-07 | _(chưa commit)_ | Chung cư (G20) thay Nhà Đấu Giá; đi bộ không tốn năng lượng |
 | 2026-10-07 | `2721100` | Chợ Sạp Hàng Hóa thay CLB Bida; gỡ sạp vỉa hè, ô quy hoạch, giang hồ (G53) |
 | 2026-10-07 | `4f83e1f` | Code theo art lần 2: nghề tờ rơi / shipper / gia sư + thi chứng chỉ, phòng trọ & nội thất, ngủ, nấu ăn, TTTM + Gacha |
 
@@ -151,12 +152,25 @@ Người dùng tải 68 ảnh lên thẳng GitHub (`977ec5b`, thư mục `asset_
 
 **Kiểm thử:** 11 test pass (bỏ 2 test sạp cũ, thêm test chợ: thuê, chế biến, khung giá, mua khi chủ offline, giá trung bình, hết hạn trả hàng). Chạy thử trong trình duyệt: tòa chợ trên phố, thuê sạp, bày hàng, 3 tab.
 
+## 2026-10-07 · Chung cư (G20) + đi bộ không tốn năng lượng
+
+**Người dùng chốt:** chung cư thay tòa Nhà Đấu Giá (Khu 2); thuê **trả trước theo tuần** (600.000đ / 7 ngày, hết hạn không gia hạn thì bị trả phòng) hoặc **mua đứt** 2 tỷ. Than năng lượng hết nhanh → **đi bộ không tốn năng lượng**.
+
+- **Chung cư (`server/home.js`, hộp thoại `apartment`):** tòa `b_apartment` x=5445 (phóng 1,2); TTTM dời sang x=5845, Vựa Ve Chai x=6280, Khu 2 nới tới 6060. Căn hộ 45m² (`room_apartment`, tối đa 25 món). Chỉ ở 1 nơi: thuê/mua căn hộ khi đang thuê trọ → thôi thuê trọ, **nội thất chuyển theo** (thừa chỗ thì về túi, vị trí ép vào trong phòng mới); đang ở chung cư thì không thuê trọ được. Tiền điện trừ mỗi ngày; mua đứt (2 tỷ) thì chỉ còn tiền điện. Làm IT ở nhà nào cũng được (`homeOf`). Hết hạn thuê → thư báo, đồ về túi.
+- **Nhà Đấu Giá:** bỏ tòa nhà; POI giữ dạng `hidden` (không hiện, không bấm trên phố) để đấu giá / gửi đấu giá qua điện thoại vẫn chạy.
+- **Năng lượng:** đi bộ không trừ (trước: 0,0025/px); chỉ còn hao theo thời gian, làm ca, nấu ăn. Chỉ số "Tiết kiệm NL %" của trang bị chuyển sang giảm năng lượng mỗi ca làm.
+
+- **Giá mua chung cư** nâng lên **2 tỷ** theo yêu cầu.
+- **Nút GM** (`server/gm.js`, `client/src/gm.js`): cộng / trừ tiền mặt, ngân hàng, Kim cương; hồi đầy chỉ số; thêm vật phẩm bất kỳ vào túi. **Chỉ bật khi chạy ở máy** (không có `DATABASE_URL`, không có biến `RENDER`) — server tự kiểm tra, bản online không có.
+
+**Kiểm thử:** 13 test pass (thêm test chung cư + đi bộ, test GM). Trình duyệt: tòa chung cư trên phố, hộp thoại thuê/mua, màn căn hộ có nội thất, đi bộ ~4.000px không hụt năng lượng.
+
 ---
 
 ## Việc còn mở
 
 - **Chờ art** (51 ảnh, prompt trong `docs/asset_todo.html`): animation V2 của `sv_male`, Cảnh sát / Ăn trộm / người đi đường, NPC chủ quán cơm tấm & trà sữa, J3 ly/topping, J4 cà phê, 2 chân dung vẽ lại, 4 nội thất, 4 nhân viên TTTM, nhà ống số 5.
-- **Code chờ làm (đã có art):** tuyến buýt (G29–G30, có `veh_bus_open`, `bus_map`; trạm buýt đã gỡ khỏi bản đồ chờ làm lại), chung cư (G20), giao diện ATM / bưu điện / hợp đồng + hóa đơn tuần.
+- **Code chờ làm (đã có art):** tuyến buýt (G29–G30, có `veh_bus_open`, `bus_map`; trạm buýt đã gỡ khỏi bản đồ chờ làm lại), giao diện ATM / bưu điện / hợp đồng + hóa đơn tuần.
 - **Code chưa làm dù đã chốt:** gỡ xe máy (G32), hóa đơn tuần trọ + học phí (G8), chặn nhặt/mua khi túi đầy (I1).
 - `npm test` cần sửa script thành `node --test server/tests/*.js` cho Node 24.
 - **Chờ duyệt:** các mã G / A / I còn mở trong tài liệu V2 (G1 chỉ Sinh viên nam, G2 ẩn giải trí…).
