@@ -33,6 +33,8 @@ Cần Python 3 + `pillow numpy scipy`.
 **Art mới** (`asset_new_by_Khoit/`, nền magenta, dải 6 frame) được ưu tiên hơn concept cũ:
 - `tools/import_new_art.py` — nhân vật người chơi: nhận diện theo tên file (`sv_male_walk_down.png`), tự lật hướng (`FACING`), chuẩn hóa chiều cao, sheet gộp khai báo ở `SHEETS`.
 - `tools/new_manifest.py` — công trình, NPC làm việc, xe, icon, props: map theo mã blob `hàng.cột`. Xem mã bằng `python tools/contact_new.py` → `tools/out/new/_contact_*.png`.
+- `tools/ui_manifest.py` — ảnh đơn đợt V2 lần 1 (UI kit, điện thoại, mặt tiền cơm tấm / trà sữa, mini-game J1–J3): khai báo hộp cắt `(x0,y0,x1,y1)` theo ảnh gốc 1024×572.
+- `tools/v2_manifest.py` — ảnh đơn đợt V2 lần 2 trở đi: **tự tách blob** theo nền magenta, chỉ khai báo danh sách tên theo thứ tự đọc (trên→dưới, trái→phải); số phần tách ra sai thì build dừng và báo tên file. Asset dùng ngay → `client/assets/props|icons|ui`; asset chờ code tính năng → `client/assets/v2/` (+ `v2/v2.json`, không nạp lúc vào game).
 
 **Concept cũ** (ảnh ở thư mục gốc, nền trắng):
 - `tools/extract_sprites.py` — xóa nền, tách khối, xuất contact sheet đánh số.
