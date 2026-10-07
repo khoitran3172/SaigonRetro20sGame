@@ -641,6 +641,26 @@ export class UI {
 
   tipOn(node, build) {
     const tip = $('tip');
+    if (document.body.classList.contains('touch')) {
+      // Cam ung khong co re chuot (mouseenter bi ket tren iOS): o tui do da co khung chi tiet; cac o khac hien khi cham, an khi cham cho khac
+      if (node.classList.contains('cell')) return;
+      node.dataset.tip = '1';
+      node.addEventListener('click', () => {
+        tip.textContent = '';
+        tip.append(build());
+        tip.classList.remove('hidden');
+        const r = node.getBoundingClientRect();
+        tip.style.left = `${Math.max(8, Math.min(r.left, window.innerWidth - tip.offsetWidth - 8))}px`;
+        tip.style.top = `${Math.max(8, Math.min(r.bottom + 6, window.innerHeight - tip.offsetHeight - 8))}px`;
+      });
+      if (!UI.tipDismiss) {
+        UI.tipDismiss = true;
+        document.addEventListener('pointerdown', (e) => {
+          if (!e.target.closest('[data-tip]')) $('tip').classList.add('hidden');
+        });
+      }
+      return;
+    }
     node.onmouseenter = (e) => {
       tip.textContent = '';
       tip.append(build());
