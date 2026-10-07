@@ -465,3 +465,21 @@ test('GM (chi chay o may): cong / tru tien, hoi chi so, them vat pham', () => {
   msg(a, { t: 'gm', a: 'item', id: 'bed_3', qty: 2 });
   assert.equal(g.econ.count(a.p, 'bed_3'), 2);
 });
+
+test('Dat ten: chap nhan tieng Viet go dau to hop (ban phim dien thoai) va ky tu an', () => {
+  const { g } = setup();
+  const hello = (name) => {
+    const ws = { readyState: 1, out: [], send(d) { this.out.push(JSON.parse(d)); }, on() {}, close() {} };
+    const s = g.connect(ws);
+    g.onMessage(s, JSON.stringify({ t: 'hello', name, cls: 'sv', skin: 'sv_male' }));
+    return s;
+  };
+  const a = hello('Tèo Bán Mía'.normalize('NFD'));
+  assert.equal(a.p?.name, 'Tèo Bán Mía', 'NFD -> NFC');
+  const b = hello('Cô\u200b Ba\u00a0 Tạp Hóa ');
+  assert.equal(b.p?.name, 'Cô Ba Tạp Hóa', 'bo ky tu an, gop khoang trang');
+  const c = hello('Tèo Bán Mía');
+  assert.match(c.ws.out.at(-1).msg, /đã có người dùng/, 'trung ten sau chuan hoa');
+  const d = hello('😀😀');
+  assert.ok(!d.p, 'emoji khong hop le');
+});

@@ -170,8 +170,9 @@ export class Game {
     if (s.p) return;
     let p = m.token ? this.tokenIndex.get(String(m.token)) : null;
     if (!p) {
-      const name = cleanText(m.name, 16).replace(/\s+/g, ' ');
-      if (!/^[\p{L}\p{N} _.-]{2,16}$/u.test(name)) {
+      // Ban phim dien thoai co the go dau to hop (NFD) / chen ky tu an -> chuan hoa truoc khi kiem tra
+      const name = String(m.name ?? '').normalize('NFC').replace(/[\p{Cc}\p{Cf}]/gu, '').replace(/\s+/g, ' ').trim();
+      if (!/^[\p{L}\p{M}\p{N} _.-]{2,16}$/u.test(name)) {
         return this.send(s, { t: 'error', msg: 'Tên 2–16 ký tự (chữ, số, khoảng trắng).' });
       }
       if (this.db.data.players[name.toLowerCase()]) {

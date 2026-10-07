@@ -165,6 +165,12 @@ Người dùng tải 68 ảnh lên thẳng GitHub (`977ec5b`, thư mục `asset_
 
 **Kiểm thử:** 13 test pass (thêm test chung cư + đi bộ, test GM). Trình duyệt: tòa chung cư trên phố, hộp thoại thuê/mua, màn căn hộ có nội thất, đi bộ ~4.000px không hụt năng lượng.
 
+## 2026-10-07 · Sửa lỗi không đặt tên được trên điện thoại
+
+**Lỗi:** người chơi trên điện thoại không vào game được. Nguyên nhân: (1) bàn phím tiếng Việt trên điện thoại (Telex / VNI) có thể gõ dấu kiểu tổ hợp (NFD — chữ + dấu rời) hoặc chèn ký tự ẩn, server kiểm tra tên bằng `\p{L}` nên từ chối; (2) dòng báo lỗi nằm cuối khung đăng nhập (y≈1018 trên màn 812px) nên người chơi không thấy gì.
+
+**Sửa:** server chuẩn hóa tên NFC, bỏ ký tự ẩn (`\p{Cc}\p{Cf}`), gộp khoảng trắng, cho phép dấu (`\p{M}`); client kiểm tra trước cùng quy tắc, báo lỗi ngay dưới ô tên (chỉ rõ ký tự không hợp lệ) và cuộn tới; `maxlength` ô tên 32 (gõ tổ hợp tạm dài hơn), kiểm tra 16 ký tự sau chuẩn hóa. Thêm test.
+
 ---
 
 ## Việc còn mở

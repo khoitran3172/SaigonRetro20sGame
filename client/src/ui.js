@@ -17,6 +17,15 @@ const el = (tag, cls, text) => {
   return e;
 };
 const vnd = FORMAT.vnd;
+// Ten nhan vat: chuan hoa NFC (ban phim dien thoai co the go dau to hop), bo ky tu an, gop khoang trang.
+// Giong kiem tra o server (server/game.js).
+const cleanName = (t) => String(t ?? '').normalize('NFC').replace(/[\p{Cc}\p{Cf}]/gu, '').replace(/\s+/g, ' ').trim();
+function nameError(name) {
+  if ([...name].length < 2 || [...name].length > 16) return 'Tên cần 2–16 ký tự.';
+  const bad = [...name].filter((c) => !/[\p{L}\p{M}\p{N} _.-]/u.test(c));
+  if (bad.length) return `Tên không dùng được ký tự: ${[...new Set(bad)].join(' ')} — chỉ chữ, số, khoảng trắng, dấu . _ -`;
+  return null;
+}
 const WEATHER = { sunny: '🌤️ Trời đẹp', hot: '🔥 Nắng gắt', rain: '🌧️ Mưa ngập' };
 const ZONE_COLORS = { daihoc: '#5f9e54', phoam: '#d98a3a', cbd: '#4f8fc9', ngoaio: '#8a7458' };
 const CLASS_DESC = {
@@ -49,7 +58,7 @@ export class UI {
     this.market = new MarketView(net, this);
     this.gm = new GmPanel(net, this);
 
-    net.on('error', (m) => { $('login-err').textContent = m.msg; });
+    net.on('error', (m) => this.loginError(m.msg));
     net.on('self', (m) => this.setSelf(m.self));
     net.on('toast', (m) => this.toast(m.msg, m.kind));
     net.on('chat', (m) => this.addChat(m));
@@ -129,10 +138,20 @@ export class UI {
     this.refreshChoices();
     const play = () => {
       $('login-err').textContent = '';
-      this.net.send({ t: 'hello', name: $('in-name').value, cls: this.pick.cls, skin: this.pick.skin });
+      $('name-err').textContent = '';
+      const name = cleanName($('in-name').value);
+      const bad = nameError(name);
+      if (bad) return this.loginError(bad);
+      this.net.send({ t: 'hello', name, cls: this.pick.cls, skin: this.pick.skin });
     };
     $('btn-play').onclick = play;
     $('in-name').onkeydown = (e) => e.key === 'Enter' && play();
+  }
+
+  // Loi dang nhap: hien ngay duoi o ten va cuon toi (tren dien thoai dong loi cuoi khung bi khuat)
+  loginError(msg) {
+    $('name-err').textContent = msg;
+    $('in-name').scrollIntoView({ block: 'center', behavior: 'smooth' });
   }
 
   refreshChoices() {

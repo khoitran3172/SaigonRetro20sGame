@@ -26,7 +26,9 @@
       </div>
       <div id="create">
         <label>Tên nhân vật</label>
-        <input id="in-name" maxlength="16" placeholder="Ví dụ: Tèo Bán Mía" autocomplete="off">
+        <!-- maxlength rong hon 16: go dau to hop (Telex/VNI tren dien thoai) tam thoi dai hon; kiem tra sau khi chuan hoa -->
+        <input id="in-name" maxlength="32" placeholder="Ví dụ: Tèo Bán Mía" autocomplete="off" autocapitalize="words" enterkeyhint="go">
+        <div id="name-err" class="err"></div>
         <label>Tầng lớp</label>
         <div id="classes" class="choices"></div>
         <label>Ngoại hình</label>
