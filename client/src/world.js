@@ -20,6 +20,16 @@ export const RIDE_FIT = { scale: 0.75, dx: -0.05, dy: 0.32 };
 // Xe nguoi choi dang lai -> anh xe (dau xe quay PHAI)
 const VEHICLE_SPRITE = { xe_cub: 'veh_cub', xe_ga: 'veh_ga', xe_pkl: 'veh_pkl', xe_dap: 'veh_dap' };
 // Giao thong trang tri: [anh, trong so]. Chi con taxi + xe buyt (G32: bo xe may)
+// Nhip do pho (C5): module 420px; vach qua duong 1/khu dat giua 2 POI (C5)
+const STREET_MODULE = 420;
+const STREET_CLEAR = 70; // khong dat do pho trong +-70px quanh cua POI / vach qua duong
+const CROSSWALKS = [1060, 2315, 4880, 6600];
+const TRASH_EVERY = 3; // thung rac moi 3 module
+// Giao thong (C6)
+const TRAFFIC_DELAY = [6000, 12000];
+const TRAFFIC_MAX = 3;
+const TRAFFIC_LANE_GAP = 300;
+const TRAFFIC_BUS_RATE = 1 / 6;
 const TRAFFIC = [['veh_taxi', 2], ['veh_taxi2', 2], ['veh_bus', 1]];
 const SEND_HZ = 15;
 const INTERACT_RANGE = 120;
@@ -86,7 +96,8 @@ export class WorldScene extends Phaser.Scene {
     this.fitZoom();
     this.scale.on('resize', () => this.fitZoom());
     this.applyWorld(w.world, true);
-    this.time.addEvent({ delay: 1400, loop: true, callback: () => this.spawnTraffic() });
+    const nextTraffic = () => this.time.delayedCall(Phaser.Math.Between(TRAFFIC_DELAY[0], TRAFFIC_DELAY[1]), () => { this.spawnTraffic(); nextTraffic(); });
+    nextTraffic();
   }
 
   fitZoom() {
@@ -126,16 +137,15 @@ export class WorldScene extends Phaser.Scene {
     const g = this.add.graphics().setDepth(-1000);
     g.fillGradientStyle(0x86b5d9, 0x86b5d9, 0xc9dbe6, 0xc9dbe6, 1);
     g.fillRect(0, 0, W, WORLD.buildingBase);
+    // skyline xa: 1 lop nhat mau gan mau troi, thap, cuon cham (parallax) cho co chieu sau
+    const sky = this.add.graphics().setDepth(-999).setScrollFactor(0.6, 1);
     const rnd = new Phaser.Math.RandomDataGenerator(['skyline']);
-    for (const [color, minH, maxH] of [[0x8197ad, 140, 300], [0x6b8199, 80, 220]]) {
-      g.fillStyle(color, 1);
-      for (let x = 0; x < W;) {
-        const w = rnd.between(60, 160);
-        const cbd = x > 4100 && x < 5700;
-        const h = rnd.between(minH, maxH) + (cbd ? 140 : 0);
-        g.fillRect(x, WORLD.buildingBase - h, w, h);
-        x += w + rnd.between(0, 20);
-      }
+    sky.fillStyle(0x8fa9c0, 0.45);
+    for (let x = 0; x < W;) {
+      const w = rnd.between(60, 160);
+      const h = rnd.between(60, 170);
+      sky.fillRect(x, WORLD.buildingBase - h, w, h);
+      x += w + rnd.between(0, 20);
     }
     const tileFor = { daihoc: 'tile_grass', phoam: 'tile_plaza', cbd: 'tile_stone', ngoaio: 'tile_dirt' };
     this.add.tileSprite(0, 440, W, 140, 'tile_sidewalk').setOrigin(0).setDepth(-900);
@@ -153,7 +163,7 @@ export class WorldScene extends Phaser.Scene {
     r.fillRect(0, 766, W, 3);
     // vach qua duong
     r.fillStyle(0xf2f2f2, 0.9);
-    for (const cx of [700, 1650, 2720, 4190, 4900, 5650]) {
+    for (const cx of CROSSWALKS) {
       for (let y = 596; y < 764; y += 22) r.fillRect(cx - 40, y, 80, 12);
     }
   }
@@ -196,7 +206,7 @@ export class WorldScene extends Phaser.Scene {
       const key = `tube_${seed}`;
       return { key, w: genTubeHouse(this, key, seed * 7919).w };
     };
-    const CITY_END = 5590; // sau Nha Dau Gia: TTTM roi den Ngoai o (trong cay)
+    const CITY_END = 6060; // het Khu 2 (sau TTTM); tu day Ngoai o trong cay
     const gaps = [];
     let prev = 0;
     for (const [a, b] of [...used].sort((p, q) => p[0] - q[0])) {
@@ -245,9 +255,15 @@ export class WorldScene extends Phaser.Scene {
   }
 
   buildProps() {
-    // Cot dien xen den duong doc mep via he tren
-    for (let i = 0, x = 160; x < WORLD.width; x += 420, i++) {
-      if (i % 2 === 0) {
+    // Cot dien xen den doc mep via he tren: x = 210 + 420k; bo neu sat cua POI / vach qua duong
+    const doors = POIS.filter((p) => !p.hidden).map((p) => ({ x: p.x, top: p.y < 600 }));
+    const clearOf = (x, top) => !CROSSWALKS.some((c) => Math.abs(c - x) < STREET_CLEAR + 40)
+      && !doors.some((d) => d.top === top && Math.abs(d.x - x) < STREET_CLEAR);
+    for (let k = 0; ; k++) {
+      const x = STREET_MODULE / 2 + STREET_MODULE * k;
+      if (x >= WORLD.width) break;
+      if (!clearOf(x, true)) continue;
+      if (k % 2 === 0) {
         const pole = this.prop('power_pole_v2', x, 590);
         this.lampGlow(x - pole.width * 0.32, 590 - pole.height * 0.79);
       } else {
@@ -255,13 +271,14 @@ export class WorldScene extends Phaser.Scene {
         this.lampGlow(x + lamp.width * 0.3, 590 - lamp.height + 10);
       }
     }
-    // Tram xe buyt (G29: moi khu 1 tram) + diem don taxi — hien chi trang tri, chua co he thong buyt/taxi
-    // Cay via he duoi (tranh khu o quy hoach), thung rac, nap cong
-    for (let i = 0, x = 120; x < WORLD.width; x += 330, i++) {
-      if (x > 1780 && x < 3620) continue;
-      this.prop(i % 2 ? 'tree_me' : 'tree_bang', x, 818, { scale: 0.8 });
+    // Via he duoi: cay tai x = 420k (le nua nhip so voi hang tren), thung rac moi 3 module
+    for (let k = 1; STREET_MODULE * k < WORLD.width; k++) {
+      const x = STREET_MODULE * k;
+      if (!CROSSWALKS.some((c) => Math.abs(c - x) < STREET_CLEAR) && clearOf(x, false)) {
+        this.prop(k % 2 ? 'tree_me' : 'tree_bang', x, 818, { scale: 0.8 });
+      }
+      if (k % TRASH_EVERY === 1) this.prop('trash_bin', x + STREET_MODULE / 2, 830);
     }
-    for (const x of [980, 2380, 3700, 4760, 5560]) this.prop('trash_bin', x, 830);
     for (const x of [520, 1900, 3300, 4600, 6000]) this.prop('manhole', x, 700, { depth: -880 });
     // Khu 3: lang dai hoc
     this.prop('plant_pots', 1150, 472);
@@ -658,15 +675,22 @@ export class WorldScene extends Phaser.Scene {
 
   // Giao thong: thuan tuy trang tri phia client
   spawnTraffic() {
-    const cam = this.cameras.main;
-    const view = cam.worldView;
-    if (this.traffic.length > 8) return;
+    const view = this.cameras.main.worldView;
+    const inView = this.traffic.filter((t) => t.img.x > view.left - 100 && t.img.x < view.right + 100).length;
+    if (inView >= TRAFFIC_MAX) return;
     const left = Math.random() < 0.5;
     const y = left ? 660 : 750;
     const x = left ? view.right + 150 : view.left - 150;
-    const total = TRAFFIC.reduce((n, [, w]) => n + w, 0);
-    let r = Math.random() * total;
-    const key = TRAFFIC.find(([, w]) => (r -= w) < 0)[0];
+    // cung lan phai cach >= TRAFFIC_LANE_GAP
+    if (this.traffic.some((t) => (t.vx < 0) === left && Math.abs(t.img.x - x) < TRAFFIC_LANE_GAP)) return;
+    let key;
+    if (Math.random() < TRAFFIC_BUS_RATE) key = 'veh_bus';
+    else {
+      const cars = TRAFFIC.filter(([k]) => k !== 'veh_bus');
+      const total = cars.reduce((n, [, w]) => n + w, 0);
+      let r = Math.random() * total;
+      key = cars.find(([, w]) => (r -= w) < 0)[0];
+    }
     const img = this.add.image(x, y, key).setOrigin(0.5, 1).setDepth(y).setFlipX(left);
     const speed = (key === 'veh_bus' ? 110 : 150 + Math.random() * 120) * (this.weather === 'rain' ? 0.5 : 1);
     this.traffic.push({ img, vx: left ? -speed : speed });
