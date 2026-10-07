@@ -1,0 +1,64 @@
+/* May tinh (khong cam ung). Khong dung moc px de chuyen bo cuc:
+   - Co giao dien: --ui (0.55 .. 1) tinh lien tuc tu chieu rong/cao cua so (src/layout.js), ap bang zoom.
+   - Bo cuc: HUD tren / duoi nam trong 2 "dock" flex-wrap, tu xuong dong khi het cho -> khong the de nhau.
+   Cam ung co bo cuc rieng trong touch.css. */
+
+.chat-min { display: none; }
+body:not(.touch) :is(#card, #topbar, #chat, #actions, #hotbar, #toasts, #emotes, #dialog, .side, #phone) { zoom: var(--ui, 1); }
+
+/* ---- Dock tren / duoi ---- */
+body:not(.touch) :is(.dock-top, .dock-bottom) {
+  position: fixed; left: 1vmin; right: 1vmin; z-index: 10; display: flex; flex-wrap: wrap; gap: 1vmin; pointer-events: none;
+}
+body:not(.touch) .dock-top { top: 1vmin; align-items: flex-start; justify-content: space-between; }
+body:not(.touch) .dock-bottom { bottom: 1vmin; align-items: flex-start; justify-content: space-between; flex-wrap: wrap-reverse; /* wrap-reverse dao truc ngang: flex-start = sat day */ }
+body:not(.touch) :is(.dock-top, .dock-bottom) > * { position: relative !important; inset: auto !important; transform: none !important; margin: 0 !important; pointer-events: auto; max-width: calc(98vw / var(--ui, 1)); }
+body:not(.touch) .dock-top > #toasts { pointer-events: none; width: max-content; max-width: min(320px, calc(98vw / var(--ui, 1))); margin-left: auto; }
+body:not(.touch) #card { font-size: inherit; }
+body:not(.touch) #topbar { display: block; min-width: 0; }
+body:not(.touch) #minimap { display: flex; }
+body:not(.touch) #chat { width: 380px; order: 1; }
+body:not(.touch) #hotbar { width: 260px; height: 72px; order: 2; }
+body:not(.touch) #actions { order: 3; margin-left: auto; gap: 6px; }
+body:not(.touch) #actions button { flex: none; width: 52px; height: 52px; }
+body:not(.touch) #actions button img { width: 28px; height: 28px; }
+body:not(.touch) #actions button span:not(.badge) { display: none; }
+body:not(.touch):has(#led:not(.hidden)) .dock-top { top: calc(34px + 1vmin); }
+
+/* ---- Chat: thu gon duoc ---- */
+body:not(.touch) #chat .tabs { align-items: flex-end; }
+body:not(.touch) #chat-min { display: block; flex: none; width: 28px; padding: 3px 0; font-size: 11px; color: var(--muted); background: #2b241d; border: 1px solid var(--line); border-bottom: 0; border-radius: 6px 6px 0 0; }
+body:not(.touch) #chat-min:hover { color: var(--ink); border-color: var(--accent); }
+body:not(.touch) #chat-log { height: clamp(90px, calc(24vh / var(--ui, 1)), 190px); }
+body:not(.touch) #chat.min #chat-log { display: none; }
+body:not(.touch) #chat.min .tabs button:not(.chat-min) { display: none; }
+body:not(.touch) #chat.min { width: 300px; }
+body:not(.touch) #chat.min .tabs { justify-content: flex-end; padding-bottom: 0; }
+
+/* ---- The nhan vat gon (hud-compact = giao dien dang bi thu nho): ten, 3 thanh, tien mat; bam de xem day du ---- */
+body.hud-compact:not(.touch) #card { width: 220px; cursor: pointer; }
+body.hud-compact:not(.touch) #card :is(#h-class, #m-extra, .bar.cls, .title) { display: none; }
+body.hud-compact:not(.touch) #card .money > div:nth-child(n+2) { display: none; }
+body.hud-compact.card-open:not(.touch) #card :is(#h-class, #m-extra) { display: block; }
+body.hud-compact.card-open:not(.touch) #card .bar.cls { display: grid; }
+body.hud-compact.card-open:not(.touch) #card .title { display: inline; }
+body.hud-compact.card-open:not(.touch) #card .money > div:nth-child(n+2) { display: block; }
+/* Panel lon dang mo thi tam an dong ho de khong de nhau */
+body.hud-compact:not(.touch):has(.side:not(.hidden)) #topbar { visibility: hidden; }
+
+/* ---- Panel lon (tui do, trang bi, hop thoai, huong dan): giu kich thuoc rieng, dinh ben phai ---- */
+body:not(.touch) :is(.side, #dialog) { left: auto; right: 10px; max-width: calc((100vw - 20px) / var(--ui, 1)); }
+body:not(.touch) #inv { width: 400px; }
+body:not(.touch) #equip { width: 480px; }
+body:not(.touch) #dialog { width: 430px; }
+body:not(.touch) .side:not(#inv):not(#equip) { width: 360px; }
+body:not(.touch) #inv-grid { grid-template-columns: repeat(6, 54px); }
+body:not(.touch) #equip-wrap { grid-template-columns: 250px 1fr; justify-items: stretch; }
+
+/* ---- Khung mini-game / phong / cho / TTTM / nau an: vua chieu cao cua so ---- */
+body:not(.touch) :is(#job-box, #room-box, #market-box, #mall-box, #cook-box) {
+  width: min(980px, 96vw, calc((100vh - 150px) * 1.79)); max-height: 98vh;
+}
+
+/* ---- Dang nhap khi cua so thap (giao dien dang thu nho): can giua de khoi bi cat ---- */
+body.hud-compact:not(.touch) #login { place-items: center; padding-bottom: 2vh; }

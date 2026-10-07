@@ -87,7 +87,7 @@ export class JobGame {
     $('job-quit').textContent = 'Nghỉ ca';
     const stage = $('job-stage');
     stage.textContent = '';
-    stage.onmousemove = null;
+    stage.onpointermove = null;
     stage.onclick = null;
     this[`start_${m.job}`](stage, m);
     this.score();
@@ -431,7 +431,7 @@ export class JobGame {
     const carryImg = el('img', 'carry');
     carryImg.style.display = 'none';
     stage.append(carryImg);
-    stage.onmousemove = (e) => {
+    stage.onpointermove = (e) => {
       const r = stage.getBoundingClientRect();
       carryImg.style.left = `${e.clientX - r.left}px`;
       carryImg.style.top = `${e.clientY - r.top}px`;
@@ -447,7 +447,7 @@ export class JobGame {
         carry = i;
         carryImg.src = img.src;
         carryImg.style.display = '';
-        stage.onmousemove(e);
+        stage.onpointermove(e);
       };
       stage.append(img);
     });

@@ -1,0 +1,86 @@
+/* Cam ung: nut huong, nut noi chuyen, nut chat (chi hien khi body.touch) */
+.touch-only { display: none !important; }
+body.touch .touch-only { display: flex !important; }
+#touch { display: none; }
+body.touch #touch { display: block; }
+
+#dpad {
+  position: fixed; z-index: 12;
+  left: max(14px, env(safe-area-inset-left)); bottom: max(86px, calc(env(safe-area-inset-bottom) + 76px));
+  display: grid; grid-template: repeat(3, 56px) / repeat(3, 56px); gap: 4px;
+}
+#dpad button {
+  width: 56px; height: 56px; padding: 0; border-radius: 14px; font-size: 22px; line-height: 1;
+  color: #fff6dc; background: rgba(40, 30, 22, 0.62); border: 2px solid rgba(255, 246, 220, 0.45);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.35);
+  touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+}
+#dpad button.on { background: rgba(255, 211, 77, 0.7); color: #2a1a0c; transform: translateY(2px); box-shadow: none; }
+#dpad [data-d="up"] { grid-area: 1 / 2; }
+#dpad [data-d="left"] { grid-area: 2 / 1; }
+#dpad [data-d="right"] { grid-area: 2 / 3; }
+#dpad [data-d="down"] { grid-area: 3 / 2; }
+
+#btn-talk {
+  position: fixed; z-index: 12;
+  right: max(12px, env(safe-area-inset-right)); bottom: max(150px, calc(env(safe-area-inset-bottom) + 140px));
+  min-height: 56px; max-width: 60vw; padding: 8px 18px; border-radius: 28px;
+  font-size: 16px; font-weight: 800; color: #2a1a0c; background: #ffd34d; border: 3px solid #7a2e14;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.4); animation: talkpulse 1.2s ease-in-out infinite;
+  touch-action: manipulation; user-select: none; -webkit-user-select: none;
+}
+#btn-talk.hidden { display: none; }
+#btn-talk:active { transform: translateY(2px); box-shadow: none; }
+@keyframes talkpulse { 50% { transform: scale(1.06); } }
+
+/* Man hinh ngang thap: thu nho nut huong */
+@media (max-height: 480px) {
+  #dpad { grid-template: repeat(3, 46px) / repeat(3, 46px); bottom: max(72px, calc(env(safe-area-inset-bottom) + 62px)); }
+  #dpad button { width: 46px; height: 46px; font-size: 18px; }
+  #btn-talk { bottom: max(118px, calc(env(safe-area-inset-bottom) + 108px)); }
+}
+
+/* ---- Bo cuc cam ung: chi giu the trang thai nho + nut huong + nut menu; moi thu khac an sau nut ☰ ---- */
+:root { --edge: max(8px, env(safe-area-inset-bottom)); }
+
+/* The trang thai: gon (ten, 3 thanh nhu cau, tien mat). Cham vao de mo rong. */
+body.touch #card { transform: scale(0.8); transform-origin: top left; top: calc(max(4px, env(safe-area-inset-top)) + 36px); left: 4px; }
+body.touch #card #h-class, body.touch #card #m-extra, body.touch #card .bar.cls, body.touch #card .title { display: none; }
+body.touch #card .money > div:nth-child(n+2) { display: none; }
+body.touch #card .bar.need > span { display: none; }
+body.touch.card-open #card .money > div:nth-child(n+2), body.touch.card-open #card .title { display: block; }
+body.touch.card-open #card #h-class, body.touch.card-open #card #m-extra { display: block; }
+
+/* Nut menu ☰ */
+#btn-menu {
+  position: fixed; z-index: 13; width: 56px; height: 56px; padding: 0; border-radius: 16px;
+  right: max(10px, env(safe-area-inset-right)); bottom: var(--edge);
+  font-size: 26px; line-height: 1; color: #fff6dc; background: rgba(40, 30, 22, 0.8); border: 2px solid rgba(255, 246, 220, 0.5);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.4); touch-action: manipulation;
+}
+body.menu-open #btn-menu { background: #ffd34d; color: #2a1a0c; }
+
+/* Cac nut chuc nang + thanh nhanh: an, chi hien khi mo menu, noi tren nut ☰ */
+body.touch #actions { display: none; }
+body.touch.menu-open #actions {
+  display: grid; grid-template-columns: repeat(2, 72px); gap: 6px; padding: 8px; z-index: 14;
+  left: auto; right: max(10px, env(safe-area-inset-right)); bottom: calc(var(--edge) + 66px);
+  background: rgba(30, 22, 16, 0.92); border: 2px solid rgba(255, 246, 220, 0.4); border-radius: 14px;
+}
+body.touch #actions button { width: 72px; height: 58px; min-height: 58px; padding: 2px; flex-direction: column; }
+body.touch #actions button img { width: 28px; height: 28px; }
+body.touch #actions button span:not(.badge) { display: block; font-size: 10px; }
+body.touch #hotbar { display: none; }
+body.touch.menu-open #hotbar {
+  display: block; z-index: 14; left: auto; transform: none; right: max(10px, env(safe-area-inset-right));
+  bottom: calc(var(--edge) + 66px + 5 * 64px + 28px); width: 226px; height: 62px;
+}
+
+/* Nut huong va nut noi chuyen */
+body.touch #dpad { bottom: var(--edge); }
+body.touch #btn-talk { bottom: calc(var(--edge) + 66px); }
+body.touch #toasts { top: calc(max(4px, env(safe-area-inset-top)) + 36px); right: 8px; left: auto; transform: none; width: min(240px, 55vw); }
+
+/* Chat: nut dong rieng (khung chat phu len nut ☰ khi mo) */
+#chat-x { display: none; }
+body.touch #chat-x { display: block; flex: none; width: 44px; padding: 0; font-size: 18px; color: #fff6dc; background: #7a2e14; border: 2px solid rgba(255, 246, 220, 0.5); border-radius: 8px; }

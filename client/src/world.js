@@ -1,5 +1,6 @@
 // Scene the gioi: ban do 4 khu, nhan vat, NPC, sap hang, giao thong, ngay/dem, thoi tiet.
 import { BUILDINGS, CHAT, FLYER, POIS, WORLD, ZONES, walkerPos } from '/shared/config.js';
+import { TouchControls, isTouchDevice } from './touch.js';
 import { genBuilding, genGround, genMisc, genTubeHouse } from './textures.js';
 
 const FONT = '"Be Vietnam Pro", system-ui, sans-serif';
@@ -337,7 +338,7 @@ export class WorldScene extends Phaser.Scene {
       poi.label = label;
 
       const zone = this.add.zone(poi.x, poi.y - 50, 140, 130).setInteractive({ useHandCursor: true }).setDepth(poi.y);
-      zone.on('pointerdown', () => this.goInteract(poi.x, poi.y + 24, () => this.net.send({ t: 'poi', id: poi.id })));
+      zone.on('pointerdown', () => this.tapInteract(poi.x, poi.y + 24, () => this.net.send({ t: 'poi', id: poi.id })));
       zone.on('pointerover', () => label.setColor('#ffd34d'));
       zone.on('pointerout', () => label.setColor('#fff6dc'));
     }
@@ -387,24 +388,49 @@ export class WorldScene extends Phaser.Scene {
   // ================================================================ input
   setupInput() {
     this.keys = this.input.keyboard.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E', false);
+    if (isTouchDevice()) this.touch = new TouchControls();
     this.input.on('pointerdown', (pointer, objs) => {
+      // Cham vao khung game thi dong ban phim ao (canvas khong tu lam mat focus o nhap)
+      if (this.ui.typing) document.activeElement.blur();
       if (objs.length) return;
       this.pending = null;
       this.moveTarget = { x: pointer.worldX, y: pointer.worldY };
     });
     this.input.keyboard.on('keydown-E', () => {
       if (this.ui.typing || this.ui.locked) return;
-      // Dang phat to roi: E = phat cho nguoi gan nhat
-      const w = this.nearestWalker();
-      if (w) return this.jobWalkers.onGive(w.w.i);
-      let best = null;
-      for (const poi of POIS) {
-        if (poi.hidden) continue;
-        const d = Phaser.Math.Distance.Between(poi.x, poi.y, this.me.x, this.me.y);
-        if (d < 160 && (!best || d < best.d)) best = { poi, d };
-      }
-      if (best) this.net.send({ t: 'poi', id: best.poi.id });
+      this.nearestInteract()?.fn();
     });
+  }
+
+  // Doi tuong tuong tac gan nhat (E tren may tinh, nut "Noi chuyen" tren cam ung)
+  nearestInteract() {
+    const me = this.me;
+    if (!me) return null;
+    const w = this.nearestWalker(); // dang phat to roi: uu tien phat cho nguoi gan nhat
+    if (w) return { d: 0, label: '📄 Phát tờ rơi', fn: () => this.jobWalkers.onGive(w.w.i) };
+    let best = null;
+    const consider = (d, label, fn) => {
+      if (!best || d < best.d) best = { d, label, fn };
+    };
+    for (const poi of POIS) {
+      if (poi.hidden) continue;
+      const d = Phaser.Math.Distance.Between(poi.x, poi.y, me.x, me.y);
+      if (d < 160) consider(d, `${POI_ICON[poi.kind] || '💬'} ${poi.name}`, () => this.net.send({ t: 'poi', id: poi.id }));
+    }
+    for (const [id, o] of this.npcObjs) {
+      const range = o.k === 'scrap' ? 90 : o.k === 'thief' ? 140 : 0;
+      if (!range) continue;
+      const d = Phaser.Math.Distance.Between(o.x, o.y, me.x, me.y);
+      if (d < range) consider(d, o.k === 'scrap' ? '♻️ Nhặt ve chai' : '🦹 Đuổi trộm', () => this.net.send({ t: 'poi', id: `${o.k}:${id}` }));
+    }
+    return best;
+  }
+
+  // Cham vao NPC / cua hang: may tinh -> di toi roi tu mo; cam ung -> chi di toi, den gan thi hien nut "Noi chuyen"
+  tapInteract(x, y, fn, range = INTERACT_RANGE, track = null) {
+    if (!this.touch) return this.goInteract(x, y, fn, range, track);
+    this.pending = null;
+    this.moveTarget = { x, y };
   }
 
   // App Ban do tren dien thoai: tu di toi dia diem roi mo hop thoai
@@ -433,7 +459,7 @@ export class WorldScene extends Phaser.Scene {
       const o = { w, sprite, shadow, label, skin: w.sk, x: w.x0, y: w.y, anim: '', got: false };
       sprite.on('pointerdown', () => {
         if (o.got) return;
-        this.goInteract(o.x, o.y, () => onGive(w.i), 90, () => (o.got ? null : { x: o.x, y: o.y }));
+        this.tapInteract(o.x, o.y, () => onGive(w.i), 90, () => (o.got ? null : { x: o.x, y: o.y }));
       });
       return o;
     });
@@ -605,10 +631,10 @@ export class WorldScene extends Phaser.Scene {
     if (n.k === 'scrap') {
       this.tweens.add({ targets: sprite, alpha: 0.55, duration: 500, yoyo: true, repeat: -1 });
       sprite.setInteractive({ useHandCursor: true }).on('pointerdown', () =>
-        this.goInteract(n.x, n.y + 4, () => this.net.send({ t: 'poi', id: `scrap:${n.id}` }), 60));
+        this.tapInteract(n.x, n.y + 4, () => this.net.send({ t: 'poi', id: `scrap:${n.id}` }), 60));
     } else if (n.k === 'thief') {
       sprite.setInteractive({ useHandCursor: true }).on('pointerdown', () =>
-        this.goInteract(o.x, o.y, () => this.net.send({ t: 'poi', id: `thief:${n.id}` }), 140));
+        this.tapInteract(o.x, o.y, () => this.net.send({ t: 'poi', id: `thief:${n.id}` }), 140));
     }
     this.npcObjs.set(n.id, o);
     return o;
@@ -809,6 +835,18 @@ export class WorldScene extends Phaser.Scene {
       if (k.D.isDown || k.RIGHT.isDown) vx += 1;
       if (k.W.isDown || k.UP.isDown) vy -= 1;
       if (k.S.isDown || k.DOWN.isDown) vy += 1;
+    }
+    if (this.touch) {
+      // Nut huong cam ung khong bi chan boi o nhap (iOS giu focus o <select> sau khi chon)
+      if (!this.ui.locked) {
+        vx += this.touch.dir.x;
+        vy += this.touch.dir.y;
+      }
+      if (time - (this.lastTalkCheck || 0) > 150) {
+        this.lastTalkCheck = time;
+        const dialogOpen = !document.getElementById('dialog').classList.contains('hidden');
+        this.touch.setInteract(this.ui.locked || dialogOpen ? null : this.nearestInteract());
+      }
     }
     if (vx || vy) {
       this.moveTarget = null;

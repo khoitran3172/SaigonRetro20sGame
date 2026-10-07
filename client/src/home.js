@@ -139,9 +139,16 @@ export class HomeView {
         img.dataset.x = x;
         img.dataset.y = y;
       };
+      img.onpointercancel = () => {
+        img.onpointermove = null;
+        img.onpointerup = null;
+        img.onpointercancel = null;
+        this.render();
+      };
       img.onpointerup = () => {
         img.onpointermove = null;
         img.onpointerup = null;
+        img.onpointercancel = null;
         if (moved) this.send('move', { i, x: Number(img.dataset.x), y: Number(img.dataset.y), f: pl.f });
         else {
           this.sel = this.sel === i ? null : i;

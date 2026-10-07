@@ -196,10 +196,10 @@ export class UI {
     for (const b of document.querySelectorAll('#actions button')) {
       b.onclick = () => this.action(b.dataset.act);
     }
-    for (const b of document.querySelectorAll('#chat .tabs button')) {
+    for (const b of document.querySelectorAll('#chat .tabs button[data-tab]')) {
       b.onclick = () => {
         this.chatTab = b.dataset.tab;
-        for (const o of document.querySelectorAll('#chat .tabs button')) o.classList.toggle('on', o === b);
+        for (const o of document.querySelectorAll('#chat .tabs button[data-tab]')) o.classList.toggle('on', o === b);
         for (const line of $('chat-log').children) this.filterLine(line);
       };
     }
@@ -263,6 +263,12 @@ export class UI {
       if (this.toggle('equip')) this.renderEquip();
     } else if (a === 'help') this.toggle('help');
     else if (a === 'emote') this.toggle('emotes');
+    else if (a === 'chat') {
+      // Phai focus ngay trong su kien cham thi iOS moi bat ban phim ao
+      const open = document.body.classList.toggle('chat-open');
+      if (open) $('chat-in').focus();
+      else document.activeElement?.blur();
+    }
     else if (a === 'phone') this.togglePhone();
     else if (a === 'quests') {
       if (!this.self.equip.phone) return this.toggleQuestsDialog();
@@ -527,6 +533,8 @@ export class UI {
       if (equipped.has(it.uid)) cell.append(el('span', 'on', '✅'));
       if (def.type === 'equip') cell.append(this.durBar(it));
       cell.onclick = () => {
+        // Cam ung khong co bam dup (o bi ve lai sau lan cham dau): cham lan 2 vao o dang chon = dung/mac
+        if (document.body.classList.contains('touch') && this.invSel === it.uid) return this.useOrEquip(it);
         this.invSel = it.uid;
         this.renderInv();
       };
@@ -689,13 +697,30 @@ export class UI {
         hs.append(this.icon(id, ITEMS[id].icon, 34));
         hs.append(el('span', 'q', n));
         if (!n) hs.classList.add('out');
-        hs.title = `${ITEMS[id].name} (phím ${i + 1}) — chuột phải để gỡ`;
-        hs.oncontextmenu = (e) => {
-          e.preventDefault();
+        hs.title = `${ITEMS[id].name} (phím ${i + 1}) — chuột phải / nhấn giữ để gỡ`;
+        const unset = () => {
           this.hotbar[i] = null;
           this.saveHotbar();
           this.renderHotbar();
         };
+        hs.oncontextmenu = (e) => {
+          e.preventDefault();
+          unset();
+        };
+        // Cam ung: nhan giu 600ms de go khoi thanh nhanh
+        let hold = null;
+        hs.addEventListener('pointerdown', (e) => {
+          if (e.pointerType === 'mouse') return;
+          hold = setTimeout(() => {
+            hold = 'done';
+            unset();
+          }, 600);
+        });
+        for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) {
+          hs.addEventListener(ev, () => {
+            if (hold && hold !== 'done') clearTimeout(hold);
+          });
+        }
       }
       hs.onclick = () => this.useHotbar(i);
       bar.append(hs);

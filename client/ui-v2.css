@@ -471,9 +471,124 @@
   #hotbar { bottom: 78px; left: auto; right: 10px; transform: none; }
 }
 @media (max-width: 900px) {
-  #hotbar { bottom: 240px; width: 220px; height: 61px; }
-  #phone { right: 10px; bottom: 80px; }
-  #equip, #inv { width: auto; }
-  #equip-wrap { grid-template-columns: 1fr; justify-items: center; }
-  #inv-grid { grid-template-columns: repeat(5, 52px); }
+  body.touch #hotbar { bottom: 240px; width: 220px; height: 61px; }
+  body.touch #phone { right: 10px; bottom: 80px; }
+  body.touch #equip, body.touch #inv { width: auto; }
+  body.touch #equip-wrap { grid-template-columns: 1fr; justify-items: center; }
+  body.touch #inv-grid { grid-template-columns: repeat(5, 52px); }
+}
+
+/* =====================================================================
+   Gia co cho mobile / iOS Safari
+   ===================================================================== */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { -webkit-tap-highlight-color: transparent; touch-action: manipulation; -webkit-text-size-adjust: 100%; }
+/* Vung game/HUD: khong chon chu, khong menu giu-lau; input + chat-log van chon/go duoc */
+#game, #card, #topbar, #actions, #hotbar, #toasts, #led, #minimap, #emotes, #jobhud, .cell, .hs, .ds, .hot, .dish {
+  -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+}
+input, textarea, #chat-log, #chat-log * { -webkit-user-select: text; user-select: text; -webkit-touch-callout: default; }
+/* Vung keo tha: tranh trinh duyet cuon/zoom khi keo */
+#room-stage.edit, #room-stage img.furn, #job-stage, #market-stage.hall, #mall-stage.lobby, #cook-stage.stove, .bowl, .heat { touch-action: none; }
+#room-tray, .side, #dialog, #phone-body, #market-stage.buy, #market-stage.mine, #mall-stage.shop, #cook-stage.book, .mk-pop .mk-grid {
+  -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+}
+.side, #dialog, #job-box, #room-box, #market-box, #mall-box, #cook-box, #phone-body {
+  overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+}
+
+/* Safe-area (tai tho / thanh Home iOS) */
+#card { top: max(6px, env(safe-area-inset-top)); left: max(6px, env(safe-area-inset-left)); }
+#topbar { top: max(4px, env(safe-area-inset-top)); }
+#toasts { top: max(10px, env(safe-area-inset-top)); right: max(10px, env(safe-area-inset-right)); }
+#led { padding-top: env(safe-area-inset-top); height: calc(34px + env(safe-area-inset-top)); }
+#led-track { top: calc(5px + env(safe-area-inset-top)); }
+#chat { left: max(10px, env(safe-area-inset-left)); bottom: max(10px, env(safe-area-inset-bottom)); }
+#actions { right: max(10px, env(safe-area-inset-right)); bottom: max(10px, env(safe-area-inset-bottom)); }
+#emotes { right: max(10px, env(safe-area-inset-right)); bottom: calc(80px + env(safe-area-inset-bottom)); }
+#hotbar { bottom: max(10px, env(safe-area-inset-bottom)); }
+#phone { right: max(18px, env(safe-area-inset-right)); bottom: calc(84px + env(safe-area-inset-bottom)); }
+#dialog { right: max(10px, env(safe-area-inset-right)); }
+.side { right: max(10px, env(safe-area-inset-right)); }
+
+/* Chieu cao theo dvh (fallback vh) de thanh dia chi Safari khong che */
+#dialog { max-height: 70vh; max-height: 70dvh; }
+.side { max-height: calc(100vh - 170px); max-height: calc(100dvh - 170px); }
+#job-box, #room-box, #market-box, #mall-box, #cook-box { max-height: 96vh; max-height: 96dvh; }
+#phone { height: min(560px, calc(100vh - 100px)); height: min(560px, calc(100dvh - 100px)); }
+#market-stage.buy, #market-stage.mine { max-height: 64vh; max-height: 64dvh; }
+#mall-stage.shop { max-height: 66vh; max-height: 66dvh; }
+#cook-stage.book { max-height: 62vh; max-height: 62dvh; }
+
+/* Man cam ung */
+@media (pointer: coarse) {
+  input, select, textarea, #chat-ch, #chat-in, .opt input, .opt select, .login-card input, #inv-detail input,
+  .mk-search input, .mk-card .buy input, .mall-card .buy input, .mk-row input, .gm-row input, .item .btns input {
+    font-size: 16px !important;
+  }
+  .btn, .btn.small, .opt button, #inv-detail button, #inv-detail .btn, .item .btns button, .phone-app .opt button,
+  button.primary, button.link, .map-poi, .tray-item, .app, #chat .tabs button, .quiz-card, .it-pad button {
+    min-height: 44px;
+  }
+  .btn.small, #inv-detail button, .phone-app .opt button { min-height: 44px; font-size: 13px; }
+  .x { width: 44px; height: 44px; top: -12px; right: -10px; background-size: 28px 28px; }
+  #phone .x { top: -14px; right: -16px; }
+  #actions button { width: 64px; height: 56px; min-height: 44px; }
+  #inv-tabs button { width: 48px; height: 48px; }
+  #hotbar .hs { min-width: 44px; }
+  #room-menu .btn { min-height: 44px; }
+  .choice { min-height: 44px; padding: 12px 9px; }
+  .hot:hover, .dish:hover, .bowl:hover, .quiz-card:hover:not(:disabled) { box-shadow: none; }
+  /* Chat mac dinh an tren cam ung; hien khi body.chat-open, nam tren cung */
+  #chat { display: none; }
+  body.chat-open #chat {
+    display: flex; z-index: 60; width: calc(100vw - 20px); left: 10px; right: 10px;
+    bottom: calc(var(--kb, 0px) + 10px);
+  }
+  body.chat-open #chat-log { height: min(120px, 25vh); }
+  #chat-ch { width: 110px; }
+}
+
+/* Man hep (dien thoai doc) */
+@media (max-width: 600px) {
+  body.touch #card { width: 188px; font-size: 10px; }
+  body.touch #card .bar { grid-template-columns: 56px 1fr 30px; font-size: 10px; }
+  body.touch #card .bar.need { grid-template-columns: 18px 1fr 26px; }
+  body.touch #card .bar.need > :nth-child(2) { display: none; }
+  body.touch #card .bar.need img { width: 18px; height: 18px; }
+  body.touch #card .title, body.touch #card .bar.cls, body.touch #card .bar.stress { display: none; }
+  body.touch #card .money { margin-top: 4px; font-size: 11px; }
+  body.touch #toasts { width: min(260px, calc(100vw - 210px)); }
+  body.touch #hotbar { width: 200px; height: 56px; bottom: calc(176px + env(safe-area-inset-bottom)); left: 50%; right: auto; transform: translateX(-50%); }
+  body.touch #actions { left: auto; right: max(8px, env(safe-area-inset-right)); justify-content: flex-end; flex-wrap: wrap; max-width: 150px; }
+  body.touch #actions button { flex: 0 0 auto; width: 56px; }
+  body.touch #dialog, body.touch .side { left: 8px; right: 8px; width: auto; top: 56px; transform: none; max-height: calc(100vh - 150px); max-height: calc(100dvh - 150px); }
+  body.touch #dlg-portrait { width: 56px; height: 56px; }
+  body.touch #inv-grid { grid-template-columns: repeat(5, 48px); }
+  body.touch .cell { width: 48px; height: 48px; }
+  body.touch #phone { right: 50%; transform: translateX(50%); bottom: calc(20px + env(safe-area-inset-bottom)); height: min(520px, calc(100dvh - 40px)); }
+  body.touch #job-box, body.touch #room-box, body.touch #market-box, body.touch #mall-box, body.touch #cook-box { width: 100vw; border-width: 14px; border-image-width: 14px; }
+  body.touch .mk-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  body.touch #market-stage.mine { grid-template-columns: 1fr; }
+  body.touch .mall-row.wrap .mall-card { flex: 0 0 calc(50% - 6px); }
+  body.touch .quiz-q { font-size: 16px; }
+  body.touch .quiz-card { font-size: 13px; }
+  body.touch #cook-stage.book { grid-template-columns: 1fr; }
+}
+
+/* Ngang tren dien thoai (chieu cao thap) */
+@media (max-height: 500px) and (orientation: landscape) {
+  body.touch #card { width: 180px; font-size: 10px; }
+  body.touch #card .title, body.touch #card .bar.cls, body.touch #card .bar.stress, body.touch #card .money span:nth-child(n+3) { display: none; }
+  body.touch #card .bar.need > :nth-child(2) { display: none; }
+  body.touch #card .bar.need { grid-template-columns: 18px 1fr 26px; }
+  body.touch #card .bar.need img { width: 18px; height: 18px; }
+  body.touch #topbar { display: none; }
+  body.touch #minimap { display: none; }
+  body.touch #toasts { width: 240px; top: calc(36px + env(safe-area-inset-top)); }
+  body.touch #hotbar { width: 180px; height: 50px; bottom: max(6px, env(safe-area-inset-bottom)); left: 50%; right: auto; transform: translateX(-50%); }
+  body.touch #dialog, body.touch .side { top: 8px; transform: none; left: auto; right: max(8px, env(safe-area-inset-right)); width: min(420px, 58vw); max-height: calc(100vh - 16px); max-height: calc(100dvh - 16px); }
+  body.touch #phone { height: calc(100dvh - 16px); bottom: 8px; right: max(8px, env(safe-area-inset-right)); transform: none; }
+  body.touch #job-box, body.touch #room-box, body.touch #market-box, body.touch #mall-box, body.touch #cook-box { width: min(980px, 96vw, calc((100dvh - 120px) * 1.79)); }
+  body.touch #inv { width: 340px; }
 }

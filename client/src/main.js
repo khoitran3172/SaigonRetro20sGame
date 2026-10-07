@@ -1,6 +1,12 @@
 import { Net } from './net.js';
 import { UI } from './ui.js';
 import { WorldScene } from './world.js';
+import { isTouchDevice } from './touch.js';
+import { setupDesktopLayout } from './layout.js';
+
+// Gan som de bo cuc cam ung ap dung ngay ca khi dang tai game
+if (isTouchDevice()) document.body.classList.add('touch');
+else setupDesktopLayout();
 
 const load = (n) => fetch(`assets/${n}.json`).then((r) => r.json());
 const [chars, props, anims, icons] = await Promise.all([load('chars'), load('props'), load('anim'), load('icons')]);

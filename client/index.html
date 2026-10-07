@@ -2,12 +2,16 @@
 <html lang="vi">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-visual">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>Hàng Rong — Phố Thị Online</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="ui-v2.css">
+  <link rel="stylesheet" href="touch.css">
+  <link rel="stylesheet" href="desktop.css">
 </head>
 <body>
   <div id="game"></div>
@@ -72,6 +76,7 @@
         <button data-tab="near">Gần</button>
         <button data-tab="global">Thế giới</button>
         <button data-tab="news">Tin tức</button>
+        <button type="button" id="chat-min" class="chat-min" aria-label="Thu gọn chat">▼</button>
       </div>
       <div id="chat-log"></div>
       <form id="chat-form">
@@ -81,6 +86,7 @@
           <option value="led">🌈 Loa LED (−10💎)</option>
         </select>
         <input id="chat-in" maxlength="120" placeholder="Nhấn Enter để chat..." autocomplete="off">
+        <button type="button" id="chat-x" aria-label="Đóng chat">✕</button>
       </form>
     </div>
 
@@ -91,10 +97,23 @@
       <button data-act="quests" title="Nhiệm vụ hôm nay (Q)"><img src="assets/ui/hud_quest.png" alt=""><span>Nhiệm vụ</span><b id="q-badge" class="badge hidden"></b></button>
       <button data-act="stall" title="Xem Chợ Sạp Hàng Hóa (B)">🧺<span>Chợ</span></button>
       <button data-act="gm" id="btn-gm" class="hidden" title="Công cụ GM — chỉ khi chạy ở máy">🛠️<span>GM</span></button>
+      <button data-act="chat" class="touch-only" title="Trò chuyện">💬<span>Chat</span></button>
       <button data-act="emote" title="Biểu cảm">😀<span>Biểu cảm</span></button>
       <button data-act="help" title="Hướng dẫn (H)">❓<span>Hướng dẫn</span></button>
     </div>
     <div id="emotes" class="panel hidden"></div>
+
+    <!-- Cam ung: nut huong + nut tuong tac (chi hien tren dien thoai / may tinh bang) -->
+    <div id="touch">
+      <div id="dpad">
+        <button data-d="up" aria-label="Lên">▲</button>
+        <button data-d="left" aria-label="Trái">◀</button>
+        <button data-d="right" aria-label="Phải">▶</button>
+        <button data-d="down" aria-label="Xuống">▼</button>
+      </div>
+      <button id="btn-talk" class="hidden"></button>
+      <button id="btn-menu" aria-label="Menu">☰</button>
+    </div>
 
     <div id="dialog" class="panel hidden">
       <button class="x" data-close aria-label="Đóng"></button>
